@@ -526,17 +526,13 @@ html {
   display: none;
   flex-direction: column;
   position: fixed;
-  top: 53px;
-  /* CHANGE HERE: Remove bottom: 0; and use height with the dynamic viewport unit */
-  height: calc(100dvh - 53px); 
+  top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   background-color: #000000;
-  z-index: 250;
-  box-sizing: border-box;
+  z-index: 400;
   overflow: hidden;
-  /* WILL-CHANGE CAN CAUSE IOS REPAINT FLASHES: REMOVE IT */
-  /* will-change: transform; */ 
 }
 #userPostsPage {
   display: none;
@@ -575,15 +571,11 @@ html {
   justify-content: space-between;
   gap: 15px;
   padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
   border-bottom: 1px solid #2f3336;
   background: #000000;
-  /* Fixed to the visual viewport — stays locked at the top even when
-     iOS/Android shifts the viewport upward on keyboard open. */
-  position: fixed;
-  top: 53px;
-  left: 0;
-  right: 0;
-  z-index: 299;
+  flex-shrink: 0;
+  /* NOT fixed — scrolls with the screen on iOS so keyboard push works */
 }
 .back-btn {
   font-size: 22px;
@@ -635,10 +627,7 @@ html {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  /* padding-top clears the fixed .chat-top (~62px tall);
-     padding-bottom clears the fixed .input-container (~70px tall). */
-  padding: 12px 16px 76px;
-  padding-top: 66px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -788,15 +777,13 @@ body.light-mode .msg-time { color: #6b7280; }
 body.light-mode .msg-seen { color: #6b7280; }
 body.light-mode .chat-sending-indicator { background: rgba(0,0,0,0.07); color: #111827; }
 body.light-mode .chat-day-divider { color: #4b5563; }
-/* CHANGE 7: light mode input container transparent/modern */
 body.light-mode .input-container {
-  background: transparent;
-  border: none;
+  background: #ffffff;
+  border-top-color: #e5e7eb;
 }
 body.light-mode .input-area {
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  background: #f3f4f6;
+  border-color: rgba(0,0,0,0.12);
 }
 body.light-mode .preview-area { border-bottom-color: #e5e7eb; }
 body.light-mode #messageInput { color: #111827 !important; }
@@ -924,25 +911,18 @@ body.light-mode .vn-rec-timer { color: #111827; }
   margin-left: auto;
 }
 .input-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 300;
-  background-color: #15181c;
-  border: 1.5px solid #2f3336;
-  border-bottom: none;
-  border-radius: 18px 18px 0 0;
-  margin: 0;
-  padding: 0 12px 10px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  /* Natural flex child — NOT position:fixed. Sits at bottom of chat-screen flex column.
+     When iOS keyboard opens, chat-screen height is shrunk by JS to match visualViewport,
+     so the input stays right above the keyboard. */
+  position: relative;
+  background-color: #000;
+  border-top: 1px solid #2f3336;
+  padding: 6px 10px;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   overflow: visible;
-}
-body.light-mode .input-container {
-  background-color: #ffffff;
-  border-color: #d1d5db;
 }
 /* Spacer below input box: zero-height so no bottom edge artifact */
 .chat-bottom-safe {
@@ -988,13 +968,12 @@ body.light-mode .chat-bottom-safe { background-color: rgba(255,255,255,0.95); }
 .input-area {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 4px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
+  gap: 6px;
+  padding: 5px 8px 5px 12px;
+  background: #1e2732;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
   overflow: visible;
-  box-shadow: none;
 }
 .media-actions { display: flex; gap: 4px; position: relative; }
 .media-btn {
@@ -1175,7 +1154,7 @@ body.light-mode .tab.active { background: rgba(0,0,0,0.10); color: #111827; }
   overflow-x: clip;  /* clip (not hidden) so carousel can bleed to screen edges */
   -webkit-overflow-scrolling: touch;
   scroll-behavior: auto;
-  padding-top: 56px;
+  padding-top: 66px; /* clears: app header 53 + gap 7 + search bar ~50 = needs ~64px */
   padding-bottom: 70px;
   min-height: 0;
 }
@@ -1183,15 +1162,21 @@ body.light-mode .for-you-page { background: #ffffff; }
 body.dark-mode  .for-you-page { background: #000000; }
 .for-you-page.nav-scrolled { top: 0; bottom: 0; }
 .fy-search-bar {
-  padding: 5px 10px;
+  padding: 10px 10px 6px;
   background: transparent;
   border-bottom: none;
   position: fixed;
-  top: 53px;
+  top: 60px;        /* 7px breathing gap below the app header */
   left: 0;
   right: 0;
   z-index: 299;
   pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, top 0.3s ease;
+}
+.fy-search-bar.fy-search-hidden {
+  opacity: 0;
+  pointer-events: none !important;
+  transform: translateY(-10px);
 }
 .fy-header-actions {
   display: flex;
@@ -1258,8 +1243,8 @@ body.light-mode .fy-search-wrap {
   border: none;
   cursor: pointer;
   color: #9ca3af;
-  font-size: 15px;
-  padding: 2px 4px;
+  font-size: 21px;
+  padding: 2px 7px;
   line-height: 1;
 }
 
@@ -2126,9 +2111,9 @@ body.dark-mode #newChatSearch::placeholder { color: #71767b; }
   display: none;
   background: #1a1f25;
   border-left: 3px solid #008b8b;
-  border-radius: 10px 10px 0 0;
-  margin: 0 -12px 4px;
-  padding: 6px 14px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  padding: 5px 10px;
   flex-shrink: 0;
 }
 body.light-mode #replyBanner { background: #f0f4f8; }
@@ -2265,7 +2250,6 @@ html, body { overscroll-behavior: none; }
 }
 .header.nav-hidden { transform: translateY(-100%); }
 .bottom-nav.nav-hidden { transform: translateX(-50%) translateY(calc(100% + 60px)); }
-.fy-search-bar { transition: top 0.3s ease; }
 .fy-search-bar.header-hidden { top: 0; }
 
 /* ── fy-search-bar: fully invisible (glass) when header is hidden ── */
@@ -2601,12 +2585,14 @@ body.dark-mode .msg-action-menu .mam-danger { color: #f87171; }
   bottom: 0;
   left: 0;
   right: 0;
-  height: 58vh;
+  height: 62vh;
+  max-height: 90dvh;
   z-index: 601;
   background: #000000;
   border-radius: 16px 16px 0 0;
   box-shadow: 0 -4px 32px rgba(0,0,0,0.45);
   transform: translateY(100%);
+  transition: bottom 0.15s ease;
 }
 body.light-mode #commentPage { background: #ffffff; }
 #commentPageHeader {
@@ -2658,44 +2644,82 @@ body.light-mode #commentPageList .comment-item { border-color: #e5e7eb; }
 #commentPageInputArea {
   display: flex;
   gap: 8px;
-  align-items: center;
-  padding: 10px 14px;
+  align-items: flex-end;
+  padding: 8px 12px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid #2f3336;
   background: #000000;
   flex-shrink: 0;
 }
 body.light-mode #commentPageInputArea { border-color: #e5e7eb; background: #ffffff; }
+.cmt-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+.cmt-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  background: #1e2732;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 8px 8px 8px 14px;
+}
+body.light-mode .cmt-input-wrap { background: #f3f4f6; border-color: rgba(0,0,0,0.12); }
 #commentInput {
   flex: 1;
-  padding: 10px 14px;
-  border: 1px solid #4b5563;
-  border-radius: 14px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
   font-size: 15px;
   outline: none;
   box-sizing: border-box;
-  background: #253341;
+  background: transparent;
   color: #eff3f4;
   font-family: inherit;
   resize: none;
-  min-height: 42px;
-  max-height: 120px;
+  min-height: 22px;
+  max-height: 110px;
   overflow-y: auto;
-  line-height: 1.4;
+  line-height: 1.45;
 }
-body.light-mode #commentInput { background: #f9fafb; color: #111827; border-color: #d1d5db; }
+body.light-mode #commentInput { color: #111827; }
 #commentSendBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
   background: #008b8b;
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 22px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
   flex-shrink: 0;
-  font-family: inherit;
+  padding: 0;
 }
+#commentSendBtn.visible { display: flex; }
 #commentSendBtn:active { background: #007a7a; }
+/* Comment item profile pic layout */
+.comment-item-inner {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.comment-item-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.comment-item-content { flex: 1; min-width: 0; }
 
 /* ── Video 3:2 for all video posts ── */
 .post-video-wrap.single-video {
@@ -4428,8 +4452,8 @@ function handlePostImageSelect(e) {
   const files = Array.from(e.target.files || []).filter(f => f.type.startsWith("image/"));
   e.target.value = "";
   if (!files.length) return;
-  const totalUsed = postImgFiles.length + (_postVideoFile ? 1 : 0);
-  const toProcess = files.slice(0, Math.max(0, 2 - totalUsed));
+  const totalUsed = postImgFiles.length;
+  const toProcess = files.slice(0, Math.max(0, 3 - totalUsed)); /* max 3 images */
   if (!toProcess.length) return;
   _postCropQueue = [...toProcess];
   _processNextPostCrop();
@@ -4438,7 +4462,7 @@ window.handlePostImageSelect = handlePostImageSelect;
 
 function _processNextPostCrop() {
   if (!_postCropQueue.length) { renderPostImgPreviews(); return; }
-  if (postImgFiles.length + (_postVideoFile ? 1 : 0) >= 2) { _postCropQueue = []; renderPostImgPreviews(); return; }
+  if (postImgFiles.length >= 3) { _postCropQueue = []; renderPostImgPreviews(); return; } /* max 3 images */
   const f = _postCropQueue.shift();
   const reader = new FileReader();
   reader.onload = () => {
@@ -4982,20 +5006,17 @@ function _buildPostCard(post) {
   const _videoToggle = `(function(w){w.classList.toggle('playing');var v=w.querySelector('video');if(w.classList.contains('playing')){v.controls=true;v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');v.controls=false;});}else{v.pause();v.muted=true;v.controls=false;}})(this)`;
   const _playIcon = `<div class="post-video-play-btn"><svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.55)"/><polygon points="9.5,7 18,12 9.5,17" fill="white"/></svg></div>`;
 
-  /* 2 images + 1 video → swipeable carousel */
-  if (post.images && post.images.length === 2 && post.videoUrl) {
-    const i0 = escapeHtml(post.images[0]);
-    const i1 = escapeHtml(post.images[1]);
-    const vUrl = escapeHtml(post.videoUrl);
-    mediaHtml += `
-      <div class="post-carousel">
-        <div class="pc-item" onclick="openPostImgViewer('${i0}')"><img src="${i0}" alt="post image"></div>
-        <div class="pc-item" onclick="${_videoToggle}">
-          <video src="${vUrl}" playsinline muted preload="metadata" onloadedmetadata="if(!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>
-          ${_playIcon}
-        </div>
-        <div class="pc-item" onclick="openPostImgViewer('${i1}')"><img src="${i1}" alt="post image"></div>
-      </div>`;
+  /* ≥3 images OR ≥2 images + video → swipeable carousel */
+  const _isCarousel = (post.images && post.images.length >= 3) ||
+                      (post.images && post.images.length >= 2 && post.videoUrl);
+  if (_isCarousel) {
+    const _citems = (post.images || []).map(u => ({ type: 'image', url: escapeHtml(u) }));
+    if (post.videoUrl) _citems.splice(1, 0, { type: 'video', url: escapeHtml(post.videoUrl) });
+    const _carHtml = _citems.map(it => {
+      if (it.type === 'video') return `<div class="pc-item" onclick="${_videoToggle}"><video src="${it.url}" playsinline muted preload="metadata" onloadedmetadata="if(!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>${_playIcon}</div>`;
+      return `<div class="pc-item" onclick="openPostImgViewer('${it.url}')"><img src="${it.url}" alt="post image"></div>`;
+    }).join('');
+    mediaHtml += `<div class="post-carousel">${_carHtml}</div>`;
   } else {
     if (post.images && post.images.length) {
       const hasVid = !!post.videoUrl;
@@ -5038,8 +5059,8 @@ function _buildPostCard(post) {
 
   if (isOwn && post.id) addLongPress(card, () => _showPostActionMenu(post, card));
   if (post.id) setTimeout(() => _fetchCommentCount(post.id), 0);
-  /* Scroll carousel to video (2nd/middle item) after DOM paint */
-  if (post.images && post.images.length === 2 && post.videoUrl) {
+  /* Scroll carousel to 2nd item after DOM paint */
+  if (_isCarousel) {
     setTimeout(() => {
       const car = card.querySelector('.post-carousel');
       if (car) {
@@ -6251,7 +6272,7 @@ window.ppHandleVideoSelect = function(e) {
   const file = e.target.files[0];
   e.target.value = "";
   if (!file || !file.type.startsWith("video/")) return;
-  if (postImgFiles.length + (_postVideoFile ? 1 : 0) >= 2) return;
+  if (_postVideoFile) return; /* only 1 video allowed (images up to 3 are separate) */
   const preview = document.getElementById("ppVideoPreview");
 
   /* Show video preview immediately — no waiting for metadata probe */
@@ -6313,7 +6334,7 @@ function handlePostVideoSelect(e) {
   const file = e.target.files[0];
   e.target.value = "";
   if (!file || !file.type.startsWith("video/")) return;
-  if (postImgFiles.length + (_postVideoFile ? 1 : 0) >= 2) return; /* max 2 total media */
+  if (_postVideoFile) return; /* only 1 video allowed (images up to 3 are separate) */
   const preview = document.getElementById("postVideoPreview");
   if (!preview) return;
   preview.innerHTML = '<div style="text-align:center;padding:8px;font-size:12px;color:#6b7280;">Reading video…</div>';
@@ -6514,7 +6535,13 @@ function openCommentModal(postId, scrollToCommentId) {
   });
 
   const inp = document.getElementById("commentInput");
-  if (inp) inp.value = "";
+  if (inp) { inp.value = ""; inp.style.height = ""; }
+  /* Reset send button */
+  const csb = document.getElementById("commentSendBtn");
+  if (csb) csb.classList.remove("visible");
+  /* Show current user's avatar beside input */
+  const uav = document.getElementById("commentUserAvatar");
+  if (uav) uav.innerHTML = renderAvatarHTML(currentUser);
   _loadComments(postId, scrollToCommentId || null);
 }
 window.openCommentModal = openCommentModal;
@@ -6532,6 +6559,7 @@ function closeCommentPage() {
       page.style.display    = "none";
       page.style.transition = "";
       page.style.transform  = "";
+      page.style.bottom     = "";  /* reset keyboard lift */
     }, 260);
   }
   const list = document.getElementById("commentPageList");
@@ -6573,9 +6601,14 @@ function _loadComments(postId, scrollToCommentId) {
       item.className = "comment-item";
       item.dataset.commentId = d.id;
       item.innerHTML = `
-        <div class="comment-author">${escapeHtml(c.author || "")}</div>
-        <div class="comment-text">${_renderCommentText(c.text || "")}</div>
-        <div class="comment-time">${formatPostTimestamp(c.stamp || 0)}</div>`;
+        <div class="comment-item-inner">
+          <div class="comment-item-avatar" onclick="viewUserProfile('${escapeHtml(c.author || '')}',event)">${renderAvatarHTML(c.author || "")}</div>
+          <div class="comment-item-content">
+            <div class="comment-author">${escapeHtml(c.author || "")}</div>
+            <div class="comment-text">${_renderCommentText(c.text || "")}</div>
+            <div class="comment-time">${formatPostTimestamp(c.stamp || 0)}</div>
+          </div>
+        </div>`;
       const isOwn = normalizeName(c.author || "") === normalizeName(currentUser);
       if (isOwn) {
         addLongPress(item, () => _showCommentActionMenu(item, _commentPostId, d.id, c.text || ""));
@@ -6641,6 +6674,9 @@ async function submitComment() {
       }
     }
     input.value = "";
+    input.style.height = "";
+    const _csb = document.getElementById("commentSendBtn");
+    if (_csb) _csb.classList.remove("visible");
   } catch(_) {
     alert("Could not post comment. Please try again.");
   } finally {
@@ -8017,14 +8053,17 @@ function _setupChatSwipeBack() {
 </div>
 
 <!-- ═══════════════════════════════════════
-     KEYBOARD SCROLL-LOCK
-     Stops iOS/Android from drifting the visual viewport upward when the
-     keyboard opens — keeps both the app header and chat-top pinned.
+     KEYBOARD / VIEWPORT HANDLER
+     • Prevents body from scrolling (layout viewport stays at top).
+     • Resizes .chat-screen to match visualViewport.height so the flex
+       column (chat-top → chat-box → input-container) keeps the input
+       right above the keyboard on iOS and Android — no fixed hacks.
+     • Lifts the comment bottom-sheet above the keyboard.
+     • Hides FY search bar when scrolling content, shows on reverse.
 ═══════════════════════════════════════ -->
 <script>
 (function () {
-  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
-
+  /* ── Prevent body scroll ── */
   function resetScroll() {
     if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0) {
       window.scrollTo(0, 0);
@@ -8032,62 +8071,82 @@ function _setupChatSwipeBack() {
       document.body.scrollTop = 0;
     }
   }
-
   window.addEventListener('scroll', resetScroll, { passive: true });
-
   document.addEventListener('focusin', function (e) {
     var el = e.target;
     if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
       setTimeout(resetScroll, 80);
       setTimeout(resetScroll, 200);
-      setTimeout(resetScroll, 400);
     }
   }, { passive: true });
 
-  /* iOS-specific: use visualViewport API to keep .chat-top and .header
-     pinned when the browser shifts the visual viewport on keyboard open */
-  if (isIOS && window.visualViewport) {
-    var CHAT_TOP_BASE = 53;
-    var _lastVVHeight = window.visualViewport.height;
+  /* ── visualViewport resize → resize chat-screen ──
+     chat-screen is position:fixed top:0/bottom:0 flex column.
+     On iOS, visualViewport.height shrinks when keyboard opens.
+     Setting chat-screen.style.height = vvH compresses only the
+     scrollable chat-box (flex:1 min-height:0) and leaves the
+     input-container at the bottom edge — right above the keyboard. */
+  if (window.visualViewport) {
+    function onVVResize() {
+      var vv  = window.visualViewport;
+      var vvH = vv.height;
+      var vvT = Math.round(vv.offsetTop || 0);
+      if (vvT > 1) window.scrollTo(0, vvT);
 
-    function fixIOSHeaders() {
-      var vv   = window.visualViewport;
-      var offY = vv ? (vv.offsetTop || 0) : 0;
-      var vvH  = vv ? vv.height : window.innerHeight;
-
-      /* Keep layout viewport at top */
-      if (offY > 0) window.scrollTo(0, 0);
-
-      /* Keep chat-top and app header pinned to visual viewport top */
-      var chatTop = document.querySelector('.chat-top');
-      if (chatTop) chatTop.style.top = (CHAT_TOP_BASE + offY) + 'px';
-
-      var header = document.querySelector('.header');
-      if (header) header.style.top = offY + 'px';
-
-      /* Keep input-container pinned to visual viewport bottom */
-      var inputContainer = document.getElementById('inputContainer');
-      if (inputContainer) {
-        var safeBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab') || '0') || 0;
-        var kbHeight = Math.max(0, window.innerHeight - vvH - offY);
-        inputContainer.style.bottom = kbHeight + 'px';
-      }
-
-      /* When keyboard opens (viewport shrinks), scroll chat to last message */
-      if (vvH < _lastVVHeight - 50) {
+      var cs = document.getElementById('chatScreen');
+      if (cs && cs.style.display !== 'none') {
+        cs.style.height = vvH + 'px';
+        cs.style.top    = vvT + 'px';
         var chatBox = document.getElementById('chatBox');
-        if (chatBox) setTimeout(function() { chatBox.scrollTop = chatBox.scrollHeight; }, 80);
+        if (chatBox) {
+          clearTimeout(chatBox._scrollTimer);
+          chatBox._scrollTimer = setTimeout(function () {
+            chatBox.scrollTop = chatBox.scrollHeight;
+          }, 60);
+        }
       }
-      /* When keyboard closes (viewport grows back), restore bottom */
-      if (vvH >= _lastVVHeight + 50 && inputContainer) {
-        inputContainer.style.bottom = '';
-      }
-      _lastVVHeight = vvH;
-    }
 
-    window.visualViewport.addEventListener('scroll', fixIOSHeaders, { passive: true });
-    window.visualViewport.addEventListener('resize', fixIOSHeaders, { passive: true });
+      /* Lift comment sheet above keyboard */
+      var cpage = document.getElementById('commentPage');
+      if (cpage && cpage.style.display !== 'none') {
+        var kbH = Math.max(0, window.innerHeight - vvH);
+        cpage.style.bottom = kbH + 'px';
+      }
+    }
+    window.visualViewport.addEventListener('resize', onVVResize, { passive: true });
+    window.visualViewport.addEventListener('scroll', onVVResize, { passive: true });
   }
+
+  /* ── FY search bar: hide when content scrolls up, show on reverse ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    ['fyForYouScroll', 'fyFollowingScroll'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var _last = 0;
+      el.addEventListener('scroll', function () {
+        var bar = document.querySelector('.fy-search-bar');
+        if (!bar) return;
+        var fyInput = document.getElementById('fySearch');
+        if (fyInput && document.activeElement === fyInput) return;
+        var top = el.scrollTop;
+        if (top > _last + 5 && top > 80) {
+          bar.classList.add('fy-search-hidden');
+        } else if (top < _last - 5) {
+          bar.classList.remove('fy-search-hidden');
+        }
+        _last = top;
+      }, { passive: true });
+    });
+  });
+
+  /* ── Comment send icon toggle + textarea auto-grow ── */
+  window._toggleCommentSend = function (ta) {
+    var btn = document.getElementById('commentSendBtn');
+    if (!btn) return;
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
+    btn.classList.toggle('visible', ta.value.trim().length > 0);
+  };
 })();
 </script>
 
@@ -8106,9 +8165,15 @@ function _setupChatSwipeBack() {
     <div id="commentPageList"></div>
   </div>
   <div id="commentPageInputArea">
-    <textarea id="commentInput" placeholder="Add a comment… (max 50 words)" rows="1"
-              onkeydown="if(event.key==='Enter'&&!event.shiftKey){submitComment();event.preventDefault();}"></textarea>
-    <button id="commentSendBtn" onclick="submitComment()">Send</button>
+    <div class="cmt-user-avatar" id="commentUserAvatar"></div>
+    <div class="cmt-input-wrap">
+      <textarea id="commentInput" placeholder="What do you think" rows="1"
+                oninput="_toggleCommentSend(this)"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){submitComment();event.preventDefault();}"></textarea>
+      <button id="commentSendBtn" onclick="submitComment()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
   </div>
 </div>
 </body>
