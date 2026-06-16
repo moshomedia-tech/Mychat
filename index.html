@@ -506,19 +506,37 @@ button.submit-btn:hover {
 /* ═══════════════════════════════════════
    CHAT SCREEN
 ═══════════════════════════════════════ */
+html, body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #000000;
+}
+/* Tell the browser to handle the keyboard layout natively, just like WhatsApp */
+html {
+  view-transition-name: root;
+  /* Overrides iOS default panning so the page layout never shifts up */
+  interactive-widget: resizes-content; 
+}
+
 .chat-screen {
   display: none;
   flex-direction: column;
   position: fixed;
   top: 53px;
-  bottom: 0;
+  /* CHANGE HERE: Remove bottom: 0; and use height with the dynamic viewport unit */
+  height: calc(100dvh - 53px); 
   left: 0;
   right: 0;
   background-color: #000000;
   z-index: 250;
   box-sizing: border-box;
   overflow: hidden;
-  will-change: transform;
+  /* WILL-CHANGE CAN CAUSE IOS REPAINT FLASHES: REMOVE IT */
+  /* will-change: transform; */ 
 }
 #userPostsPage {
   display: none;
@@ -559,9 +577,13 @@ button.submit-btn:hover {
   padding: 12px 16px;
   border-bottom: 1px solid #2f3336;
   background: #000000;
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  /* Fixed to the visual viewport — stays locked at the top even when
+     iOS/Android shifts the viewport upward on keyboard open. */
+  position: fixed;
+  top: 53px;
+  left: 0;
+  right: 0;
+  z-index: 299;
 }
 .back-btn {
   font-size: 22px;
@@ -613,19 +635,22 @@ button.submit-btn:hover {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 16px 16px 28px;
+  /* padding-top clears the fixed .chat-top (~62px tall);
+     padding-bottom clears the fixed .input-container (~70px tall). */
+  padding: 12px 16px 76px;
+  padding-top: 66px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   background: #000000;
 }
 .msg {
-  padding: 12px 16px;
-  border-radius: 22px;
-  max-width: 65%;
+  padding: 8px 12px;
+  border-radius: 18px;
+  max-width: 72%;
   word-wrap: break-word;
-  font-size: 15px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 19px;
 }
 .msg.other {
   background-color: #2f3336;
@@ -769,9 +794,9 @@ body.light-mode .input-container {
   border: none;
 }
 body.light-mode .input-area {
-  background: rgba(255,255,255,0.95);
-  border: 1px solid rgba(0,0,0,0.15);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 body.light-mode .preview-area { border-bottom-color: #e5e7eb; }
 body.light-mode #messageInput { color: #111827 !important; }
@@ -828,10 +853,18 @@ body.light-mode .msg.other .vn-play-btn { color: #1f2937; }
 .vn-waveform { flex: 1; display: flex; align-items: center; gap: 2px; height: 28px; }
 .vn-bar { width: 3px; border-radius: 3px; background: rgba(255,255,255,0.45); }
 .vn-bar.played { background: rgba(255,255,255,0.9); }
-.msg.other .vn-bar { background: rgba(0,0,0,0.2); }
+.msg.other .vn-bar { background: rgba(255,255,255,0.3); }
 .msg.other .vn-bar.played { background: #008b8b; }
-body.light-mode .msg.other .vn-bar { background: rgba(0,0,0,0.25); }
+body.light-mode .msg.other .vn-bar { background: rgba(0,0,0,0.18); }
+body.light-mode .msg.other .vn-bar.played { background: #008b8b; }
 .vn-duration { font-size: 11px; color: rgba(255,255,255,0.75); min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+.vn-speed-btn {
+  background: none; border: 1px solid rgba(255,255,255,0.35); border-radius: 10px;
+  color: rgba(255,255,255,0.85); font-size: 10px; font-weight: 600; padding: 2px 5px;
+  cursor: pointer; flex-shrink: 0; line-height: 1.2;
+}
+.msg.other .vn-speed-btn { border-color: rgba(0,0,0,0.25); color: #374151; }
+body.light-mode .msg.other .vn-speed-btn { border-color: rgba(0,0,0,0.3); color: #1f2937; }
 .msg.other .vn-duration { color: #6b7280; }
 /* ── Pin chat ── */
 .chat-pin-indicator { font-size: 13px; margin-left: 4px; }
@@ -848,12 +881,12 @@ body.light-mode .vn-rec-timer { color: #111827; }
 .msg.other .msg-seen { color: #9ca3af; }
 .chat-media {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 10px;
   display: block;
   cursor: pointer;
-  background: #1a1a1a;
+  background: #111;
 }
 #chatVideoViewer {
   display: none;
@@ -891,14 +924,25 @@ body.light-mode .vn-rec-timer { color: #111827; }
   margin-left: auto;
 }
 .input-container {
-  background-color: transparent;
-  border-radius: 0;
-  border: none;
-  margin: 0 12px 10px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
+  background-color: #15181c;
+  border: 1.5px solid #2f3336;
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  margin: 0;
+  padding: 0 12px 10px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   overflow: visible;
-  flex-shrink: 0;
+}
+body.light-mode .input-container {
+  background-color: #ffffff;
+  border-color: #d1d5db;
 }
 /* Spacer below input box: zero-height so no bottom edge artifact */
 .chat-bottom-safe {
@@ -945,11 +989,12 @@ body.light-mode .chat-bottom-safe { background-color: rgba(255,255,255,0.95); }
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
-  background: #15181c;
-  border: 1px solid #2f3336;
-  border-radius: 24px;
-  overflow: hidden;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
 }
 .media-actions { display: flex; gap: 4px; position: relative; }
 .media-btn {
@@ -1127,7 +1172,7 @@ body.light-mode .tab.active { background: rgba(0,0,0,0.10); color: #111827; }
 .fy-inner-scroll {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: clip;  /* clip (not hidden) so carousel can bleed to screen edges */
   -webkit-overflow-scrolling: touch;
   scroll-behavior: auto;
   padding-top: 56px;
@@ -1138,7 +1183,7 @@ body.light-mode .for-you-page { background: #ffffff; }
 body.dark-mode  .for-you-page { background: #000000; }
 .for-you-page.nav-scrolled { top: 0; bottom: 0; }
 .fy-search-bar {
-  padding: 4px 10px;
+  padding: 5px 10px;
   background: transparent;
   border-bottom: none;
   position: fixed;
@@ -1146,15 +1191,76 @@ body.dark-mode  .for-you-page { background: #000000; }
   left: 0;
   right: 0;
   z-index: 299;
+  pointer-events: none;
+}
+.fy-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  pointer-events: none;
+}
+/* The following button stays at right edge */
+.fy-header-actions > .refresh-btn {
+  position: absolute;
+  right: 0;
+  pointer-events: all;
+}
+.fy-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 156px;               /* ~20 chars collapsed */
+  max-width: calc(100% - 48px);
+  transition: width 0.28s cubic-bezier(.4,0,.2,1);
+  background: rgba(31,41,55,0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(128,128,128,0.25);
+  pointer-events: all;
+}
+body.light-mode .fy-search-wrap {
+  background: rgba(255,255,255,0.78);
+  border-color: rgba(0,0,0,0.15);
+}
+.fy-search-wrap.fy-expanded {
+  width: calc(100% - 48px);
 }
 .fy-search-bar input {
   width: 100%;
-  padding: 10px;
+  padding: 8px 32px 8px 36px;
   border-radius: 20px;
-  border: 1px solid transparent;
+  border: none;
   box-sizing: border-box;
   background: transparent;
   color: inherit;
+  outline: none;
+  font-size: 14px;
+}
+.fy-search-bar input:focus { outline: none; }
+.fy-search-icon-btn {
+  position: absolute;
+  left: 9px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  z-index: 1;
+}
+.fy-cancel-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 15px;
+  padding: 2px 4px;
+  line-height: 1;
 }
 
 /* CHANGE 3: flat post cards — no background/shadow/radius, proper hr-style divider */
@@ -1232,38 +1338,41 @@ body.light-mode .post-sep { border-top-color: #e5e7eb; }
 /* CHANGE 2: post images full preview, no max-height on single */
 .post-images {
   display: flex;
-  gap: 5px;
+  gap: 3px;
   margin-bottom: 8px;
   border-radius: 10px;
   overflow: hidden;
 }
 .post-images img {
   flex: 1;
-  object-fit: cover;
+  width: 100%;
+  height: auto;
   border-radius: 8px;
   display: block;
 }
 .post-images.single img {
   width: 100%;
   aspect-ratio: 3 / 2;
-  object-fit: contain;
-  background: #000;
+  height: auto;
+  object-fit: cover;
   border-radius: 10px;
   cursor: pointer;
 }
 .post-images.with-video img {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 3 / 2;
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
   cursor: pointer;
 }
 .post-images.pair img {
-  aspect-ratio: 1 / 1;
-  max-height: 200px;
-  object-fit: contain;
-  background: #000;
+  flex: 0 0 calc(50% - 1.5px);
+  width: calc(50% - 1.5px);
+  height: 240px;
+  object-fit: cover;
   cursor: pointer;
+  border-radius: 6px;
 }
 .post-text-compact {
   font-size: 14px;
@@ -1545,7 +1654,7 @@ body.light-mode .post-success-toast { background: #ffffff; color: #111827; box-s
 /* CHANGE 5: video in feed — play overlay */
 .post-video-wrap {
   position: relative;
-  margin-bottom: 6px;
+  margin-bottom: 3px;
   border-radius: 10px;
   overflow: hidden;
   background: #000;
@@ -1659,7 +1768,7 @@ body.light-mode .post-success-toast { background: #ffffff; color: #111827; box-s
 .dm-btn:hover { background: #007a7a; }
 .post-fab {
   position: fixed;
-  bottom: 66px;
+  bottom: 88px;
   left: 50%;
   transform: translateX(-50%);
   background: transparent;
@@ -1843,6 +1952,11 @@ body.dark-mode .side-panel-item.danger { color: #f87171; }
   padding: 15px;
   box-sizing: border-box;
 }
+/* New chat modal appears near top of screen */
+#newChatBackdrop {
+  align-items: flex-start;
+  padding-top: 70px;
+}
 .modal {
   width: 100%;
   max-width: 420px;
@@ -2001,17 +2115,23 @@ body.dark-mode #newChatBackdrop .modal { background: #15181c; color: #eff3f4; }
 body.dark-mode #newChatBackdrop h3 { color: #eff3f4; }
 body.dark-mode #newChatSearch { background: #1e2732; border-color: #2f3336; color: #eff3f4; }
 body.dark-mode #newChatSearch::placeholder { color: #71767b; }
+#newChatSearch:focus { border-color: #008b8b !important; outline: none; }
+.nc-search-wrap { position: relative; display: flex; align-items: center; }
+.nc-search-icon-btn {
+  position: absolute; right: 10px; background: none; border: none;
+  cursor: pointer; color: #9ca3af; display: flex; align-items: center; padding: 0;
+}
 /* Reply banner above input */
 #replyBanner {
   display: none;
   background: #1a1f25;
   border-left: 3px solid #008b8b;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  padding: 5px 10px;
+  border-radius: 10px 10px 0 0;
+  margin: 0 -12px 4px;
+  padding: 6px 14px;
   flex-shrink: 0;
 }
-body.light-mode #replyBanner { background: #f0f0f0; }
+body.light-mode #replyBanner { background: #f0f4f8; }
 .reply-banner-inner { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .reply-banner-content { display: flex; flex-direction: column; min-width: 0; }
 .reply-banner-who { font-size: 11px; color: #008b8b; font-weight: 700; }
@@ -2587,6 +2707,55 @@ body.light-mode #commentInput { background: #f9fafb; color: #111827; border-colo
   max-height: none;
   object-fit: cover;
 }
+
+/* ── 2-photo + 1-video swipeable carousel ── */
+.post-carousel {
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 -16px 8px;
+  padding: 0 16px;
+  gap: 8px;
+}
+.post-carousel::-webkit-scrollbar { display: none; }
+.pc-item {
+  flex: 0 0 83%;
+  scroll-snap-align: center;
+  aspect-ratio: 3 / 2;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  background: #000;
+  cursor: pointer;
+}
+.pc-item img,
+.pc-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pc-item .post-video-play-btn { pointer-events: none; }
+
+/* New-chat search wrapper */
+.nc-search-wrap {
+  position: relative;
+}
+.nc-search-icon-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
 </style>
 </head>
 <body>
@@ -2709,7 +2878,16 @@ body.light-mode #commentInput { background: #f9fafb; color: #111827; border-colo
 
     <div class="fy-search-bar" style="display:none">
       <div class="fy-header-actions">
-        <input id="fySearch" onkeydown="if(event.key==='Enter'){filterPosts();event.target.blur();}" oninput="filterPosts()" placeholder="Search posts by keyword...">
+        <div class="fy-search-wrap">
+          <button class="fy-search-icon-btn" onclick="triggerFySearch()" title="Search">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </button>
+          <input id="fySearch"
+            onkeydown="if(event.key==='Enter'){triggerFySearch();event.target.blur();}"
+            onfocus="_fySearchActivate()"
+            placeholder="Search posts by keyword...">
+          <button class="fy-cancel-btn" id="fyCancelBtn" onclick="cancelFySearch()" style="display:none">✕</button>
+        </div>
         <button class="refresh-btn" id="followingToggleBtn" onclick="toggleFollowingMode()" title="Following">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="#008b8b"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
         </button>
@@ -2762,17 +2940,16 @@ body.light-mode #commentInput { background: #f9fafb; color: #111827; border-colo
 
       <div class="chat-box" id="chatBox"></div>
 
-      <div id="replyBanner">
-        <div class="reply-banner-inner">
-          <div class="reply-banner-content">
-            <span class="reply-banner-who" id="replyBannerWho"></span>
-            <span class="reply-banner-text" id="replyBannerText"></span>
-          </div>
-          <button class="reply-banner-cancel" onclick="_cancelReply()">✕</button>
-        </div>
-      </div>
-
       <div class="input-container" id="inputContainer">
+        <div id="replyBanner">
+          <div class="reply-banner-inner">
+            <div class="reply-banner-content">
+              <span class="reply-banner-who" id="replyBannerWho"></span>
+              <span class="reply-banner-text" id="replyBannerText"></span>
+            </div>
+            <button class="reply-banner-cancel" onclick="_cancelReply()">✕</button>
+          </div>
+        </div>
         <div class="preview-area" id="previewArea">
           <div class="preview-wrapper">
             <button class="remove-preview-btn" id="removePreviewBtn">&times;</button>
@@ -2806,7 +2983,7 @@ body.light-mode #commentInput { background: #f9fafb; color: #111827; border-colo
         </div>
       </div>
       <div class="chat-bottom-safe"></div>
-    </div>
+    </div><!-- /chat-screen -->
 
     <!-- BOTTOM NAV -->
     <div class="bottom-nav">
@@ -2915,10 +3092,15 @@ body.light-mode #commentInput { background: #f9fafb; color: #111827; border-colo
     <div class="modal-backdrop" id="newChatBackdrop" onclick="closeNewChatModal()">
       <div class="modal" onclick="event.stopPropagation()">
         <h3 style="margin-top:0;">New Chat</h3>
-        <input id="newChatSearch" placeholder="Search username…" autocomplete="off"
-               onkeydown="if(event.key==='Enter'){event.preventDefault();searchUsersForChat();}"
-               oninput="if(!this.value.trim())document.getElementById('newChatResults').innerHTML='';"
-               style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:15px;box-sizing:border-box;">
+        <div class="nc-search-wrap">
+          <input id="newChatSearch" placeholder="Search username…" autocomplete="off"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();searchUsersForChat();}"
+                 oninput="if(!this.value.trim())document.getElementById('newChatResults').innerHTML='';"
+                 style="width:100%;padding:10px 40px 10px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:15px;box-sizing:border-box;">
+          <button class="nc-search-icon-btn" onclick="searchUsersForChat()" title="Search">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </button>
+        </div>
         <div id="newChatResults" style="margin-top:8px;max-height:280px;overflow-y:auto;"></div>
         <div class="modal-buttons" style="margin-top:10px;">
           <button class="cancel-edit" onclick="closeNewChatModal()">Cancel</button>
@@ -3981,7 +4163,7 @@ function _renderMessages(partner, messages) {
         player.className = "vn-player";
         const barSeeds = [8,14,20,12,6,18,10,16,7,13,19,9,15,11,17,8,14,12,6,10];
         const barsHtml = barSeeds.map(h => `<div class="vn-bar" style="height:${h}px"></div>`).join("");
-        player.innerHTML = `<button class="vn-play-btn" title="Play">&#9654;</button><div class="vn-waveform">${barsHtml}</div><span class="vn-duration">${durM}:${durS}</span>`;
+        player.innerHTML = `<button class="vn-play-btn" title="Play">&#9654;</button><div class="vn-waveform">${barsHtml}</div><span class="vn-duration">${durM}:${durS}</span><button class="vn-speed-btn" title="Playback speed">1×</button>`;
         const audio = new Audio(msg.img);
         audio.preload = "none";
         const playBtn  = player.querySelector(".vn-play-btn");
@@ -4016,6 +4198,14 @@ function _renderMessages(partner, messages) {
           barEls.forEach(b => b.classList.remove("played"));
           durEl.textContent = `${durM}:${durS}`;
           cancelAnimationFrame(_vnAF);
+        };
+        const speedBtn = player.querySelector(".vn-speed-btn");
+        const _vnSpeeds = [1, 1.5, 2];
+        let _vnSpeedIdx = 0;
+        speedBtn.onclick = () => {
+          _vnSpeedIdx = (_vnSpeedIdx + 1) % _vnSpeeds.length;
+          audio.playbackRate = _vnSpeeds[_vnSpeedIdx];
+          speedBtn.textContent = _vnSpeeds[_vnSpeedIdx] + "×";
         };
         bubble.appendChild(player);
       } else if (msg.isFile) {
@@ -4128,22 +4318,29 @@ function _renderMessages(partner, messages) {
       wrap.style.position = "relative";
       wrap.appendChild(arrow);
       let _swX = null, _swTracking = false;
+      let _swY = null;
       bubble.addEventListener("touchstart", function(ev) {
         if (ev.touches.length !== 1) return;
         _swX = ev.touches[0].clientX;
+        _swY = ev.touches[0].clientY;
         _swTracking = false;
         bubble.style.transition = "";
       }, { passive: true });
       bubble.addEventListener("touchmove", function(ev) {
         if (_swX === null) return;
         const dx = ev.touches[0].clientX - _swX;
-        if (!_swTracking && dx > 10) _swTracking = true;
+        const dy = Math.abs(ev.touches[0].clientY - (_swY || ev.touches[0].clientY));
+        if (!_swTracking) {
+          if (Math.abs(dx) > 8 && Math.abs(dx) > dy) _swTracking = true;
+          else if (dy > 8) { _swX = null; return; }
+        }
         if (_swTracking && dx > 0) {
+          ev.preventDefault();
           const shift = Math.min(dx, 70);
           bubble.style.transform = "translateX(" + shift + "px)";
           arrow.style.opacity = String(Math.min(shift / 45, 1));
         }
-      }, { passive: true });
+      }, { passive: false });
       bubble.addEventListener("touchend", function(ev) {
         if (_swX === null) return;
         const dx = ev.changedTouches[0].clientX - _swX;
@@ -4172,6 +4369,7 @@ function _renderMessages(partner, messages) {
   if (shouldScrollToBottom) {
     box.scrollTop = box.scrollHeight;
     setTimeout(() => { box.scrollTop = box.scrollHeight; }, 120);
+    setTimeout(() => { box.scrollTop = box.scrollHeight; }, 400);
   }
   updateBlockButton();
   syncComposerState();
@@ -4781,25 +4979,42 @@ function _buildPostCard(post) {
 
   let mediaHtml = "";
   /* Images first, then video */
-  if (post.images && post.images.length) {
-    const hasVid = !!post.videoUrl;
-    if (post.images.length === 1) {
-      const cls = hasVid ? "with-video" : "single";
-      mediaHtml += `<div class="post-images ${cls}"><img src="${escapeHtml(post.images[0])}" alt="post image" onclick="openPostImgViewer('${escapeHtml(post.images[0])}')"></div>`;
-    } else {
-      mediaHtml += `<div class="post-images pair">${post.images.map(url => `<img src="${escapeHtml(url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(url)}')">`).join("")}</div>`;
-    }
-  }
-  if (post.videoUrl) {
-    const _hasImgs = post.images && post.images.length;
-    const _vClass = _hasImgs ? "post-video-wrap" : "post-video-wrap single-video";
+  const _videoToggle = `(function(w){w.classList.toggle('playing');var v=w.querySelector('video');if(w.classList.contains('playing')){v.controls=true;v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');v.controls=false;});}else{v.pause();v.muted=true;v.controls=false;}})(this)`;
+  const _playIcon = `<div class="post-video-play-btn"><svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.55)"/><polygon points="9.5,7 18,12 9.5,17" fill="white"/></svg></div>`;
+
+  /* 2 images + 1 video → swipeable carousel */
+  if (post.images && post.images.length === 2 && post.videoUrl) {
+    const i0 = escapeHtml(post.images[0]);
+    const i1 = escapeHtml(post.images[1]);
+    const vUrl = escapeHtml(post.videoUrl);
     mediaHtml += `
-      <div class="${_vClass}" onclick="(function(w){w.classList.toggle('playing');var v=w.querySelector('video');if(w.classList.contains('playing')){v.controls=true;v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');v.controls=false;});}else{v.pause();v.muted=true;v.controls=false;}})(this)">
-        <video class="post-video" src="${escapeHtml(post.videoUrl)}" playsinline muted preload="metadata" onloadedmetadata="if(this.readyState>=1&&!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>
-        <div class="post-video-play-btn">
-          <svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.55)"/><polygon points="9.5,7 18,12 9.5,17" fill="white"/></svg>
+      <div class="post-carousel">
+        <div class="pc-item" onclick="openPostImgViewer('${i0}')"><img src="${i0}" alt="post image"></div>
+        <div class="pc-item" onclick="${_videoToggle}">
+          <video src="${vUrl}" playsinline muted preload="metadata" onloadedmetadata="if(!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>
+          ${_playIcon}
         </div>
+        <div class="pc-item" onclick="openPostImgViewer('${i1}')"><img src="${i1}" alt="post image"></div>
       </div>`;
+  } else {
+    if (post.images && post.images.length) {
+      const hasVid = !!post.videoUrl;
+      if (post.images.length === 1) {
+        const cls = hasVid ? "with-video" : "single";
+        mediaHtml += `<div class="post-images ${cls}"><img src="${escapeHtml(post.images[0])}" alt="post image" onclick="openPostImgViewer('${escapeHtml(post.images[0])}')"></div>`;
+      } else {
+        mediaHtml += `<div class="post-images pair">${post.images.map(url => `<img src="${escapeHtml(url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(url)}')">`).join("")}</div>`;
+      }
+    }
+    if (post.videoUrl) {
+      const _hasImgs = post.images && post.images.length;
+      const _vClass = _hasImgs ? "post-video-wrap" : "post-video-wrap single-video";
+      mediaHtml += `
+        <div class="${_vClass}" onclick="${_videoToggle}">
+          <video class="post-video" src="${escapeHtml(post.videoUrl)}" playsinline muted preload="metadata" onloadedmetadata="if(this.readyState>=1&&!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>
+          ${_playIcon}
+        </div>`;
+    }
   }
 
   card.innerHTML = `
@@ -4809,7 +5024,7 @@ function _buildPostCard(post) {
       ${age ? `<div class="post-age-tag">${escapeHtml(String(age))}yr</div>` : ""}
     </div>
     ${mediaHtml}
-    ${(()=>{ const _w=post.text.split(/\s+/).filter(Boolean); const _cls=hasMedia?"post-text-compact":"post-text"; if(_w.length<=25){ return `<div class="${_cls}">${escapeHtml(post.text)}</div>`; } const _sh=_w.slice(0,25).join(" "); return `<div class="${_cls}"><span class="ptb-short">${escapeHtml(_sh)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${escapeHtml(post.text)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button></div>`; })()}
+    ${(()=>{ const _w=post.text.split(/\s+/).filter(Boolean); const _ln=post.text.split('\n'); const _cls=hasMedia?"post-text-compact":"post-text"; const _needsMore=_w.length>25||_ln.length>7; if(!_needsMore){ return `<div class="${_cls}">${escapeHtml(post.text)}</div>`; } const _sh=(_ln.length>7&&_w.length<=25)?_ln.slice(0,7).join('\n'):_w.slice(0,25).join(" "); return `<div class="${_cls}"><span class="ptb-short">${escapeHtml(_sh)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${escapeHtml(post.text)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button></div>`; })()}
     <div class="post-footer">
       <div class="post-footer-row">
         <div style="display:flex;align-items:center;gap:6px;">
@@ -4822,6 +5037,17 @@ function _buildPostCard(post) {
     <hr class="post-sep">`;
 
   if (isOwn && post.id) addLongPress(card, () => _showPostActionMenu(post, card));
+  if (post.id) setTimeout(() => _fetchCommentCount(post.id), 0);
+  /* Scroll carousel to video (2nd/middle item) after DOM paint */
+  if (post.images && post.images.length === 2 && post.videoUrl) {
+    setTimeout(() => {
+      const car = card.querySelector('.post-carousel');
+      if (car) {
+        const first = car.querySelector('.pc-item');
+        if (first && first.offsetWidth > 0) car.scrollLeft = first.offsetWidth + 8;
+      }
+    }, 80);
+  }
   return card;
 }
 
@@ -4979,8 +5205,12 @@ async function openChat(partner) {
   if (!partner) return;
   if (partner === normalizeName(currentUser)) { alert("You cannot chat with yourself."); return; }
   await fetchProfile(partner);
-  if (isTargetBlockingMe(partner)) { alert("You cannot chat with this user"); return; }
+  /* Allow opening chat even if the other user has blocked us — send is disabled by syncComposerState */
   currentChatName = partner;
+  /* Fix 3 – clear leftover input state from previous chat */
+  const _prevInp = document.getElementById("messageInput");
+  if (_prevInp) _prevInp.value = "";
+  _cancelReply();
   await ensureConversation(currentUser, partner);
   markAsRead(partner);
   _saveForYouScroll();
@@ -5324,8 +5554,14 @@ function syncComposerState() {
     ? (isBlocked(currentChatName) || isTargetBlockingMe(currentChatName))
     : false;
   if (input) {
-    input.disabled   = blocked;
-    input.placeholder = blocked ? "Unblock this user to send messages" : "Start a new message";
+    input.disabled = blocked;
+    if (!blocked) {
+      input.placeholder = "Start a new message";
+    } else if (currentChatName && isBlocked(currentChatName)) {
+      input.placeholder = "Unblock this user to send messages";
+    } else {
+      input.placeholder = "You cannot send messages to this user";
+    }
   }
   if (photoBtn) photoBtn.disabled = blocked;
   if (videoBtn) videoBtn.disabled = blocked;
@@ -5636,14 +5872,25 @@ function setupChatUI() {
 function _adjustChatForKeyboard() {
   const cs = document.getElementById("chatScreen");
   if (!cs || cs.style.display === "none") return;
-  const vv = window.visualViewport;
-  const hdrH = 53;
-  const h = Math.max(0, vv.height - hdrH);
-  cs.style.height = h + "px";
-  cs.style.top    = (hdrH + vv.offsetTop) + "px";
-  cs.style.bottom = "auto";
+
+  // Keep ONLY the automatic scroll-to-bottom logic
+  const chatBox = cs.querySelector(".chat-box");
+  if (chatBox) {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 }
+
+// Listen ONLY for the resize, remove the window.scrollTo(0,0) override
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", () => {
+    // Small timeout ensures the keyboard is fully up before snapping scroll
+    setTimeout(_adjustChatForKeyboard, 50); 
+  });
+}
+
 window._adjustChatForKeyboard = _adjustChatForKeyboard;
+
+
 
 /* ════════════════════════════════════════
    FILTER FUNCTIONS
@@ -5652,12 +5899,15 @@ function filterChats() { renderChatList(); }
 function filterPosts() {
   const q = document.getElementById("fySearch")?.value || "";
   renderPostFeed(q);
-  if (!q.trim()) {
-    requestAnimationFrame(() => {
-      const scrollEl = _fyActiveScroll();
-      if (scrollEl) scrollEl.scrollTop = fyScrollPos;
-    });
-  }
+  requestAnimationFrame(() => {
+    const scrollEl = _fyActiveScroll();
+    if (!scrollEl) return;
+    if (q.trim()) {
+      scrollEl.scrollTop = 0;   /* search results always from top */
+    } else {
+      scrollEl.scrollTop = fyScrollPos;
+    }
+  });
 }
 window.filterChats = filterChats;
 window.filterPosts = filterPosts;
@@ -5682,13 +5932,11 @@ async function searchUsersForChat() {
   const res = document.getElementById("newChatResults");
   if (!q) { res.innerHTML = ""; return; }
   res.innerHTML = `<div class="nc-empty">Searching…</div>`;
+  /* Exact-match only — only find users whose usernameLower === q */
   const snap = await getDocs(
-    query(collection(db, "users"),
-      where("usernameLower", ">=", q),
-      where("usernameLower", "<=", q + "\uf8ff")
-    )
+    query(collection(db, "users"), where("usernameLower", "==", q))
   );
-  if (snap.empty) { res.innerHTML = `<div class="nc-empty">No users found.</div>`; return; }
+  if (snap.empty) { res.innerHTML = `<div class="nc-empty">No user found.</div>`; return; }
   res.innerHTML = "";
   snap.docs.forEach(d => {
     const data = d.data();
@@ -5702,7 +5950,7 @@ async function searchUsersForChat() {
     item.onclick = () => { closeNewChatModal(); openChat(u); };
     res.appendChild(item);
   });
-  if (!res.children.length) res.innerHTML = `<div class="nc-empty">No users found.</div>`;
+  if (!res.children.length) res.innerHTML = `<div class="nc-empty">No user found.</div>`;
 }
 window.searchUsersForChat = searchUsersForChat;
 
@@ -6005,42 +6253,54 @@ window.ppHandleVideoSelect = function(e) {
   if (!file || !file.type.startsWith("video/")) return;
   if (postImgFiles.length + (_postVideoFile ? 1 : 0) >= 2) return;
   const preview = document.getElementById("ppVideoPreview");
+
+  /* Show video preview immediately — no waiting for metadata probe */
+  const immediateUrl = URL.createObjectURL(file);
+  const thumbVid = document.createElement("video");
+  thumbVid.src      = immediateUrl;
+  thumbVid.muted    = true;
+  thumbVid.controls = true;
+  thumbVid.playsInline = true;
+  thumbVid.preload  = "metadata";
+  thumbVid.style.cssText = "max-width:100%;max-height:140px;border-radius:8px;background:#000;display:block;";
+  thumbVid.onloadedmetadata = () => { thumbVid.currentTime = 1; };
+  const rmBtn = document.createElement("button");
+  rmBtn.style.cssText = "margin-top:4px;background:none;border:1px solid #4b5563;border-radius:6px;color:#9ca3af;font-size:11px;padding:3px 8px;cursor:pointer;";
+  rmBtn.textContent = "✕ Remove video";
+  rmBtn.onclick = () => {
+    _postVideoFile = null;
+    URL.revokeObjectURL(immediateUrl);
+    if (preview) { preview.innerHTML = ""; preview.style.display = "none"; }
+  };
   if (preview) {
-    preview.innerHTML = '<div style="font-size:12px;color:#6b7280;padding:6px 0;">Reading video…</div>';
+    preview.innerHTML = "";
+    preview.appendChild(thumbVid);
+    preview.appendChild(rmBtn);
     preview.style.display = "block";
   }
+
+  /* Probe duration in background; if > 30s trim and swap src */
+  _postVideoFile = file;
   const probeUrl = URL.createObjectURL(file);
   const probe    = document.createElement("video");
   probe.preload  = "metadata";
   probe.src      = probeUrl;
   probe.onloadedmetadata = async () => {
     URL.revokeObjectURL(probeUrl);
-    let finalFile = file;
     if ((probe.duration || 0) > 30.5) {
-      if (preview) preview.innerHTML = '<div style="font-size:12px;color:#6b7280;padding:6px 0;">Trimming to 30s…</div>';
-      try { finalFile = await _trimVideoTo30s(file); } catch(_) {}
-    }
-    _postVideoFile = finalFile;
-    const objUrl   = URL.createObjectURL(finalFile);
-    const thumbVid = document.createElement("video");
-    thumbVid.src      = objUrl;
-    thumbVid.muted    = true;
-    thumbVid.controls = true;
-    thumbVid.playsInline = true;
-    thumbVid.preload  = "metadata";
-    thumbVid.style.cssText = "max-width:100%;max-height:140px;border-radius:8px;background:#000;display:block;";
-    const rmBtn = document.createElement("button");
-    rmBtn.style.cssText = "margin-top:4px;background:none;border:1px solid #4b5563;border-radius:6px;color:#9ca3af;font-size:11px;padding:3px 8px;cursor:pointer;";
-    rmBtn.textContent = "✕ Remove video";
-    rmBtn.onclick = () => { _postVideoFile = null; if (preview) { preview.innerHTML=""; preview.style.display="none"; } };
-    if (preview) {
-      preview.innerHTML = "";
-      preview.appendChild(thumbVid);
-      preview.appendChild(rmBtn);
-      preview.style.display = "block";
+      try {
+        const trimmed = await _trimVideoTo30s(file);
+        _postVideoFile = trimmed;
+        URL.revokeObjectURL(immediateUrl);
+        thumbVid.src = URL.createObjectURL(trimmed);
+        const note = document.createElement("div");
+        note.style.cssText = "font-size:11px;color:#9ca3af;margin-top:2px;";
+        note.textContent = "✂️ Trimmed to first 30 seconds";
+        if (preview) preview.appendChild(note);
+      } catch(_) {}
     }
   };
-  probe.onerror = () => { URL.revokeObjectURL(probeUrl); if (preview) { preview.innerHTML=""; preview.style.display="none"; } };
+  probe.onerror = () => URL.revokeObjectURL(probeUrl);
 };
 
 /* ════════════════════════════════════════
@@ -6111,6 +6371,40 @@ function handlePostVideoSelect(e) {
 }
 window.handlePostVideoSelect = handlePostVideoSelect;
 
+/* ════════════════════════════════════════
+   FOR YOU SEARCH — commit-on-action only
+═══════════════════════════════════════ */
+let _fySearchScrollPos = 0;
+
+function _fySearchActivate() {
+  const scrollEl = _fyActiveScroll();
+  _fySearchScrollPos = scrollEl ? scrollEl.scrollTop : 0;
+  const btn = document.getElementById("fyCancelBtn");
+  if (btn) btn.style.display = "";
+  const wrap = document.querySelector(".fy-search-wrap");
+  if (wrap) wrap.classList.add("fy-expanded");
+}
+window._fySearchActivate = _fySearchActivate;
+
+function triggerFySearch() {
+  filterPosts();
+}
+window.triggerFySearch = triggerFySearch;
+
+function cancelFySearch() {
+  const inp = document.getElementById("fySearch");
+  if (inp) inp.value = "";
+  const btn = document.getElementById("fyCancelBtn");
+  if (btn) btn.style.display = "none";
+  const wrap = document.querySelector(".fy-search-wrap");
+  if (wrap) wrap.classList.remove("fy-expanded");
+  inp && inp.blur();
+  renderPostFeed("");
+  const scrollEl = _fyActiveScroll();
+  if (scrollEl) setTimeout(() => { scrollEl.scrollTop = _fySearchScrollPos; }, 60);
+}
+window.cancelFySearch = cancelFySearch;
+
 function clearPostVideo() {
   _postVideoFile = null;
   const preview = document.getElementById("postVideoPreview");
@@ -6175,6 +6469,18 @@ function _updateCommentCountSpan(postId, count) {
   document.querySelectorAll(`[data-cc-id="${CSS.escape(postId)}"]`).forEach(el => {
     el.textContent = count > 0 ? String(count) : "";
   });
+}
+
+/* Fetch comment count for a post and update all its badges */
+function _fetchCommentCount(postId) {
+  if (!postId) return;
+  if (_commentCounts[postId] !== undefined) {
+    _updateCommentCountSpan(postId, _commentCounts[postId]);
+    return;
+  }
+  getDocs(collection(db, "posts", postId, "comments")).then(snap => {
+    _updateCommentCountSpan(postId, snap.size);
+  }).catch(() => {});
 }
 
 function openCommentModal(postId, scrollToCommentId) {
@@ -6617,7 +6923,7 @@ function showUserPosts(u) {
                : `<div class="post-images pair">${post.images.map(url => `<img src="${escapeHtml(url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(url)}')">`).join("")}</div>`)
              : ""}
          ${post.videoUrl ? `<div class="post-video-wrap${(post.images && post.images.length) ? "" : " single-video"}" onclick="(function(w){w.classList.toggle('playing');var v=w.querySelector('video');if(w.classList.contains('playing')){v.controls=true;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');v.controls=false;});}else{v.pause();v.controls=false;}})(this)"><video class="post-video" src="${escapeHtml(post.videoUrl)}" playsinline preload="metadata" onloadedmetadata="if(this.readyState>=1&&!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}"></video><div class="post-video-play-btn"><svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.55)"/><polygon points="9.5,7 18,12 9.5,17" fill="white"/></svg></div></div>` : ""}
-         ${(()=>{ const _w=post.text.split(/\s+/).filter(Boolean); const _cls=(post.images&&post.images.length)||post.videoUrl?"post-text-compact":"post-text"; if(_w.length<=25){ return `<div class="${_cls}">${escapeHtml(post.text)}</div>`; } const _sh=_w.slice(0,25).join(" "); return `<div class="${_cls}"><span class="ptb-short">${escapeHtml(_sh)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${escapeHtml(post.text)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button></div>`; })()}
+         ${(()=>{ const _w=post.text.split(/\s+/).filter(Boolean); const _ln=post.text.split('\n'); const _cls=(post.images&&post.images.length)||post.videoUrl?"post-text-compact":"post-text"; const _needsMore=_w.length>25||_ln.length>7; if(!_needsMore){ return `<div class="${_cls}">${escapeHtml(post.text)}</div>`; } const _sh=(_ln.length>7&&_w.length<=25)?_ln.slice(0,7).join('\n'):_w.slice(0,25).join(" "); return `<div class="${_cls}"><span class="ptb-short">${escapeHtml(_sh)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${escapeHtml(post.text)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button></div>`; })()}
          <div class="post-footer">
            <div class="post-footer-row">
              <div style="display:flex;align-items:center;gap:6px;">
@@ -6629,6 +6935,7 @@ function showUserPosts(u) {
          </div>
          <hr class="post-sep">`;
       if (isOwn && post.id) addLongPress(card, () => _showPostActionMenu(post, card));
+      if (post.id) setTimeout(() => _fetchCommentCount(post.id), 0);
       feed.appendChild(card);
     });
   }
@@ -7709,8 +8016,84 @@ function _setupChatSwipeBack() {
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════
+     KEYBOARD SCROLL-LOCK
+     Stops iOS/Android from drifting the visual viewport upward when the
+     keyboard opens — keeps both the app header and chat-top pinned.
+═══════════════════════════════════════ -->
+<script>
+(function () {
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  function resetScroll() {
+    if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0) {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  }
+
+  window.addEventListener('scroll', resetScroll, { passive: true });
+
+  document.addEventListener('focusin', function (e) {
+    var el = e.target;
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+      setTimeout(resetScroll, 80);
+      setTimeout(resetScroll, 200);
+      setTimeout(resetScroll, 400);
+    }
+  }, { passive: true });
+
+  /* iOS-specific: use visualViewport API to keep .chat-top and .header
+     pinned when the browser shifts the visual viewport on keyboard open */
+  if (isIOS && window.visualViewport) {
+    var CHAT_TOP_BASE = 53;
+    var _lastVVHeight = window.visualViewport.height;
+
+    function fixIOSHeaders() {
+      var vv   = window.visualViewport;
+      var offY = vv ? (vv.offsetTop || 0) : 0;
+      var vvH  = vv ? vv.height : window.innerHeight;
+
+      /* Keep layout viewport at top */
+      if (offY > 0) window.scrollTo(0, 0);
+
+      /* Keep chat-top and app header pinned to visual viewport top */
+      var chatTop = document.querySelector('.chat-top');
+      if (chatTop) chatTop.style.top = (CHAT_TOP_BASE + offY) + 'px';
+
+      var header = document.querySelector('.header');
+      if (header) header.style.top = offY + 'px';
+
+      /* Keep input-container pinned to visual viewport bottom */
+      var inputContainer = document.getElementById('inputContainer');
+      if (inputContainer) {
+        var safeBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sab') || '0') || 0;
+        var kbHeight = Math.max(0, window.innerHeight - vvH - offY);
+        inputContainer.style.bottom = kbHeight + 'px';
+      }
+
+      /* When keyboard opens (viewport shrinks), scroll chat to last message */
+      if (vvH < _lastVVHeight - 50) {
+        var chatBox = document.getElementById('chatBox');
+        if (chatBox) setTimeout(function() { chatBox.scrollTop = chatBox.scrollHeight; }, 80);
+      }
+      /* When keyboard closes (viewport grows back), restore bottom */
+      if (vvH >= _lastVVHeight + 50 && inputContainer) {
+        inputContainer.style.bottom = '';
+      }
+      _lastVVHeight = vvH;
+    }
+
+    window.visualViewport.addEventListener('scroll', fixIOSHeaders, { passive: true });
+    window.visualViewport.addEventListener('resize', fixIOSHeaders, { passive: true });
+  }
+})();
+</script>
+
 <!-- COMMENT BACKDROP -->
 <div id="commentBackdrop" onclick="closeCommentPage()"></div>
+
 
 <!-- COMMENT PAGE (TikTok bottom-sheet style) -->
 <div id="commentPage">
