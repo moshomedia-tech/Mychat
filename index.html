@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
 <title>MyChat</title>
 
 <style>
@@ -10,14 +10,14 @@
    GLOBAL RESET
 ═══════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
-html { height: 100%; }
+html { min-height: 100%; }
 body {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
   background: #000000;
-  overflow: hidden;
+  overflow-x: hidden; /* prevent left/right body shift */
 }
 body.light-mode { background: #ffffff; }
 body.dark-mode  { background: #000000; }
@@ -30,7 +30,7 @@ body.dark-mode  { background: #000000; }
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 20px 20px 64px;
   background: white;
   flex-direction: column;
   gap: 0;
@@ -118,12 +118,16 @@ button.submit-btn:hover {
 }
 .login-error.visible { display: block; }
 
-/* CHANGE 14: Support link at bottom of auth */
+/* CHANGE 14: Support link pinned to bottom of screen */
 .auth-support-link {
-  margin-top: 18px;
+  position: fixed;
+  bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+  left: 0;
+  right: 0;
   font-size: 13px;
   color: #6b7280;
   text-align: center;
+  z-index: 10;
 }
 .auth-support-link a {
   color: #008b8b;
@@ -518,8 +522,6 @@ html, body {
 /* Tell the browser to handle the keyboard layout natively, just like WhatsApp */
 html {
   view-transition-name: root;
-  /* Overrides iOS default panning so the page layout never shifts up */
-  interactive-widget: resizes-content; 
 }
 
 .chat-screen {
@@ -752,6 +754,15 @@ body.light-mode .profile-info { background: #ffffff; color: #111827; }
 body.light-mode .profile-info p, body.light-mode .profile-info span { color: #111827; }
 body.light-mode .profile-actions button { background: #1f2937; color: white; }
 body.light-mode .vp-posts-btn { background: #1f2937; color: white; }
+
+/* Profile view modal — dark mode */
+body.dark-mode #viewProfileBackdrop .modal {
+  background: #15181c;
+  color: #eff3f4;
+}
+body.dark-mode #viewProfileBackdrop .modal h3 { color: #eff3f4; }
+body.dark-mode #viewProfileBackdrop .modal p  { color: #d1d5db; }
+body.dark-mode .vp-follower-row { color: #9ca3af; }
 body.light-mode .chat-screen { background: #EFEAE2; }
 body.light-mode .chat-top {
   background: #F3F0EA;
@@ -918,7 +929,7 @@ body.light-mode .vn-rec-timer { color: #111827; }
   background-color: #000;
   border-top: 1px solid #2f3336;
   padding: 6px 10px;
-  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -1133,6 +1144,25 @@ body.light-mode .tab { color: #6b7280; }
 .tab.active { background: rgba(255,255,255,0.15); color: #ffffff; }
 body.light-mode .tab.active { background: rgba(0,0,0,0.10); color: #111827; }
 .tab:active { transform: scale(0.88); }
+.tab { position: relative; }
+.nav-chats-badge {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  background: #e53e3e;
+  color: white;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 16px;
+  text-align: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+  pointer-events: none;
+  display: none;
+}
 
 /* FOR YOU PAGE */
 .for-you-page {
@@ -1221,7 +1251,7 @@ body.light-mode .fy-search-wrap {
   background: transparent;
   color: inherit;
   outline: none;
-  font-size: 14px;
+  font-size: 16px;
 }
 .fy-search-bar input:focus { outline: none; }
 .fy-search-icon-btn {
@@ -1985,7 +2015,7 @@ body.dark-mode .side-panel-item.danger { color: #f87171; }
   border-radius: 10px;
   box-sizing: border-box;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
 }
 .modal textarea { min-height: 80px; resize: vertical; }
 .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
@@ -2467,6 +2497,7 @@ body.light-mode .notif-act-text { color: #111827; }
   overflow: hidden;
   white-space: nowrap;
   padding: 14px 0 0 0;
+  margin-top: 40px;
 }
 .auth-ticker-inner {
   display: inline-block;
@@ -2585,8 +2616,8 @@ body.dark-mode .msg-action-menu .mam-danger { color: #f87171; }
   bottom: 0;
   left: 0;
   right: 0;
-  height: 62vh;
-  max-height: 90dvh;
+  height: 50vh;
+  max-height: 75dvh;
   z-index: 601;
   background: #000000;
   border-radius: 16px 16px 0 0;
@@ -2646,7 +2677,7 @@ body.light-mode #commentPageList .comment-item { border-color: #e5e7eb; }
   gap: 8px;
   align-items: flex-end;
   padding: 8px 12px;
-  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
   border-top: 1px solid #2f3336;
   background: #000000;
   flex-shrink: 0;
@@ -2676,7 +2707,7 @@ body.light-mode .cmt-input-wrap { background: #f3f4f6; border-color: rgba(0,0,0,
   padding: 0;
   border: none;
   border-radius: 0;
-  font-size: 15px;
+  font-size: 16px;
   outline: none;
   box-sizing: border-box;
   background: transparent;
@@ -2721,6 +2752,16 @@ body.light-mode #commentInput { color: #111827; }
 }
 .comment-item-content { flex: 1; min-width: 0; }
 
+/* Ensure profile picture images fill their circular containers */
+.comment-item-avatar img,
+.cmt-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
 /* ── Video 3:2 for all video posts ── */
 .post-video-wrap.single-video {
   aspect-ratio: 3 / 2;
@@ -2745,7 +2786,7 @@ body.light-mode #commentInput { color: #111827; }
 }
 .post-carousel::-webkit-scrollbar { display: none; }
 .pc-item {
-  flex: 0 0 83%;
+  flex: 0 0 78%;
   scroll-snap-align: center;
   aspect-ratio: 3 / 2;
   border-radius: 10px;
@@ -2838,6 +2879,20 @@ body.light-mode #commentInput { color: #111827; }
   <div class="auth-support-link">
     <a href="mailto:Mychatwebsupport@gmail.com">Support</a>
   </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     EMAIL VERIFICATION SCREEN
+═══════════════════════════════════════ -->
+<div id="verificationScreen" style="display:none;position:fixed;inset:0;background:#ffffff;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px;text-align:center;">
+  <div style="font-size:52px;margin-bottom:18px;">📧</div>
+  <h2 style="margin:0 0 10px;color:#111827;font-size:22px;">Verify your email</h2>
+  <p style="color:#6b7280;margin-bottom:10px;max-width:320px;line-height:1.6;">We sent a verification link to:</p>
+  <p style="color:#008b8b;font-weight:bold;margin-bottom:24px;max-width:320px;word-break:break-all;" id="verifEmailDisplay"></p>
+  <p style="color:#6b7280;margin-bottom:28px;max-width:320px;font-size:14px;line-height:1.6;">Click the link in your email, then tap the button below to continue.</p>
+  <button onclick="recheckVerification()" style="background:#008b8b;color:white;border:none;padding:14px 28px;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;width:100%;max-width:300px;">✓ I've verified — Continue</button>
+  <button onclick="resendVerificationEmail()" id="resendVerifBtn" style="background:#f3f4f6;color:#374151;border:none;padding:12px 28px;border-radius:12px;font-size:14px;cursor:pointer;margin-bottom:20px;width:100%;max-width:300px;">Resend verification email</button>
+  <button onclick="cancelVerification()" style="background:none;color:#9ca3af;border:none;font-size:13px;cursor:pointer;text-decoration:underline;">Cancel (log out)</button>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -2997,7 +3052,7 @@ body.light-mode #commentInput { color: #111827; }
               <div class="media-popup-item" id="popupFileItem"><span>📎</span><span>File</span></div>
             </div>
           </div>
-          <textarea id="messageInput" placeholder="Start a new message" rows="1" style="flex: 1; background: none; border: none; outline: none; font-size: 15px; padding: 8px 4px; resize: none; font-family: inherit; max-height: 100px; color: #eff3f4;"></textarea>
+          <textarea id="messageInput" placeholder="Start a new message" rows="1" style="flex: 1; background: none; border: none; outline: none; font-size: 16px; padding: 8px 4px; resize: none; font-family: inherit; max-height: 100px; color: #eff3f4;"></textarea>
           <button class="vn-mic-btn" id="voiceNoteBtn" title="Voice note" style="display:flex;">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
           </button>
@@ -3011,7 +3066,7 @@ body.light-mode #commentInput { color: #111827; }
 
     <!-- BOTTOM NAV -->
     <div class="bottom-nav">
-      <div class="tab active" onclick="_navTab(0)">Chats</div>
+      <div class="tab active" onclick="_navTab(0)">Chats<span class="nav-chats-badge" id="navChatsBadge"></span></div>
       <div class="tab" onclick="_navTab(1)">For You</div>
       <div class="tab" onclick="_navTab(2)">Profile</div>
     </div>
@@ -3085,7 +3140,7 @@ body.light-mode #commentInput { color: #111827; }
               <input type="file" id="ppVideoInput" accept="video/*" style="display:none;" onchange="ppHandleVideoSelect(event)">
               <button class="pp-media-capsule" onclick="document.getElementById('ppImgInput').click()" title="Add Photo">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
-                <span class="pp-capsule-label">Max 2</span>
+                <span class="pp-capsule-label">Max 3</span>
               </button>
               <button class="pp-media-capsule" onclick="document.getElementById('ppVideoInput').click()" title="Add Video">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
@@ -3120,7 +3175,7 @@ body.light-mode #commentInput { color: #111827; }
           <input id="newChatSearch" placeholder="Search username…" autocomplete="off"
                  onkeydown="if(event.key==='Enter'){event.preventDefault();searchUsersForChat();}"
                  oninput="if(!this.value.trim())document.getElementById('newChatResults').innerHTML='';"
-                 style="width:100%;padding:10px 40px 10px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:15px;box-sizing:border-box;">
+                 style="width:100%;padding:10px 40px 10px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:16px;box-sizing:border-box;">
           <button class="nc-search-icon-btn" onclick="searchUsersForChat()" title="Search">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           </button>
@@ -3305,6 +3360,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  sendEmailVerification,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
@@ -3573,10 +3629,13 @@ async function firebaseSignup(email, password, username) {
     createdAt: nowStamp(),
     lastActivity: nowStamp(),
     blockedUsers: [],
-    lastRead: {}
+    lastRead: {},
+    requiresVerification: true
   });
+  /* Send email verification and show the verification screen */
+  try { await sendEmailVerification(userCred.user); } catch(_e) {}
   currentUser = usernameClean;
-  navigateToHome();
+  showVerificationScreen();
 }
 
 /* CHANGE 16: show inline error instead of alert for login */
@@ -3618,6 +3677,19 @@ async function firebaseLogin(usernameOrEmail, password) {
     }
     currentUser = resolvedUsername;
     _clearLoginError();
+    /* Check if this is a new account awaiting email verification */
+    if (currentUser) {
+      const _vSnap = await getDoc(doc(db, "users", currentUser)).catch(() => null);
+      if (_vSnap && _vSnap.exists() && _vSnap.data().requiresVerification === true) {
+        await userCred.user.reload();
+        if (!auth.currentUser.emailVerified) {
+          showVerificationScreen();
+          return;
+        } else {
+          updateDoc(doc(db, "users", currentUser), { requiresVerification: false }).catch(() => {});
+        }
+      }
+    }
     navigateToHome();
   } catch(err) {
     let msg = "Incorrect password or account not found.";
@@ -3652,6 +3724,17 @@ onAuthStateChanged(auth, async (user) => {
       const snap = await getDocs(q);
       if (!snap.empty) {
         currentUser = snap.docs[0].data().username;
+        /* Check if new account requires email verification */
+        if (snap.docs[0].data().requiresVerification === true) {
+          await user.reload();
+          if (!auth.currentUser.emailVerified) {
+            showVerificationScreen();
+            return;
+          } else {
+            /* Auto-clear flag once verified */
+            updateDoc(doc(db, "users", snap.docs[0].id), { requiresVerification: false }).catch(() => {});
+          }
+        }
       }
     }
     if (currentUser) navigateToHome();
@@ -3687,6 +3770,67 @@ window.logout = function () {
 /* ════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════ */
+/* ════════════════════════════════════════
+   EMAIL VERIFICATION HELPERS
+═══════════════════════════════════════ */
+function showVerificationScreen() {
+  const user = auth.currentUser;
+  const emailEl = document.getElementById("verifEmailDisplay");
+  if (emailEl && user) emailEl.textContent = user.email || "";
+  document.getElementById("authSection").style.display        = "none";
+  document.getElementById("homeSection").style.display        = "none";
+  document.getElementById("verificationScreen").style.display = "flex";
+}
+window.showVerificationScreen = showVerificationScreen;
+
+async function recheckVerification() {
+  const user = auth.currentUser;
+  if (!user) { navigateToAuth(); return; }
+  const btn = document.querySelector("#verificationScreen button");
+  if (btn) { btn.disabled = true; btn.textContent = "Checking…"; }
+  try {
+    await user.reload();
+    if (auth.currentUser.emailVerified) {
+      if (currentUser) {
+        await updateDoc(doc(db, "users", currentUser), { requiresVerification: false }).catch(() => {});
+      }
+      document.getElementById("verificationScreen").style.display = "none";
+      navigateToHome();
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = "✓ I've verified — Continue"; }
+      alert("Email not verified yet. Please click the link in your inbox first, then try again.");
+    }
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = "✓ I've verified — Continue"; }
+  }
+}
+window.recheckVerification = recheckVerification;
+
+async function resendVerificationEmail() {
+  const user = auth.currentUser;
+  if (!user) return;
+  const btn = document.getElementById("resendVerifBtn");
+  try {
+    await sendEmailVerification(user);
+    if (btn) {
+      btn.textContent = "✓ Sent! Check your inbox";
+      btn.disabled = true;
+      setTimeout(() => { if (btn) { btn.textContent = "Resend verification email"; btn.disabled = false; } }, 30000);
+    }
+  } catch(e) {
+    const msg = e.code === "auth/too-many-requests"
+      ? "Too many requests. Please wait a moment before trying again."
+      : "Could not resend email. Please try again later.";
+    alert(msg);
+  }
+}
+window.resendVerificationEmail = resendVerificationEmail;
+
+async function cancelVerification() {
+  await firebaseLogout().catch(() => {});
+}
+window.cancelVerification = cancelVerification;
+
 function navigateToHome() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("homeSection").style.display = "block";
@@ -3705,8 +3849,9 @@ function navigateToHome() {
   initializeHomeComponent();
 }
 function navigateToAuth() {
-  document.getElementById("authSection").style.display  = "flex";
-  document.getElementById("homeSection").style.display  = "none";
+  document.getElementById("authSection").style.display      = "flex";
+  document.getElementById("homeSection").style.display      = "none";
+  document.getElementById("verificationScreen").style.display = "none";
   document.body.style.background = "white";
   showLoginTab();
 }
@@ -4985,6 +5130,17 @@ function renderChatList() {
     page.appendChild(div);
   });
 
+  /* Nav chats unread badge */
+  const _navChatsBadge = document.getElementById("navChatsBadge");
+  if (_navChatsBadge) {
+    const _totalUnread = items.reduce((s, it) => s + (it.unread || 0), 0);
+    if (_totalUnread > 0) {
+      _navChatsBadge.textContent = _totalUnread > 99 ? "99+" : String(_totalUnread);
+      _navChatsBadge.style.display = "inline-block";
+    } else {
+      _navChatsBadge.style.display = "none";
+    }
+  }
   updateNotifBadge();
 }
 
@@ -6125,14 +6281,43 @@ async function saveEditedProfile() {
       const convSnap = await getDocs(
         query(collection(db, "conversations"), where("participants", "array-contains", oldName))
       );
-      const convBatch = writeBatch(db);
-      convSnap.docs.forEach(d => {
-        const parts = (d.data().participants || []).map(p => normalizeName(p) === oldName ? newUsername : p);
-        const oldUnread = d.data()[`unread_${oldName}`] || 0;
-        const updates = { participants: parts, [`unread_${newUsername}`]: oldUnread };
-        convBatch.update(d.ref, updates);
-      });
-      await convBatch.commit();
+      /* Rename each conversation document to the new threadId so chat
+         history is preserved after a username change.                 */
+      for (const d of convSnap.docs) {
+        const oldDocId = d.id;
+        const oldData  = d.data();
+        const newParts = (oldData.participants || []).map(p =>
+          normalizeName(p) === oldName ? newUsername : p
+        );
+        const newDocId = newParts.slice().sort().join("||");
+        const newData  = { ...oldData, participants: newParts };
+        /* Migrate unread counter key from old → new username */
+        if (`unread_${oldName}` in newData) {
+          newData[`unread_${newUsername}`] = newData[`unread_${oldName}`] || 0;
+          delete newData[`unread_${oldName}`];
+        }
+        if (oldDocId !== newDocId) {
+          /* Write new conversation document */
+          await setDoc(doc(db, "conversations", newDocId), newData);
+          /* Copy messages subcollection in chunks of 450 */
+          const msgsSnap = await getDocs(
+            collection(db, "conversations", oldDocId, "messages")
+          );
+          for (let i = 0; i < msgsSnap.docs.length; i += 450) {
+            const chunk = msgsSnap.docs.slice(i, i + 450);
+            const mb = writeBatch(db);
+            chunk.forEach(m =>
+              mb.set(doc(db, "conversations", newDocId, "messages", m.id), m.data())
+            );
+            await mb.commit();
+          }
+          /* Remove old conversation doc */
+          await deleteDoc(doc(db, "conversations", oldDocId));
+        } else {
+          /* Document ID unchanged — just update the fields */
+          await updateDoc(doc(db, "conversations", oldDocId), newData);
+        }
+      }
       await deleteDoc(doc(db, "users", oldName));
       profileCache[newUsername] = { ...oldData, ...profileData };
       delete profileCache[oldName];
@@ -6227,7 +6412,7 @@ let _ppStagedFiles = []; /* [{raw: File, url: string, cropped: File|null}] */
 window.ppHandleImageSelect = function(e) {
   const files = Array.from(e.target.files || []);
   e.target.value = "";
-  const remaining = 2 - _ppStagedFiles.length - (_postVideoFile ? 1 : 0);
+  const remaining = 3 - _ppStagedFiles.length;
   if (remaining <= 0) return;
   files.filter(f => f.type.startsWith("image/")).slice(0, remaining).forEach(f => {
     _ppStagedFiles.push({ raw: f, url: URL.createObjectURL(f), cropped: null });
@@ -6941,39 +7126,9 @@ function showUserPosts(u) {
   if (!userPosts.length) {
     feed.innerHTML = `<div style="padding:30px;text-align:center;color:gray;">No posts yet.</div>`;
   } else {
-    userPosts.forEach(post => {
-      const profile = ensureProfile(post.author);
-      const age     = profile.age || "";
-      const isOwn   = normalizeName(post.author) === normalizeName(currentUser);
-      const card    = document.createElement("div");
-      card.className = "post-card";
-      card.innerHTML =
-        `<div class="post-header">
-           <div class="post-avatar" onclick="viewUserProfile('${escapeHtml(post.author)}',event)">${renderAvatarHTML(post.author)}</div>
-           <div class="post-user-meta"><div class="post-username">${escapeHtml(post.author)}</div></div>
-           ${age ? `<div class="post-age-tag">${escapeHtml(String(age))}yr</div>` : ""}
-         </div>
-         ${(post.images && post.images.length)
-             ? (post.images.length === 1
-               ? `<div class="post-images ${post.videoUrl ? "with-video" : "single"}"><img src="${escapeHtml(post.images[0])}" alt="post image" onclick="openPostImgViewer('${escapeHtml(post.images[0])}')"></div>`
-               : `<div class="post-images pair">${post.images.map(url => `<img src="${escapeHtml(url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(url)}')">`).join("")}</div>`)
-             : ""}
-         ${post.videoUrl ? `<div class="post-video-wrap${(post.images && post.images.length) ? "" : " single-video"}" onclick="(function(w){w.classList.toggle('playing');var v=w.querySelector('video');if(w.classList.contains('playing')){v.controls=true;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');v.controls=false;});}else{v.pause();v.controls=false;}})(this)"><video class="post-video" src="${escapeHtml(post.videoUrl)}" playsinline preload="metadata" onloadedmetadata="if(this.readyState>=1&&!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}"></video><div class="post-video-play-btn"><svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.55)"/><polygon points="9.5,7 18,12 9.5,17" fill="white"/></svg></div></div>` : ""}
-         ${(()=>{ const _w=post.text.split(/\s+/).filter(Boolean); const _ln=post.text.split('\n'); const _cls=(post.images&&post.images.length)||post.videoUrl?"post-text-compact":"post-text"; const _needsMore=_w.length>25||_ln.length>7; if(!_needsMore){ return `<div class="${_cls}">${escapeHtml(post.text)}</div>`; } const _sh=(_ln.length>7&&_w.length<=25)?_ln.slice(0,7).join('\n'):_w.slice(0,25).join(" "); return `<div class="${_cls}"><span class="ptb-short">${escapeHtml(_sh)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${escapeHtml(post.text)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button></div>`; })()}
-         <div class="post-footer">
-           <div class="post-footer-row">
-             <div style="display:flex;align-items:center;gap:6px;">
-               ${post.id ? `<button class="comment-btn" onclick="openCommentModal('${escapeHtml(post.id)}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="comment-count-badge" data-cc-id="${escapeHtml(post.id)}">${(_commentCounts[post.id]||0)>0?String(_commentCounts[post.id]):""}</span></button>` : ""}
-               ${isOwn ? `<span style="font-size:12px;color:#9ca3af;">Your post</span>` : ""}
-             </div>
-             <div class="post-timestamp">${formatPostTimestamp(post.stamp)}</div>
-           </div>
-         </div>
-         <hr class="post-sep">`;
-      if (isOwn && post.id) addLongPress(card, () => _showPostActionMenu(post, card));
-      if (post.id) setTimeout(() => _fetchCommentCount(post.id), 0);
-      feed.appendChild(card);
-    });
+    /* Use _buildPostCard so carousels (3 images / 2 images + video) render
+       exactly as they do on the For You feed */
+    userPosts.forEach(post => feed.appendChild(_buildPostCard(post)));
   }
   const _up = document.getElementById("userPostsPage");
   document.getElementById("chatPage").style.display    = "none";
@@ -8054,49 +8209,35 @@ function _setupChatSwipeBack() {
 
 <!-- ═══════════════════════════════════════
      KEYBOARD / VIEWPORT HANDLER
-     • Prevents body from scrolling (layout viewport stays at top).
-     • Resizes .chat-screen to match visualViewport.height so the flex
-       column (chat-top → chat-box → input-container) keeps the input
-       right above the keyboard on iOS and Android — no fixed hacks.
-     • Lifts the comment bottom-sheet above the keyboard.
-     • Hides FY search bar when scrolling content, shows on reverse.
+     • viewport meta interactive-widget=resizes-content lets the
+       browser naturally shrink the layout viewport when the keyboard
+       opens — all position:fixed screens (chat, comment sheet, etc.)
+       automatically shift up without any JS tricks.
+     • visualViewport resize handler keeps chat-box scrolled to the
+       last message and lifts the comment bottom-sheet.
+     • Hides FY search bar when content scrolls up, shows on reverse.
 ═══════════════════════════════════════ -->
 <script>
 (function () {
-  /* ── Prevent body scroll ── */
-  function resetScroll() {
-    if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0) {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    }
-  }
-  window.addEventListener('scroll', resetScroll, { passive: true });
-  document.addEventListener('focusin', function (e) {
-    var el = e.target;
-    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
-      setTimeout(resetScroll, 80);
-      setTimeout(resetScroll, 200);
-    }
-  }, { passive: true });
+  /* resetScroll deliberately removed — it was preventing every screen
+     (login, chat, comment, etc.) from scrolling up when the keyboard
+     opened. The viewport meta interactive-widget=resizes-content now
+     handles this natively in the browser.                             */
 
-  /* ── visualViewport resize → resize chat-screen ──
-     chat-screen is position:fixed top:0/bottom:0 flex column.
-     On iOS, visualViewport.height shrinks when keyboard opens.
-     Setting chat-screen.style.height = vvH compresses only the
-     scrollable chat-box (flex:1 min-height:0) and leaves the
-     input-container at the bottom edge — right above the keyboard. */
+  /* ── visualViewport resize → keep chat-box scrolled to bottom ──
+     When keyboard opens the visualViewport shrinks. We use this event
+     to ensure the last message stays visible above the input bar.    */
   if (window.visualViewport) {
     function onVVResize() {
       var vv  = window.visualViewport;
       var vvH = vv.height;
-      var vvT = Math.round(vv.offsetTop || 0);
-      if (vvT > 1) window.scrollTo(0, vvT);
+      /* No window.scrollTo here — let the browser handle page scroll. */
 
       var cs = document.getElementById('chatScreen');
       if (cs && cs.style.display !== 'none') {
-        cs.style.height = vvH + 'px';
-        cs.style.top    = vvT + 'px';
+        /* interactive-widget=resizes-content makes the layout viewport
+           shrink automatically — position:fixed chat-screen adapts via
+           CSS. We only scroll chatBox to keep last message visible. */
         var chatBox = document.getElementById('chatBox');
         if (chatBox) {
           clearTimeout(chatBox._scrollTimer);
@@ -8106,11 +8247,19 @@ function _setupChatSwipeBack() {
         }
       }
 
-      /* Lift comment sheet above keyboard */
+      /* Lift comment sheet above keyboard + cap height to visual viewport */
       var cpage = document.getElementById('commentPage');
       if (cpage && cpage.style.display !== 'none') {
         var kbH = Math.max(0, window.innerHeight - vvH);
         cpage.style.bottom = kbH + 'px';
+        if (kbH > 80) {
+          cpage.style.maxHeight = (vvH - 6) + 'px';
+          /* Scroll comments to bottom so latest is visible above keyboard */
+          var sc = document.getElementById('commentPageScroll');
+          if (sc) { clearTimeout(sc._kbScroll); sc._kbScroll = setTimeout(function(){ sc.scrollTop = sc.scrollHeight; }, 80); }
+        } else {
+          cpage.style.maxHeight = '';
+        }
       }
     }
     window.visualViewport.addEventListener('resize', onVVResize, { passive: true });
@@ -8137,6 +8286,19 @@ function _setupChatSwipeBack() {
         _last = top;
       }, { passive: true });
     });
+  });
+
+  /* ── Comment input: scroll to bottom on focus (before keyboard lifts) ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var ci = document.getElementById('commentInput');
+    if (ci) {
+      ci.addEventListener('focus', function () {
+        setTimeout(function () {
+          var sc = document.getElementById('commentPageScroll');
+          if (sc) sc.scrollTop = sc.scrollHeight;
+        }, 50);
+      });
+    }
   });
 
   /* ── Comment send icon toggle + textarea auto-grow ── */
