@@ -558,25 +558,226 @@ html {
   background: #f3f4f6;
   z-index: 250;
   box-sizing: border-box;
-}
-#userPostsPage .up-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: #1f2937;
-  flex-shrink: 0;
-}
-#userPostsPage .up-title {
-  font-weight: bold;
-  font-size: 16px;
-  color: #eff3f4;
-  flex: 1;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 #userPostsPage .up-feed {
   flex: 1;
   overflow-y: auto;
-  padding: 6px 0 12px;
+  -webkit-overflow-scrolling: touch;
+}
+/* Cover / dark Reddit-style profile header */
+.up-cover-wrap {
+  position: relative;
+  width: 100%;
+  height: 110px;
+  background: linear-gradient(135deg, #1a3a5c 0%, #0f2748 60%, #1a1a2e 100%);
+  flex-shrink: 0;
+  overflow: visible;
+}
+.up-cover-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+.up-float-back {
+  position: absolute;
+  top: 10px; left: 12px;
+  z-index: 10;
+  background: rgba(0,0,0,0.4);
+  border: none; border-radius: 50%;
+  width: 34px; height: 34px;
+  color: #ffffff;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.up-cover-cam {
+  position: absolute;
+  bottom: 8px; right: 12px;
+  z-index: 10;
+  background: rgba(0,0,0,0.5);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  width: 32px; height: 32px;
+  color: white; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+/* Profile hero */
+.up-profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 4px;
+}
+/* Avatar overlapping the cover */
+.up-avatar-outer {
+  position: relative;
+  margin-top: -44px;
+  margin-bottom: 10px;
+  z-index: 5;
+}
+.up-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  background: #374151;
+}
+.up-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+.up-avatar-cam {
+  position: absolute;
+  bottom: 2px; right: 2px;
+  width: 26px; height: 26px;
+  background: #0d9488;
+  border: 2px solid #f3f4f6;
+  border-radius: 50%;
+  color: white; font-size: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.up-username-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.up-username {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+.up-action-btn {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 16px;
+  border-radius: 9999px;
+  border: 1.5px solid #111827;
+  background: #111827;
+  color: #ffffff;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.up-action-btn.up-following {
+  background: transparent;
+  color: #111827;
+}
+.up-action-btn.up-edit {
+  background: transparent;
+  color: #111827;
+  border-color: #6b7280;
+}
+#userPostsBioWrap {
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.up-bio-text {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.55;
+  text-align: center;
+  margin-bottom: 2px;
+}
+.up-see-more {
+  background: none;
+  border: none;
+  color: #008b8b;
+  font-size: 12px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  cursor: pointer;
+  padding: 2px 0 0;
+}
+.up-fans-capsule {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  background: rgba(0,0,0,0.05);
+  border-radius: 9999px;
+  padding: 3px 14px;
+  margin-bottom: 10px;
+}
+/* Reddit-style 4-section info panel */
+.up-info-panel {
+  display: flex;
+  width: calc(100% - 32px);
+  margin: 8px 16px 14px;
+  border: 1px solid rgba(0,0,0,0.13);
+  border-radius: 4px;
+  background: rgba(0,0,0,0.035);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.up-info-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px 8px;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 0;
+}
+.up-info-cell.up-editable { cursor: pointer; }
+.up-info-cell.up-editable:active { background: rgba(0,0,0,0.06); }
+.up-info-divider {
+  width: 1px;
+  background: rgba(0,0,0,0.12);
+  align-self: stretch;
+  flex-shrink: 0;
+}
+.up-info-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  text-align: center;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+.up-info-lbl {
+  font-size: 9px;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.up-posts-divider {
+  height: 6px;
+  background: rgba(0,0,0,0.06);
 }
 .chat-top {
   display: flex;
@@ -761,8 +962,21 @@ body.dark-mode .post-fab { background: transparent; color: #eff3f4; border: 2px 
 body.dark-mode .follow-btn { background: #374151; color: #f9fafb; }
 body.dark-mode .follow-btn.following { background: #4b5563; color: #f9fafb; }
 body.dark-mode #userPostsPage { background: #000000; }
-body.dark-mode #userPostsPage .up-header { background: #1f2937; border-bottom-color: #374151; }
-body.dark-mode #userPostsPage .up-title { color: #f9fafb; }
+body.dark-mode .up-cover-wrap { background: linear-gradient(135deg, #0d1f30 0%, #080e18 60%, #040810 100%); }
+body.dark-mode .up-avatar { border-color: #000000; }
+body.dark-mode .up-avatar-cam { border-color: #000000; }
+body.dark-mode .up-username { color: #f9fafb; }
+body.dark-mode .up-bio-text { color: #d1d5db; }
+body.dark-mode .up-fans-capsule { color: #9ca3af; background: rgba(255,255,255,0.08); }
+body.dark-mode .up-info-panel { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+body.dark-mode .up-info-divider { background: rgba(255,255,255,0.1); }
+body.dark-mode .up-info-val { color: #f9fafb; }
+body.dark-mode .up-info-lbl { color: #9ca3af; }
+body.dark-mode .up-info-cell.up-editable:active { background: rgba(255,255,255,0.06); }
+body.dark-mode .up-posts-divider { background: rgba(255,255,255,0.06); }
+body.dark-mode .up-action-btn { border-color: #f9fafb; background: #f9fafb; color: #000000; }
+body.dark-mode .up-action-btn.up-following { background: transparent; color: #f9fafb; }
+body.dark-mode .up-action-btn.up-edit { background: transparent; color: #f9fafb; border-color: #6b7280; }
 body.dark-mode .user-post-item { color: #e5e7eb; border-bottom-color: #374151; }
 body.dark-mode .profile-info { background: #1f2937; color: #f9fafb; }
 body.dark-mode .profile-info p, body.dark-mode .profile-info span { color: #e5e7eb; }
@@ -795,8 +1009,21 @@ body.light-mode .post-fab { background: transparent; color: #1f2937; border: 2px
 body.light-mode .follow-btn { background: #1f2937; color: #ffffff; }
 body.light-mode .follow-btn.following { background: #e5e7eb; color: #1f2937; }
 body.light-mode #userPostsPage { background: #ffffff; }
-body.light-mode #userPostsPage .up-header { background: #ffffff; border-bottom: 1px solid #e5e7eb; }
-body.light-mode #userPostsPage .up-title { color: #111827; }
+body.light-mode .up-avatar { border-color: #ffffff; }
+body.light-mode .up-avatar-cam { border-color: #ffffff; }
+body.light-mode .up-info-panel { border-color: rgba(0,0,0,0.12); background: rgba(0,0,0,0.03); }
+body.light-mode .up-fans-capsule { background: rgba(0,0,0,0.05); }
+body.light-mode .up-action-btn { border-color: #111827; background: #111827; color: #ffffff; }
+body.light-mode .up-action-btn.up-following { background: transparent; color: #111827; }
+body.light-mode .up-action-btn.up-edit { background: transparent; color: #111827; border-color: #6b7280; }
+body.pink-mode #userPostsPage { background: #fff5f7; }
+body.pink-mode .up-avatar { border-color: #fff5f7; }
+body.pink-mode .up-info-panel { border-color: rgba(233,30,140,0.18); background: rgba(233,30,140,0.04); }
+body.pink-mode .up-info-divider { background: rgba(233,30,140,0.15); }
+body.lavender-mode #userPostsPage { background: #f5f3ff; }
+body.lavender-mode .up-avatar { border-color: #f5f3ff; }
+body.lavender-mode .up-info-panel { border-color: rgba(124,58,237,0.18); background: rgba(124,58,237,0.04); }
+body.lavender-mode .up-info-divider { background: rgba(124,58,237,0.15); }
 body.light-mode .user-post-item { color: #111827; border-bottom-color: #e5e7eb; }
 body.light-mode .profile-info { background: #ffffff; color: #111827; }
 body.light-mode .profile-info p, body.light-mode .profile-info span { color: #111827; }
@@ -1527,8 +1754,8 @@ body.text-large  .post-text, body.text-large  .post-text-compact { font-size: 18
 .post-images.single img {
   width: 100%;
   height: auto;
-  /* Cap at 4:5 portrait — if image is shorter (landscape) it shows at natural height */
-  max-height: calc(100vw * 1.25);
+  /* Cap at 1:1 square — if image is shorter (landscape) it shows at natural height */
+  max-height: calc(100vw * 1);
   object-fit: contain;
   border-radius: 12px;
   cursor: pointer;
@@ -1544,7 +1771,7 @@ body.text-large  .post-text, body.text-large  .post-text-compact { font-size: 18
 .post-images.with-video img {
   width: 100%;
   height: auto;
-  max-height: calc(100vw * 1.25);
+  max-height: calc(100vw * 1);
   object-fit: contain;
   border-radius: 12px;
   cursor: pointer;
@@ -2768,7 +2995,7 @@ body.light-mode .fy-search-bar.header-hidden input { color: rgba(0,0,0,0.5) !imp
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 599;
+  z-index: 829;
   background: rgba(0,0,0,0.5);
 }
 #commentBackdrop.open { display: block; }
@@ -3091,7 +3318,7 @@ body.dark-mode .comment-btn:hover { background: rgba(255,255,255,0.08); }
 .comment-time { font-size: 11px; color: #9ca3af; margin-top: 2px; }
 body.dark-mode .comment-item { border-color: #374151; }
 body.dark-mode .comment-text { color: #eff3f4; }
-body.dark-mode #commentInput { background: #1f2937; color: #eff3f4; border-color: #4b5563; }
+body.dark-mode #commentInput { background: transparent; color: #eff3f4; border-color: #4b5563; }
 
 /* CHANGE 4: comment modal post preview at top */
 .comment-post-preview {
@@ -3162,7 +3389,7 @@ body.dark-mode .msg-action-menu .mam-danger { color: #f87171; }
   right: 0;
   height: 50vh;
   max-height: 75dvh;
-  z-index: 601;
+  z-index: 830;
   background: #000000;
   border-radius: 16px 16px 0 0;
   box-shadow: 0 -4px 32px rgba(0,0,0,0.45);
@@ -3300,6 +3527,35 @@ body.light-mode #commentInput { color: #111827; }
   cursor: pointer;
 }
 .comment-item-content { flex: 1; min-width: 0; }
+/* Threaded comment replies */
+.comment-reply-btn {
+  font-size: 11px; color: #6b7280; background: none; border: none;
+  cursor: pointer; padding: 3px 0 0; font-family: inherit;
+  -webkit-tap-highlight-color: transparent; margin-left: 6px;
+}
+.comment-reply-btn:active { color: #0d9488; }
+.comment-replies {
+  margin-left: 42px;
+  border-left: 2px solid #2f3336;
+  padding-left: 10px;
+  margin-top: 2px;
+}
+body.light-mode .comment-replies { border-left-color: #e5e7eb; }
+.comment-reply-banner {
+  display: none;
+  background: rgba(13,148,136,0.12);
+  border-left: 3px solid #0d9488;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0 16px 4px;
+  border-radius: 0 6px 6px 0;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.comment-reply-banner.visible { display: flex; }
 
 /* Ensure profile picture images fill their circular containers */
 .comment-item-avatar img,
@@ -3325,8 +3581,8 @@ body.light-mode #commentInput { color: #111827; }
 .post-video-wrap.single-video .post-video {
   width: 100%;
   height: auto;
-  /* Cap at 4:5 portrait max — shorter (landscape) videos keep natural height */
-  max-height: calc(100vw * 1.25);
+  /* Cap at 1:1 square max — shorter (landscape) videos keep natural height */
+  max-height: calc(100vw * 1);
   max-width: 100%;
   object-fit: contain;
   display: block;
@@ -4618,6 +4874,11 @@ body.light-mode .pd-post-wrap { border-color: #e5e7eb; }
   background: #000000; flex-shrink: 0;
 }
 body.light-mode .pd-comment-input-area { background: #fff; border-color: #e5e7eb; }
+body.pink-mode .pd-comment-input-area { background: #fff0f5; border-color: #f9a8d4; }
+body.pink-mode #pdCommentInput { background: #fce7f3; border-color: rgba(233,30,140,0.2); color: #111827; }
+body.lavender-mode .pd-comment-input-area { background: #f5f3ff; border-color: #c4b5fd; }
+body.lavender-mode #pdCommentInput { background: #ede9fe; border-color: rgba(124,58,237,0.2); color: #111827; }
+#pdCommentList img { width: 100%; height: 100%; object-fit: cover; }
 #pdCommentInput {
   flex: 1; background: #1e2732; border: 1px solid rgba(255,255,255,0.12);
   border-radius: 20px; padding: 8px 14px; color: #eff3f4;
@@ -4982,6 +5243,8 @@ button, a, [onclick], .post-card, .chat, .msg, .comment-item,
         <input id="editLocation" placeholder="Location (city, country)">
         <textarea id="editBio" placeholder="Bio / About me"></textarea>
         <select id="editRelationship"><option value="">Relationship status</option><option value="Single">Single</option><option value="Married">Married</option></select>
+        <label style="font-size:12px;color:#6b7280;font-family:'Inter',sans-serif;display:block;margin-top:6px;margin-bottom:2px;">Cake Day</label>
+        <input id="editCakeDay" type="date" placeholder="Cake Day" style="font-family:'Inter',sans-serif;" title="Your cake day (anniversary on MyChat)">
         <div class="modal-buttons">
           <button class="save-edit" id="profileSaveBtn" onclick="saveEditedProfile()">Save</button>
           <button class="cancel-edit" id="profileCancelBtn" onclick="closeEditProfile()">Cancel</button>
@@ -5306,15 +5569,61 @@ button, a, [onclick], .post-card, .chat, .msg, .comment-item,
 
     <!-- USER POSTS PAGE -->
     <div id="userPostsPage">
-      <div class="up-header">
-        <button class="back-btn" onclick="closeUserPosts()" aria-label="Back"><svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M8 1L1.5 8L8 15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <span class="up-title" id="userPostsTitle">Posts</span>
+      <!-- Scrollable area: profile hero + post cards -->
+      <div class="up-feed" id="userPostsFeed">
+        <!-- Profile hero -->
+        <div class="up-profile-hero">
+          <!-- Cover photo / dark Reddit-style header area -->
+          <div class="up-cover-wrap">
+            <div class="up-cover-img" id="upCoverImg"></div>
+            <button class="up-float-back" onclick="closeUserPosts()" aria-label="Back"><svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M8 1L1.5 8L8 15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <button class="up-cover-cam" id="upCoverCamBtn" style="display:none;" onclick="_upChangeCover()">📷</button>
+          </div>
+          <!-- Avatar overlapping cover -->
+          <div class="up-avatar-outer">
+            <div class="up-avatar" id="userPostsAvatar"></div>
+            <button class="up-avatar-cam" id="upAvatarCamBtn" style="display:none;" onclick="openEditProfile()">📷</button>
+          </div>
+          <!-- Username + Follow / Edit Profile button -->
+          <div class="up-username-row">
+            <span class="up-username" id="userPostsUsername"></span>
+            <button class="up-action-btn" id="userPostsFollowBtn" onclick="_upToggleFollow()" style="display:none;"></button>
+          </div>
+          <!-- Bio -->
+          <div id="userPostsBioWrap" style="display:none;">
+            <div id="userPostsBioText" class="up-bio-text"></div>
+            <button id="userPostsBioSeeMore" onclick="_upToggleBio()" class="up-see-more" style="display:none;">See more</button>
+          </div>
+          <!-- Fans count -->
+          <div class="up-fans-capsule" id="userPostsFansCapsule" style="display:none;"></div>
+          <!-- Reddit-style 4-section info panel (always visible, shows — for empty) -->
+          <div class="up-info-panel" id="upInfoPanel">
+            <div class="up-info-cell" id="upCellAge">
+              <span class="up-info-val" id="upValAge">—</span>
+              <span class="up-info-lbl">Age</span>
+            </div>
+            <div class="up-info-divider"></div>
+            <div class="up-info-cell" id="upCellCity">
+              <span class="up-info-val" id="upValCity">—</span>
+              <span class="up-info-lbl">City</span>
+            </div>
+            <div class="up-info-divider"></div>
+            <div class="up-info-cell" id="upCellRel">
+              <span class="up-info-val" id="upValRel">—</span>
+              <span class="up-info-lbl">Relationship</span>
+            </div>
+            <div class="up-info-divider"></div>
+            <div class="up-info-cell" id="upCellCake">
+              <span class="up-info-val" id="upValCake">—</span>
+              <span class="up-info-lbl">Cake Day</span>
+            </div>
+          </div>
+        </div>
+        <!-- Thin separator -->
+        <div class="up-posts-divider"></div>
+        <!-- Post cards injected here by showUserPosts() -->
+        <div id="userPostsCards"></div>
       </div>
-      <div id="userPostsBioWrap" style="display:none;padding:10px 16px 4px;border-bottom:1px solid rgba(0,0,0,0.07);">
-        <div id="userPostsBioText" style="font-size:13px;color:#374151;line-height:1.5;"></div>
-        <button id="userPostsBioSeeMore" onclick="_upToggleBio()" style="background:none;border:none;color:#008b8b;font-size:12px;cursor:pointer;padding:2px 0 0;display:none;">See more</button>
-      </div>
-      <div class="up-feed" id="userPostsFeed"></div>
     </div>
 
     <!-- MATCH MUTUAL CELEBRATION OVERLAY -->
@@ -8985,6 +9294,7 @@ async function openEditProfile() {
   document.getElementById("editRelationship").value = p.relationship || "";
   document.getElementById("editAge").value          = p.age          || "";
   document.getElementById("editGender").value       = p.gender       || "";
+  document.getElementById("editCakeDay").value      = p.cakeDay      || "";
   const av = document.getElementById("editModalAvatar");
   av.innerHTML = makeAvatarInner(p.username || currentUser, p.picture);
   editPictureData = null;
@@ -9021,6 +9331,7 @@ async function saveEditedProfile() {
   const newRelationship = document.getElementById("editRelationship").value.trim() || "Single";
   const newAge          = document.getElementById("editAge").value.trim();
   const newGender       = document.getElementById("editGender").value;
+  const newCakeDay      = document.getElementById("editCakeDay").value || "";
   if (!newUsername) { alert("Username cannot be empty."); return; }
   if (newUsername !== oldName) {
     setBtnLoading("profileSaveBtn", true, "Checking…", "Save");
@@ -9056,7 +9367,8 @@ async function saveEditedProfile() {
       relationship: newRelationship,
       age:          newAge,
       gender:       newGender,
-      picture:      finalPicture
+      picture:      finalPicture,
+      cakeDay:      newCakeDay
     };
     if (newUsername === oldName) {
       await updateDoc(doc(db, "users", oldName), profileData);
@@ -9581,6 +9893,24 @@ function _renderCommentText(raw) {
   ).join("");
 }
 
+let _commentReplyToId = null;
+function _startCommentReply(commentId, authorName) {
+  _commentReplyToId = commentId;
+  const banner = document.getElementById("commentReplyBanner");
+  if (banner) banner.classList.add("visible");
+  const bannerText = document.getElementById("commentReplyBannerText");
+  if (bannerText) bannerText.textContent = "Replying to @" + (authorName || "");
+  const inp = document.getElementById("commentInput");
+  if (inp) inp.focus();
+}
+window._startCommentReply = _startCommentReply;
+function _cancelCommentReply() {
+  _commentReplyToId = null;
+  const banner = document.getElementById("commentReplyBanner");
+  if (banner) banner.classList.remove("visible");
+}
+window._cancelCommentReply = _cancelCommentReply;
+
 function _loadComments(postId, scrollToCommentId) {
   const list = document.getElementById("commentPageList");
   if (!list) return;
@@ -9599,25 +9929,48 @@ function _loadComments(postId, scrollToCommentId) {
       return;
     }
     list.innerHTML = "";
-    snap.docs.forEach(d => {
-      const c = d.data();
+    /* Threaded reply support */
+    const _postObj = (typeof posts !== "undefined" ? posts : []).find(p => p.id === postId);
+    const _isPostOwner = _postObj && normalizeName(_postObj.author || "") === normalizeName(currentUser);
+    const _allCmts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const _topLevel = _allCmts.filter(c => !c.parentCommentId);
+    const _replies  = _allCmts.filter(c => !!c.parentCommentId);
+    const _replyMap = {};
+    _replies.forEach(r => {
+      if (!_replyMap[r.parentCommentId]) _replyMap[r.parentCommentId] = [];
+      _replyMap[r.parentCommentId].push(r);
+    });
+    function _renderCmtItem(c, inReply) {
       const item = document.createElement("div");
       item.className = "comment-item";
-      item.dataset.commentId = d.id;
+      item.dataset.commentId = c.id;
+      const _rBtn = (_isPostOwner && !inReply)
+        ? `<button class="comment-reply-btn" onclick="event.stopPropagation();_startCommentReply('${escapeHtml(c.id)}','${escapeHtml(c.author||'')}')">Reply</button>`
+        : "";
       item.innerHTML = `
         <div class="comment-item-inner">
-          <div class="comment-item-avatar" onclick="viewUserProfile('${escapeHtml(c.author || '')}',event)">${renderAvatarHTML(c.author || "")}</div>
+          <div class="comment-item-avatar" onclick="viewUserProfile('${escapeHtml(c.author||'')}',event)">${renderAvatarHTML(c.author||"")}</div>
           <div class="comment-item-content">
-            <div class="comment-author">${escapeHtml(c.author || "")}</div>
-            <div class="comment-text">${_renderCommentText(c.text || "")}</div>
-            <div class="comment-time">${formatPostTimestamp(c.stamp || 0)}</div>
+            <div class="comment-author">${escapeHtml(c.author||"")}</div>
+            <div class="comment-text">${_renderCommentText(c.text||"")}</div>
+            <div class="comment-time">${formatPostTimestamp(c.stamp||0)}${_rBtn}</div>
           </div>
         </div>`;
-      const isOwn = normalizeName(c.author || "") === normalizeName(currentUser);
+      const isOwn = normalizeName(c.author||"") === normalizeName(currentUser);
       if (isOwn) {
-        addLongPress(item, () => _showCommentActionMenu(item, _commentPostId, d.id, c.text || ""));
+        addLongPress(item, () => _showCommentActionMenu(item, _commentPostId, c.id, c.text||""));
       }
-      list.appendChild(item);
+      return item;
+    }
+    _topLevel.forEach(c => {
+      list.appendChild(_renderCmtItem(c, false));
+      const nested = _replyMap[c.id] || [];
+      if (nested.length) {
+        const rDiv = document.createElement("div");
+        rDiv.className = "comment-replies";
+        nested.forEach(r => rDiv.appendChild(_renderCmtItem(r, true)));
+        list.appendChild(rDiv);
+      }
     });
     /* Scroll to specific comment if requested */
     if (scrollToCommentId) {
@@ -9647,11 +10000,10 @@ async function submitComment() {
   if (wc > 50) { alert("Comments must be 50 words or fewer."); return; }
   input.disabled = true;
   try {
-    const commentRef = await addDoc(collection(db, "posts", _commentPostId, "comments"), {
-      author: normalizeName(currentUser),
-      text,
-      stamp: nowStamp()
-    });
+    const _cmtData = { author: normalizeName(currentUser), text, stamp: nowStamp() };
+    if (_commentReplyToId) _cmtData.parentCommentId = _commentReplyToId;
+    _cancelCommentReply();
+    const commentRef = await addDoc(collection(db, "posts", _commentPostId, "comments"), _cmtData);
     const commentId = commentRef.id;
     /* Notify post author of new comment */
     const post = posts.find(p => p.id === _commentPostId);
@@ -9938,30 +10290,107 @@ function showUserPosts(u) {
   u = normalizeName(u);
   _saveForYouScroll();
   isOnForYou = false;
-  document.getElementById("userPostsTitle").textContent =
-    (u === normalizeName(currentUser)) ? "My Posts" : `${u}'s Posts`;
-  const userPosts = posts.filter(p => normalizeName(p.author) === u)
-                         .sort((a, b) => b.stamp - a.stamp);
-  const feed = document.getElementById("userPostsFeed");
-  feed.innerHTML = "";
-  if (!userPosts.length) {
-    feed.innerHTML = `<div style="padding:30px;text-align:center;color:gray;">No posts yet.</div>`;
-  } else {
-    /* Use _buildPostCard so carousels (3 images / 2 images + video) render
-       exactly as they do on the For You feed */
-    userPosts.forEach(post => feed.appendChild(_buildPostCard(post)));
+  const isOwn = u === normalizeName(currentUser);
+
+  /* Track the user this page is currently showing — used by _upToggleFollow
+     and by async callbacks to guard against stale writes. */
+  viewingUsername = u;
+  const _upPageEl = document.getElementById("userPostsPage");
+  if (_upPageEl) _upPageEl.dataset.upUser = u;
+
+  /* ── Profile hero elements ── */
+  const _upAvatar    = document.getElementById("userPostsAvatar");
+  const _upUsername  = document.getElementById("userPostsUsername");
+  const _upFollowBtn = document.getElementById("userPostsFollowBtn");
+  const _upBioWrap   = document.getElementById("userPostsBioWrap");
+  const _upBioText   = document.getElementById("userPostsBioText");
+  const _upBioBtn    = document.getElementById("userPostsBioSeeMore");
+  const _upFansCap   = document.getElementById("userPostsFansCapsule");
+  const _upCards     = document.getElementById("userPostsCards");
+
+  /* Cover camera + avatar camera — show only for own profile */
+  const _upCoverCamBtn  = document.getElementById("upCoverCamBtn");
+  const _upAvatarCamBtn = document.getElementById("upAvatarCamBtn");
+  if (_upCoverCamBtn)  _upCoverCamBtn.style.display  = isOwn ? "inline-flex" : "none";
+  if (_upAvatarCamBtn) _upAvatarCamBtn.style.display = isOwn ? "inline-flex" : "none";
+
+  /* Info panel cells — reset to dashes and set edit handlers for own profile */
+  const _upCells = ["upCellAge","upCellCity","upCellRel","upCellCake"];
+  const _upFields = ["age","city","relationship","cakeDay"];
+  _upCells.forEach((id, i) => {
+    const cell = document.getElementById(id);
+    if (!cell) return;
+    if (isOwn) {
+      cell.classList.add("up-editable");
+      cell.onclick = () => _upEditField(_upFields[i]);
+    } else {
+      cell.classList.remove("up-editable");
+      cell.onclick = null;
+    }
+  });
+  /* Reset info panel values */
+  ["upValAge","upValCity","upValRel","upValCake"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "—";
+  });
+  /* Reset cover photo */
+  const _upCoverImg = document.getElementById("upCoverImg");
+  if (_upCoverImg) { _upCoverImg.style.backgroundImage = ""; }
+
+  /* Avatar (initial render from cache) */
+  if (_upAvatar) _upAvatar.innerHTML = renderAvatarHTML(u);
+
+  /* Username */
+  if (_upUsername) _upUsername.textContent = u;
+
+  /* Follow / Edit Profile button */
+  if (_upFollowBtn) {
+    _upFollowBtn.style.display = "inline-block";
+    if (isOwn) {
+      _upFollowBtn.textContent = "Edit Profile";
+      _upFollowBtn.className   = "up-action-btn up-edit";
+      _upFollowBtn.onclick     = () => _upOpenEditSheet();
+    } else {
+      const _nowFollowing = isFollowing(u);
+      _upFollowBtn.textContent = _nowFollowing ? "Following" : "Follow";
+      _upFollowBtn.className   = "up-action-btn" + (_nowFollowing ? " up-following" : "");
+      _upFollowBtn.onclick     = () => _upToggleFollow();
+    }
   }
-  /* Populate bio with See more truncation */
-  const _upBioWrap = document.getElementById("userPostsBioWrap");
-  const _upBioText = document.getElementById("userPostsBioText");
-  const _upBioBtn  = document.getElementById("userPostsBioSeeMore");
-  if (_upBioWrap && _upBioText && _upBioBtn) {
-    _upBioWrap.style.display = "none";
-    _upBioText.textContent = "";
-    _upBioBtn.style.display = "none";
-    fetchProfile(u).then(prof => {
-      const rawBio = (prof && prof.bio) ? prof.bio : "";
-      if (!rawBio) return;
+
+  /* Bio — reset */
+  if (_upBioWrap) _upBioWrap.style.display = "none";
+  if (_upBioText) _upBioText.textContent   = "";
+  if (_upBioBtn)  _upBioBtn.style.display  = "none";
+
+  /* Fans capsule — reset */
+  if (_upFansCap) _upFansCap.style.display = "none";
+
+  /* Post cards — use same _buildPostCard as For You feed */
+  if (_upCards) {
+    _upCards.innerHTML = "";
+    const userPosts = posts.filter(p => normalizeName(p.author) === u)
+                           .sort((a, b) => b.stamp - a.stamp);
+    if (!userPosts.length) {
+      _upCards.innerHTML = `<div style="padding:30px;text-align:center;color:gray;font-family:'Inter',sans-serif;">No posts yet.</div>`;
+    } else {
+      userPosts.forEach(post => _upCards.appendChild(_buildPostCard(post)));
+    }
+  }
+
+  /* Async: fetch full profile → populate bio, fans, info, label */
+  fetchProfile(u).then(prof => {
+    if (!prof) return;
+    /* Guard: abort if the page has been switched to a different user */
+    const _upPageGuard = document.getElementById("userPostsPage");
+    if (_upPageGuard && _upPageGuard.dataset.upUser !== u) return;
+
+    /* Refresh avatar with actual picture */
+    if (_upAvatar) _upAvatar.innerHTML = makeAvatarInner(u, prof.picture);
+
+    /* Bio */
+    const rawBio = prof.bio || "";
+    if (rawBio && _upBioWrap && _upBioText && _upBioBtn) {
       const words = rawBio.trim().split(/\s+/).filter(Boolean);
       const needsMore = words.length > 12;
       _upBioText.dataset.fullBio = rawBio;
@@ -9970,8 +10399,33 @@ function showUserPosts(u) {
       _upBioBtn.style.display = needsMore ? "inline-block" : "none";
       _upBioBtn.textContent = "See more";
       _upBioWrap.style.display = "block";
+    }
+
+    /* Fans count */
+    _getFanCount(u).then(count => {
+      if (_upFansCap) {
+        _upFansCap.textContent  = `${count.toLocaleString()} ${count === 1 ? "Fan" : "Fans"}`;
+        _upFansCap.style.display = "inline-block";
+      }
     }).catch(() => {});
-  }
+
+    /* Reddit-style 4-section info panel */
+    _upRefreshInfoPanel(prof);
+
+    /* Cover photo */
+    if (prof.coverPhoto) {
+      const _ci = document.getElementById("upCoverImg");
+      if (_ci) { _ci.style.backgroundImage = `url('${escapeHtml(prof.coverPhoto)}')`; }
+    }
+
+    /* Update profile cache for in-place edits */
+    if (!window.profileCache) window.profileCache = {};
+    if (!window.profileCache[u]) window.profileCache[u] = {};
+    Object.assign(window.profileCache[u], prof);
+
+  }).catch(() => {});
+
+  /* ── Show / animate the page ── */
   const _up = document.getElementById("userPostsPage");
   document.getElementById("chatPage").style.display    = "none";
   document.querySelector(".top-bar").style.display     = "none";
@@ -9997,6 +10451,24 @@ function showUserPosts(u) {
     setTimeout(() => { _up.style.transition = ""; _up.scrollTop = 0; }, 230);
   });
 }
+
+/* Toggle follow state from the public profile page */
+async function _upToggleFollow() {
+  const u = normalizeName(viewingUsername);
+  if (!u || u === normalizeName(currentUser)) return;
+  const btn = document.getElementById("userPostsFollowBtn");
+  if (btn) btn.disabled = true;
+  await toggleFollow(u, null);
+  if (btn) {
+    btn.disabled = false;
+    const following = isFollowing(u);
+    btn.textContent = following ? "Following" : "Follow";
+    btn.className   = "up-action-btn" + (following ? " up-following" : "");
+  }
+  /* Keep the modal follow button in sync */
+  _updateVpFollowBtn(u);
+}
+window._upToggleFollow = _upToggleFollow;
 
 function closeUserPosts() {
   document.getElementById("userPostsPage").style.display = "none";
@@ -10041,6 +10513,308 @@ function closeUserPosts() {
 }
 
 window.showMyPosts    = showMyPosts;
+
+/* ════════════════════════════════════════
+   USER POSTS PAGE — INFO PANEL & IN-PLACE EDIT
+═══════════════════════════════════════ */
+
+/* Refresh the 4-cell info panel from a profile object */
+function _upRefreshInfoPanel(prof) {
+  const ageEl  = document.getElementById("upValAge");
+  const cityEl = document.getElementById("upValCity");
+  const relEl  = document.getElementById("upValRel");
+  const cakeEl = document.getElementById("upValCake");
+  if (ageEl)  ageEl.textContent  = prof.age ? String(prof.age) : "—";
+  if (cityEl) cityEl.textContent = prof.location ? _upFormatCity(prof.location) : "—";
+  if (relEl)  relEl.textContent  = prof.relationship || "—";
+  if (cakeEl) {
+    if (prof.cakeDay) {
+      try {
+        const d = new Date(prof.cakeDay + "T00:00:00");
+        cakeEl.textContent = d.toLocaleDateString([], { month: "short", day: "numeric" });
+      } catch(_) { cakeEl.textContent = "—"; }
+    } else { cakeEl.textContent = "—"; }
+  }
+}
+window._upRefreshInfoPanel = _upRefreshInfoPanel;
+
+/* Format "City, StateName" — abbreviate state if total > 18 chars */
+function _upFormatCity(loc) {
+  if (!loc) return "—";
+  const idx = loc.indexOf(",");
+  if (idx === -1) return loc.length > 18 ? loc.slice(0, 17) + "…" : loc;
+  const city  = loc.slice(0, idx).trim();
+  const state = loc.slice(idx + 1).trim();
+  const full  = city + ", " + state;
+  if (full.length > 18 && state.length > 5) return city + ", " + state.slice(0, 5) + ".";
+  return full;
+}
+window._upFormatCity = _upFormatCity;
+
+/* Nigerian cities dataset: [city, stateName] */
+const _ngCities = [
+  ["Aba","Abia"],["Umuahia","Abia"],["Ohafia","Abia"],["Arochukwu","Abia"],["Bende","Abia"],
+  ["Yola","Adamawa"],["Mubi","Adamawa"],["Jimeta","Adamawa"],["Numan","Adamawa"],["Ganye","Adamawa"],["Michika","Adamawa"],
+  ["Uyo","Akwa Ibom"],["Eket","Akwa Ibom"],["Ikot Ekpene","Akwa Ibom"],["Oron","Akwa Ibom"],["Ikot Abasi","Akwa Ibom"],["Itu","Akwa Ibom"],
+  ["Awka","Anambra"],["Onitsha","Anambra"],["Nnewi","Anambra"],["Ekwulobia","Anambra"],["Ogidi","Anambra"],["Aguata","Anambra"],
+  ["Bauchi","Bauchi"],["Azare","Bauchi"],["Misau","Bauchi"],["Katagum","Bauchi"],["Tafawa Balewa","Bauchi"],
+  ["Yenagoa","Bayelsa"],["Ogbia","Bayelsa"],["Brass","Bayelsa"],["Sagbama","Bayelsa"],["Ekeremor","Bayelsa"],
+  ["Makurdi","Benue"],["Gboko","Benue"],["Otukpo","Benue"],["Katsina-Ala","Benue"],["Vandekya","Benue"],["Konshisha","Benue"],
+  ["Maiduguri","Borno"],["Biu","Borno"],["Konduga","Borno"],["Dikwa","Borno"],["Gwoza","Borno"],["Bama","Borno"],
+  ["Calabar","Cross River"],["Ikom","Cross River"],["Ogoja","Cross River"],["Obudu","Cross River"],["Ugep","Cross River"],
+  ["Asaba","Delta"],["Warri","Delta"],["Sapele","Delta"],["Ughelli","Delta"],["Agbor","Delta"],["Abraka","Delta"],["Oghara","Delta"],
+  ["Abakaliki","Ebonyi"],["Afikpo","Ebonyi"],["Onueke","Ebonyi"],["Ikwo","Ebonyi"],["Unwana","Ebonyi"],
+  ["Benin City","Edo"],["Auchi","Edo"],["Uromi","Edo"],["Ekpoma","Edo"],["Irrua","Edo"],["Sabongida-Ora","Edo"],
+  ["Ado Ekiti","Ekiti"],["Ikere Ekiti","Ekiti"],["Ijero Ekiti","Ekiti"],["Ilawe Ekiti","Ekiti"],["Aramoko Ekiti","Ekiti"],["Efon Alaaye","Ekiti"],
+  ["Enugu","Enugu"],["Nsukka","Enugu"],["Agbani","Enugu"],["Awgu","Enugu"],["Oji River","Enugu"],["Udi","Enugu"],
+  ["Abuja","FCT"],["Gwagwalada","FCT"],["Kuje","FCT"],["Bwari","FCT"],["Kwali","FCT"],["Abaji","FCT"],["Kubwa","FCT"],
+  ["Gombe","Gombe"],["Kumo","Gombe"],["Bajoga","Gombe"],["Billiri","Gombe"],["Nafada","Gombe"],
+  ["Owerri","Imo"],["Orlu","Imo"],["Okigwe","Imo"],["Mbano","Imo"],["Nkwerre","Imo"],["Oguta","Imo"],
+  ["Dutse","Jigawa"],["Hadejia","Jigawa"],["Gumel","Jigawa"],["Birnin Kudu","Jigawa"],["Kazaure","Jigawa"],
+  ["Kaduna","Kaduna"],["Zaria","Kaduna"],["Kafanchan","Kaduna"],["Saminaka","Kaduna"],["Kachia","Kaduna"],["Zonkwa","Kaduna"],
+  ["Kano","Kano"],["Wudil","Kano"],["Dambatta","Kano"],["Gaya","Kano"],["Rano","Kano"],["Bichi","Kano"],["Gezawa","Kano"],
+  ["Katsina","Katsina"],["Daura","Katsina"],["Funtua","Katsina"],["Malumfashi","Katsina"],["Kankia","Katsina"],
+  ["Birnin Kebbi","Kebbi"],["Argungu","Kebbi"],["Yauri","Kebbi"],["Zuru","Kebbi"],["Jega","Kebbi"],
+  ["Lokoja","Kogi"],["Okene","Kogi"],["Idah","Kogi"],["Kabba","Kogi"],["Anyigba","Kogi"],["Ogaminana","Kogi"],
+  ["Ilorin","Kwara"],["Offa","Kwara"],["Lafiagi","Kwara"],["Pategi","Kwara"],["Jebba","Kwara"],["Omu-Aran","Kwara"],
+  ["Ikeja","Lagos"],["Lagos Island","Lagos"],["Lekki","Lagos"],["Victoria Island","Lagos"],["Surulere","Lagos"],
+  ["Yaba","Lagos"],["Ikorodu","Lagos"],["Badagry","Lagos"],["Apapa","Lagos"],["Festac","Lagos"],
+  ["Agege","Lagos"],["Mushin","Lagos"],["Epe","Lagos"],["Ajah","Lagos"],["Isale Eko","Lagos"],["Alimosho","Lagos"],["Ojota","Lagos"],
+  ["Lafia","Nasarawa"],["Keffi","Nasarawa"],["Akwanga","Nasarawa"],["Nasarawa","Nasarawa"],["Doma","Nasarawa"],
+  ["Minna","Niger"],["Bida","Niger"],["Kontagora","Niger"],["Suleja","Niger"],["Lapai","Niger"],["Agaie","Niger"],
+  ["Abeokuta","Ogun"],["Sagamu","Ogun"],["Ijebu Ode","Ogun"],["Ilaro","Ogun"],["Ota","Ogun"],["Ijebu-Igbo","Ogun"],
+  ["Akure","Ondo"],["Ondo","Ondo"],["Owo","Ondo"],["Ikare","Ondo"],["Okitipupa","Ondo"],["Idanre","Ondo"],
+  ["Osogbo","Osun"],["Ile-Ife","Osun"],["Ilesa","Osun"],["Ede","Osun"],["Iwo","Osun"],["Ikirun","Osun"],
+  ["Ibadan","Oyo"],["Ogbomosho","Oyo"],["Oyo","Oyo"],["Iseyin","Oyo"],["Saki","Oyo"],["Eruwa","Oyo"],
+  ["Jos","Plateau"],["Bukuru","Plateau"],["Pankshin","Plateau"],["Shendam","Plateau"],["Langtang","Plateau"],["Bokkos","Plateau"],
+  ["Port Harcourt","Rivers"],["Bonny","Rivers"],["Degema","Rivers"],["Obio-Akpor","Rivers"],["Ahoada","Rivers"],["Okrika","Rivers"],
+  ["Sokoto","Sokoto"],["Wurno","Sokoto"],["Tambuwal","Sokoto"],["Gwadabawa","Sokoto"],["Illela","Sokoto"],
+  ["Jalingo","Taraba"],["Wukari","Taraba"],["Bali","Taraba"],["Gembu","Taraba"],["Takum","Taraba"],
+  ["Damaturu","Yobe"],["Potiskum","Yobe"],["Gashua","Yobe"],["Nguru","Yobe"],["Geidam","Yobe"],
+  ["Gusau","Zamfara"],["Talata Mafara","Zamfara"],["Kaura Namoda","Zamfara"],["Anka","Zamfara"],["Shinkafi","Zamfara"]
+];
+window._ngCities = _ngCities;
+
+/* Searchable iPhone-style city picker bottom sheet */
+function _openCityPicker(onSelect) {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,0.6);display:flex;flex-direction:column;justify-content:flex-end;";
+  const sheet = document.createElement("div");
+  sheet.style.cssText = "background:#0f172a;border-radius:20px 20px 0 0;max-height:72vh;display:flex;flex-direction:column;overflow:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;";
+  sheet.innerHTML = `
+    <div style="width:38px;height:4px;background:#4b5563;border-radius:2px;margin:12px auto 10px;flex-shrink:0;"></div>
+    <div style="padding:0 16px 10px;flex-shrink:0;">
+      <div style="display:flex;align-items:center;background:#1f2937;border:1px solid #374151;border-radius:12px;padding:8px 14px;gap:8px;">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="7" stroke="#9ca3af" stroke-width="2"/><path d="M16 16L13.5 13.5" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="_ngCitySearch" placeholder="Search city or state…" autocomplete="off" style="flex:1;background:none;border:none;outline:none;color:#f9fafb;font-size:16px;font-family:'Inter',sans-serif;">
+      </div>
+    </div>
+    <div id="_ngCityList" style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;"></div>
+    <div style="padding:10px 16px 24px;flex-shrink:0;">
+      <button id="_ngCityCancel" style="width:100%;padding:13px;background:none;border:1px solid #374151;border-radius:12px;color:#9ca3af;font-size:15px;font-family:'Inter',sans-serif;cursor:pointer;">Cancel</button>
+    </div>`;
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  const inp  = sheet.querySelector("#_ngCitySearch");
+  const list = sheet.querySelector("#_ngCityList");
+  const canc = sheet.querySelector("#_ngCityCancel");
+
+  function _render(q) {
+    q = (q || "").toLowerCase().trim();
+    const filtered = _ngCities.filter(([c,s]) => !q || c.toLowerCase().includes(q) || s.toLowerCase().includes(q));
+    list.innerHTML = "";
+    if (!filtered.length) {
+      list.innerHTML = `<div style="padding:28px;text-align:center;color:#6b7280;font-family:'Inter',sans-serif;">No cities found</div>`;
+      return;
+    }
+    filtered.forEach(([city, state]) => {
+      const item = document.createElement("div");
+      item.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:0.5px solid #1f2937;cursor:pointer;-webkit-tap-highlight-color:transparent;";
+      item.innerHTML = `<span style="color:#f9fafb;font-size:15px;font-family:'Inter',sans-serif;">${escapeHtml(city)}</span><span style="color:#6b7280;font-size:13px;font-family:'Inter',sans-serif;">${escapeHtml(state)}</span>`;
+      item.addEventListener("click", () => { overlay.remove(); onSelect(city, state); });
+      list.appendChild(item);
+    });
+  }
+
+  inp.addEventListener("input", () => _render(inp.value));
+  canc.addEventListener("click", () => overlay.remove());
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
+  _render("");
+  setTimeout(() => inp.focus(), 120);
+}
+window._openCityPicker = _openCityPicker;
+
+/* In-place field editor — tapping a cell opens a mini bottom sheet */
+function _upEditField(field) {
+  const u = normalizeName(currentUser);
+  if (!u) return;
+
+  if (field === "city") {
+    _openCityPicker(async (city, state) => {
+      const loc = city + ", " + state;
+      try {
+        await updateDoc(doc(db, "users", u), { location: loc });
+        if (!window.profileCache) window.profileCache = {};
+        if (!window.profileCache[u]) window.profileCache[u] = {};
+        window.profileCache[u].location = loc;
+        const el = document.getElementById("upValCity");
+        if (el) el.textContent = _upFormatCity(loc);
+      } catch(e) { alert("Could not save city. Please try again."); }
+    });
+    return;
+  }
+
+  /* Mini sheet for age / relationship / cakeDay */
+  const cache = (window.profileCache && window.profileCache[u]) || {};
+  let labelText, inputHtml;
+
+  if (field === "age") {
+    labelText = "Age";
+    inputHtml = `<input type="number" min="13" max="100" id="_upFldInp" value="${escapeHtml(String(cache.age||""))}" placeholder="Enter age" style="width:100%;box-sizing:border-box;background:#1f2937;border:1px solid #374151;border-radius:12px;padding:13px 16px;color:#f9fafb;font-size:17px;font-family:'Inter',sans-serif;outline:none;">`;
+  } else if (field === "relationship") {
+    labelText = "Relationship";
+    const opts = ["Single","Married","In a relationship","It's complicated","Divorced","Widowed"];
+    const optHtml = opts.map(o => `<option value="${escapeHtml(o)}"${cache.relationship===o?" selected":""}>${escapeHtml(o)}</option>`).join("");
+    inputHtml = `<select id="_upFldInp" style="width:100%;box-sizing:border-box;background:#1f2937;border:1px solid #374151;border-radius:12px;padding:13px 16px;color:#f9fafb;font-size:16px;font-family:'Inter',sans-serif;outline:none;appearance:none;">${optHtml}</select>`;
+  } else if (field === "cakeDay") {
+    labelText = "Cake Day";
+    inputHtml = `<input type="date" id="_upFldInp" value="${escapeHtml(String(cache.cakeDay||""))}" style="width:100%;box-sizing:border-box;background:#1f2937;border:1px solid #374151;border-radius:12px;padding:13px 16px;color:#f9fafb;font-size:16px;font-family:'Inter',sans-serif;outline:none;">`;
+  } else { return; }
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;font-family:'Inter',sans-serif;";
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
+
+  const sheet = document.createElement("div");
+  sheet.style.cssText = "background:#0f172a;border-radius:20px 20px 0 0;width:100%;padding:20px 16px 34px;box-sizing:border-box;";
+  sheet.innerHTML = `
+    <div style="width:38px;height:4px;background:#4b5563;border-radius:2px;margin:0 auto 18px;"></div>
+    <div style="font-size:16px;font-weight:700;color:#f9fafb;margin-bottom:14px;">Edit ${escapeHtml(labelText)}</div>
+    ${inputHtml}
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button id="_upFldCancel" style="flex:1;padding:13px;background:none;border:1px solid #374151;border-radius:12px;color:#9ca3af;font-size:15px;font-family:'Inter',sans-serif;cursor:pointer;">Cancel</button>
+      <button id="_upFldSave" style="flex:1;padding:13px;background:#0d9488;border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;">Save</button>
+    </div>`;
+
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  const inp     = sheet.querySelector("#_upFldInp");
+  const saveBtn = sheet.querySelector("#_upFldSave");
+  sheet.querySelector("#_upFldCancel").addEventListener("click", () => overlay.remove());
+  if (inp && field === "age") setTimeout(() => inp.focus(), 120);
+
+  saveBtn.addEventListener("click", async () => {
+    const val = inp ? inp.value.trim() : "";
+    const data = {};
+    if (field === "age")          data.age          = val;
+    if (field === "relationship") data.relationship = val;
+    if (field === "cakeDay")      data.cakeDay      = val;
+    saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+    try {
+      await updateDoc(doc(db, "users", u), data);
+      if (!window.profileCache) window.profileCache = {};
+      if (!window.profileCache[u]) window.profileCache[u] = {};
+      Object.assign(window.profileCache[u], data);
+      overlay.remove();
+      _upRefreshInfoPanel(window.profileCache[u]);
+    } catch(e) {
+      saveBtn.disabled = false; saveBtn.textContent = "Save";
+      alert("Could not save. Please try again.");
+    }
+  });
+}
+window._upEditField = _upEditField;
+
+/* Change cover photo — own profile only */
+async function _upChangeCover() {
+  const u = normalizeName(currentUser);
+  if (!u) return;
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = "image/*";
+  input.addEventListener("change", async () => {
+    const file = input.files[0];
+    if (!file) return;
+    const camBtn = document.getElementById("upCoverCamBtn");
+    if (camBtn) { camBtn.textContent = "⏳"; camBtn.disabled = true; }
+    try {
+      const url = await window.uploadToCloudinary(file, "image");
+      await updateDoc(doc(db, "users", u), { coverPhoto: url });
+      if (!window.profileCache) window.profileCache = {};
+      if (!window.profileCache[u]) window.profileCache[u] = {};
+      window.profileCache[u].coverPhoto = url;
+      const ci = document.getElementById("upCoverImg");
+      if (ci) { ci.style.backgroundImage = `url('${escapeHtml(url)}')`; ci.style.backgroundSize = "cover"; ci.style.backgroundPosition = "center"; }
+    } catch(e) { alert("Failed to upload cover photo. Please try again."); }
+    finally {
+      if (camBtn) { camBtn.textContent = "📷"; camBtn.disabled = false; }
+    }
+  });
+  input.click();
+}
+window._upChangeCover = _upChangeCover;
+
+/* Edit sheet — for username, bio, gender (keeps profile layout intact) */
+async function _upOpenEditSheet() {
+  const u = normalizeName(currentUser);
+  if (!u) return;
+  const cache = (window.profileCache && window.profileCache[u]) || {};
+  let prof = cache;
+  if (!prof.bio && !prof.gender) {
+    try { prof = await fetchProfile(u) || cache; } catch(_) {}
+  }
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,0.6);display:flex;align-items:flex-end;font-family:'Inter',sans-serif;";
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
+
+  const sheet = document.createElement("div");
+  sheet.style.cssText = "background:#0f172a;border-radius:20px 20px 0 0;width:100%;padding:20px 16px 34px;box-sizing:border-box;max-height:85vh;overflow-y:auto;";
+  const genderOpts = ["","Male","Female","Non-binary","Prefer not to say"].map(g => `<option value="${escapeHtml(g)}"${prof.gender===g?" selected":""}>${g||"Select gender"}</option>`).join("");
+  const inputStyle = `width:100%;box-sizing:border-box;background:#1f2937;border:1px solid #374151;border-radius:12px;padding:13px 16px;color:#f9fafb;font-size:16px;font-family:'Inter',sans-serif;outline:none;margin-bottom:12px;display:block;`;
+  sheet.innerHTML = `
+    <div style="width:38px;height:4px;background:#4b5563;border-radius:2px;margin:0 auto 18px;"></div>
+    <div style="font-size:16px;font-weight:700;color:#f9fafb;margin-bottom:16px;">Edit Profile</div>
+    <label style="color:#9ca3af;font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-family:'Inter',sans-serif;">Bio</label>
+    <textarea id="_upSheetBio" rows="3" placeholder="Bio / About me" style="${inputStyle}resize:none;margin-top:6px;">${escapeHtml(prof.bio||"")}</textarea>
+    <label style="color:#9ca3af;font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-family:'Inter',sans-serif;">Gender</label>
+    <select id="_upSheetGender" style="${inputStyle}appearance:none;margin-top:6px;">${genderOpts}</select>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button id="_upSheetCancel" style="flex:1;padding:13px;background:none;border:1px solid #374151;border-radius:12px;color:#9ca3af;font-size:15px;font-family:'Inter',sans-serif;cursor:pointer;">Cancel</button>
+      <button id="_upSheetSave" style="flex:1;padding:13px;background:#0d9488;border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;">Save</button>
+    </div>`;
+
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  sheet.querySelector("#_upSheetCancel").addEventListener("click", () => overlay.remove());
+  const saveBtn = sheet.querySelector("#_upSheetSave");
+
+  saveBtn.addEventListener("click", async () => {
+    const newBio    = sheet.querySelector("#_upSheetBio").value.trim();
+    const newGender = sheet.querySelector("#_upSheetGender").value;
+    saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+    try {
+      await updateDoc(doc(db, "users", u), { bio: newBio, gender: newGender });
+      if (!window.profileCache) window.profileCache = {};
+      if (!window.profileCache[u]) window.profileCache[u] = {};
+      Object.assign(window.profileCache[u], { bio: newBio, gender: newGender });
+      overlay.remove();
+      /* Refresh bio on current profile view */
+      const bioEl = document.getElementById("userPostsBioText");
+      const bioWrap = document.getElementById("userPostsBioWrap");
+      if (bioEl && bioWrap) {
+        if (newBio) { bioEl.textContent = newBio; bioWrap.style.display = "block"; }
+        else { bioWrap.style.display = "none"; }
+      }
+    } catch(e) {
+      saveBtn.disabled = false; saveBtn.textContent = "Save";
+      alert("Could not save. Please try again.");
+    }
+  });
+}
+window._upOpenEditSheet = _upOpenEditSheet;
 
 /* ════════════════════════════════════════
    MATCH FEATURE
@@ -12362,9 +13136,7 @@ async function openPostDetailPage(postId) {
       </div>
       ${mediaHtml}
       ${textHtml}
-      <div style="margin-top:10px;padding-bottom:12px;display:flex;gap:18px;color:#6b7280;font-size:13px;">
-        <span>💬 Comments</span>
-      </div>`;
+      <div style="margin-top:10px;padding-bottom:12px;"></div>`;
 
     /* Load comments */
     if (commentEl) {
@@ -12574,12 +13346,15 @@ window.submitPdComment     = submitPdComment;
     <div id="commentPagePostWrap"></div>
     <div id="commentPageList"></div>
   </div>
+  <div id="commentReplyBanner" class="comment-reply-banner">
+    <span id="commentReplyBannerText">Replying to @…</span>
+    <button onclick="_cancelCommentReply()" style="background:none;border:none;color:#9ca3af;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0;">✕</button>
+  </div>
   <div id="commentPageInputArea">
     <div class="cmt-user-avatar" id="commentUserAvatar"></div>
     <div class="cmt-input-wrap">
       <textarea id="commentInput" placeholder="What do you think" rows="1"
-                oninput="_toggleCommentSend(this)"
-                onkeydown="if(event.key==='Enter'&&!event.shiftKey){submitComment();event.preventDefault();}"></textarea>
+                oninput="_toggleCommentSend(this)"></textarea>
       <button id="commentSendBtn" onclick="submitComment()">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
