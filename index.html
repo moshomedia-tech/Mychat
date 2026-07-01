@@ -5551,6 +5551,73 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
   pointer-events: none;
   white-space: nowrap;
 }
+
+/* ── Minimized call mini-player ── */
+#inCallOverlay.ic-minimized {
+  width: 160px;
+  height: 90px;
+  top: 16px;
+  left: 16px;
+  right: auto;
+  bottom: auto;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+}
+#inCallOverlay.ic-minimized .in-call-controls,
+#inCallOverlay.ic-minimized .in-call-minimize-btn {
+  display: none !important;
+}
+#inCallOverlay.ic-minimized .in-call-header {
+  padding: 6px 10px;
+  background: rgba(0,0,0,0.65);
+  pointer-events: none;
+}
+#inCallOverlay.ic-minimized .in-call-name { font-size: 12px; }
+#inCallOverlay.ic-minimized .in-call-timer { font-size: 11px; }
+#inCallOverlay.ic-minimized #localVideo {
+  width: 48px;
+  height: 68px;
+  top: auto;
+  bottom: 6px;
+  right: 6px;
+  border-radius: 8px;
+}
+#inCallOverlay.ic-minimized #voiceCallBackground { gap: 6px; }
+#inCallOverlay.ic-minimized .call-ov-avatar {
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 18px !important;
+}
+#inCallOverlay.ic-minimized .call-ov-name,
+#inCallOverlay.ic-minimized .call-ov-status { display: none; }
+/* Mini-player restore tap zone */
+.in-call-mini-restore {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: none;
+  cursor: pointer;
+  background: transparent;
+}
+#inCallOverlay.ic-minimized .in-call-mini-restore { display: block; }
+/* Minimize button */
+.in-call-minimize-btn {
+  pointer-events: all;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+.in-call-minimize-btn:active { background: rgba(255,255,255,0.35); }
 .call-toast.visible { opacity:1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
@@ -9369,7 +9436,22 @@ window._updateCallButtonState = _updateCallButtonState;
 const _ICE_CONFIG = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" }
+    { urls: "stun:stun1.l.google.com:19302" },
+    {
+      urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    },
+    {
+      urls: "turns:openrelay.metered.ca:443",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    }
   ]
 };
 
@@ -9537,6 +9619,7 @@ function _hideInCallUI() {
   const ov = document.getElementById("inCallOverlay");
   if (!ov) return;
   ov.classList.remove("ic-active");
+  ov.classList.remove("ic-minimized");
   const remoteVid = document.getElementById("remoteVideo");
   const localVid  = document.getElementById("localVideo");
   if (remoteVid) remoteVid.srcObject = null;
@@ -9764,6 +9847,21 @@ async function _acceptCall() {
     if (s === "ended" || s === "cancelled") _cleanupCall(s === "ended" ? "Call ended" : null);
   });
 }
+
+/* ── Minimize / restore call as mini-player ── */
+function _toggleMinimizeCall() {
+  const ov = document.getElementById("inCallOverlay");
+  if (!ov) return;
+  ov.classList.toggle("ic-minimized");
+}
+function _restoreFromMiniPlayer() {
+  const ov = document.getElementById("inCallOverlay");
+  if (!ov) return;
+  ov.classList.remove("ic-minimized");
+}
+window._toggleMinimizeCall = _toggleMinimizeCall;
+window._restoreFromMiniPlayer = _restoreFromMiniPlayer;
+
 window._acceptCall = _acceptCall;
 
 async function _declineCall() {
@@ -15233,10 +15331,15 @@ window.closePostDetailPage = closePostDetailPage;
       <div class="call-ov-name" id="icVoiceName" style="font-size:22px;"></div>
       <div class="call-ov-status">Connected</div>
     </div>
+    <!-- Mini-player restore zone (tap mini-player to expand) -->
+    <div class="in-call-mini-restore" onclick="_restoreFromMiniPlayer()"></div>
     <!-- Call header info -->
     <div class="in-call-header">
       <div class="in-call-name" id="inCallName">Name</div>
       <div class="in-call-timer" id="inCallTimer">00:00</div>
+      <button class="in-call-minimize-btn" onclick="_toggleMinimizeCall()" aria-label="Minimize call">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19 13H5v-2h14v2z"/></svg>
+      </button>
     </div>
     <!-- Controls -->
     <div class="in-call-controls">
