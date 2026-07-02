@@ -3777,10 +3777,22 @@ body.light-mode #commentInput { color: #111827; }
   display: block;
 }
 
-/* ── 2-photo + 1-video swipeable carousel ── */
+/* ── Chat multi-image collage ── */
+.chat-collage { display:grid; gap:2px; border-radius:12px; overflow:hidden; max-width:240px; }
+.chat-collage .ci { position:relative; overflow:hidden; aspect-ratio:1; background:#111; }
+.chat-collage .ci img { width:100%; height:100%; object-fit:cover; cursor:pointer; display:block; }
+.chat-collage.collage-2 { grid-template-columns:1fr 1fr; }
+.chat-collage.collage-3 { grid-template-columns:1fr 1fr; }
+.chat-collage.collage-3 .ci:first-child { grid-column:1 / -1; aspect-ratio:16/9; }
+.chat-collage.collage-4 { grid-template-columns:1fr 1fr; }
+.chat-collage.collage-many { grid-template-columns:1fr 1fr; }
+.ci-more { position:absolute; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; color:#fff; cursor:pointer; }
+.chat-see-more-btn { background:none; border:none; padding:0; color:#008b8b; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+/* ── Threads-style full-width swipeable carousel ── */
 .post-carousel {
   display: flex;
   overflow-x: scroll;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -3792,7 +3804,7 @@ body.light-mode #commentInput { color: #111827; }
 .pc-item {
   flex: 0 0 78%;
   scroll-snap-align: center;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 4 / 5;
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -3807,6 +3819,27 @@ body.light-mode #commentInput { color: #111827; }
   display: block;
 }
 .pc-item .post-video-play-btn { pointer-events: none; }
+/* Carousel dots indicator */
+.pc-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 0 2px;
+}
+.pc-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(113,118,123,0.45);
+  transition: background 0.2s, width 0.2s, border-radius 0.2s;
+  flex-shrink: 0;
+}
+.pc-dot.active {
+  background: #008b8b;
+  width: 18px;
+  border-radius: 3px;
+}
 
 /* New-chat search wrapper */
 .nc-search-wrap {
@@ -5619,6 +5652,76 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
 }
 .in-call-minimize-btn:active { background: rgba(255,255,255,0.35); }
 .call-toast.visible { opacity:1; transform: translateX(-50%) translateY(0); }
+
+/* ── Call History Message Card ── */
+.msg-call-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px 11px 11px;
+  border-radius: 16px;
+  width: 240px;
+  max-width: 240px;
+  position: relative;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+.msg-call-card.me {
+  background: #007878;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  margin-left: auto;
+}
+.msg-call-card.other {
+  background: #2f3336;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+body.light-mode .msg-call-card.other { background: #e5e7eb; }
+.call-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.call-card-icon.ci-answered { background: rgba(74,222,128,0.18); }
+.call-card-icon.ci-missed   { background: rgba(248,113,113,0.18); }
+.call-card-icon.ci-declined { background: rgba(156,163,175,0.15); }
+.call-card-icon.ci-busy     { background: rgba(250,204,21,0.18); }
+.call-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.call-card-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+body.light-mode .msg-call-card.other .call-card-label { color: #111827; }
+.call-card-duration {
+  font-size: 12px;
+  color: rgba(255,255,255,0.78);
+  font-weight: 500;
+}
+body.light-mode .msg-call-card.other .call-card-duration { color: #374151; }
+.call-card-meta {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.3;
+}
+body.light-mode .msg-call-card.other .call-card-meta { color: #6b7280; }
 </style>
 </head>
 <body>
@@ -5746,7 +5849,7 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
     </div>
 
     <div class="top-bar">
-      <input id="search" onkeyup="filterChats()" placeholder="Search users by username...">
+      <input id="search" onkeyup="filterChats()" placeholder="Search friends or messages">
       <span class="top-bar-sep"></span>
       <div class="new-chat" onclick="startNewChat()">+</div>
     </div>
@@ -5831,7 +5934,7 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           <span id="profileLocationText"></span>
         </div>
-        <span class="profile-fans-count" id="profileFansCount"></span>
+        <!-- fans count removed from own profile page -->
         <div class="profile-bio-label">Bio</div>
         <div class="profile-bio-text" id="profileBioText" style="display:none"></div>
       </div>
@@ -5924,7 +6027,7 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
         </div>
         <div class="input-area">
           <div class="media-actions">
-            <input type="file" id="photoInput" accept="image/*" style="display:none">
+            <input type="file" id="photoInput" accept="image/*" multiple style="display:none">
             <input type="file" id="videoInput" accept="video/*" style="display:none">
             <input type="file" id="fileInput" style="display:none">
             <button class="media-plus-btn" id="mediaPlusBtn" title="Add Media">+</button>
@@ -5993,8 +6096,8 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
         <div id="postVideoPreview" style="display:none;"></div>
         <!-- CHANGE 6: allow image + video side by side -->
         <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-          <button type="button" onclick="document.getElementById('postImgInput').click()" style="background:none;border:1px solid #d1d5db;border-radius:8px;padding:5px 12px;font-size:12px;color:#6b7280;cursor:pointer;">📷 Add Photo (max 2)</button>
-          <button type="button" id="postVideoPickBtn" onclick="document.getElementById('postVideoInput').click()" style="background:none;border:1px solid #d1d5db;border-radius:8px;padding:5px 12px;font-size:12px;color:#6b7280;cursor:pointer;">🎥 Add Video (≤30s)</button>
+          <button type="button" onclick="document.getElementById('postImgInput').click()" style="background:none;border:1px solid #d1d5db;border-radius:8px;padding:5px 12px;font-size:12px;color:#6b7280;cursor:pointer;">📷 Add Photos (max 5)</button>
+          <button type="button" id="postVideoPickBtn" onclick="document.getElementById('postVideoInput').click()" style="background:none;border:1px solid #d1d5db;border-radius:8px;padding:5px 12px;font-size:12px;color:#6b7280;cursor:pointer;">🎥 Add Videos (max 2, ≤30s each)</button>
         </div>
         <div class="modal-buttons">
           <button class="save-edit" id="postSubmitBtn" onclick="submitPost()">Post</button>
@@ -6026,11 +6129,11 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
               <input type="file" id="ppVideoInput" accept="video/*" style="display:none;" onchange="ppHandleVideoSelect(event)">
               <button class="pp-media-capsule" onclick="document.getElementById('ppImgInput').click()" title="Add Photo">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
-                <span class="pp-capsule-label">Max 3</span>
+                <span class="pp-capsule-label">Max 5</span>
               </button>
               <button class="pp-media-capsule" onclick="document.getElementById('ppVideoInput').click()" title="Add Video">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                <span class="pp-capsule-label">Trimmed to 30s</span>
+                <span class="pp-capsule-label">Max 2, ≤30s</span>
               </button>
             </div>
           </div>
@@ -6909,6 +7012,7 @@ let editPictureData    = null;
 let editPictureFile    = null;
 let intervalsStarted   = false;
 let attachedMedia      = null;
+let _chatImagesQueue   = []; /* multi-image chat sends */
 let chatUIBound        = false;
 let activeMessageUnsub  = null;
 let activeConvUnsub     = null;
@@ -7821,6 +7925,25 @@ async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = 
   updateActivity();
 }
 
+async function addMsgImages(partner, imageUrls, text, replyTo) {
+  partner = normalizeName(partner);
+  if (!partner || partner === normalizeName(currentUser)) return;
+  if (isBlocked(partner))          { alert("Unblock this user first."); return; }
+  if (isTargetBlockingMe(partner)) { alert("You cannot chat with this user"); return; }
+  const tid   = await ensureConversation(currentUser, partner);
+  const stamp = nowStamp();
+  const time  = formatTimeFromStamp(stamp);
+  const msgData = { sender: normalizeName(currentUser), text: text || "", images: imageUrls, img: imageUrls[0] || null, isVid: false, time, stamp };
+  if (replyTo) msgData.replyTo = replyTo;
+  await addDoc(collection(db, "conversations", tid, "messages"), msgData);
+  const lastText = `📷 ${imageUrls.length} Photos`;
+  const unreadKey = `unread_${normalizeName(partner)}`;
+  await updateDoc(doc(db, "conversations", tid), { lastStamp: stamp, lastText, lastSender: normalizeName(currentUser), lastIsImg: true, lastIsVid: false, [unreadKey]: increment(1) });
+  markAsRead(partner);
+  updateActivity();
+}
+window.addMsgImages = addMsgImages;
+
 function _renderMessagesFromCache(tid, partner) {
   _renderMessages(partner, []);
 }
@@ -7858,12 +7981,57 @@ function _renderMessages(partner, messages) {
     }
 
     const wrap = document.createElement("div");
-    wrap.style.cssText = `display:flex;flex-direction:column;align-items:${isMine ? "flex-end" : "flex-start"};`;
+    wrap.style.cssText = `display:flex;flex-direction:column;align-items:${isMine ? "flex-end" : "flex-start"};margin-bottom:2px;`;
+
+    /* ── Call history card ── */
+    if (msg.kind === "call") {
+      const side  = isMine ? "me" : "other";
+      const isVid = msg.callType === "video";
+      const typeWord = isVid ? "Video Call" : "Voice Call";
+
+      let label = "", iconCls = "ci-answered";
+      if (msg.callStatus === "answered") {
+        label   = isMine ? `Outgoing ${typeWord}` : `Incoming ${typeWord}`;
+        iconCls = "ci-answered";
+      } else if (msg.callStatus === "missed") {
+        label   = isMine ? "No Answer" : `Missed ${typeWord}`;
+        iconCls = "ci-missed";
+      } else if (msg.callStatus === "declined") {
+        label   = isMine ? "Call Declined" : "Declined";
+        iconCls = "ci-declined";
+      } else if (msg.callStatus === "busy") {
+        label = "Busy"; iconCls = "ci-busy";
+      } else {
+        label = typeWord; iconCls = "ci-declined";
+      }
+
+      const iconColor = iconCls === "ci-answered" ? "#4ade80"
+                      : iconCls === "ci-missed"   ? "#f87171"
+                      : iconCls === "ci-busy"     ? "#facc15"
+                      : "#9ca3af";
+      const iconPath  = isVid
+        ? `<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>`
+        : `<path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>`;
+      const iconSvg = `<svg width="22" height="22" viewBox="0 0 24 24" fill="${iconColor}">${iconPath}</svg>`;
+
+      let durLine = "";
+      if (msg.callStatus === "answered" && msg.callDuration > 0) {
+        durLine = `<div class="call-card-duration">⏱ ${_fmtDur(msg.callDuration)}</div>`;
+      }
+      const metaLine = `<div class="call-card-meta">${formatDateFromStamp(msg.stamp)} · ${msg.time || formatTimeFromStamp(msg.stamp)}</div>`;
+
+      const card = document.createElement("div");
+      card.className = `msg-call-card ${side}`;
+      card.innerHTML = `<div class="call-card-icon ${iconCls}">${iconSvg}</div><div class="call-card-body"><div class="call-card-label">${escapeHtml(label)}</div>${durLine}${metaLine}</div>`;
+      wrap.appendChild(card);
+      box.appendChild(wrap);
+      return;
+    }
 
     const bubble = document.createElement("div");
     bubble.className = `msg ${isMine ? "me" : "other"}`;
 
-    const _hasMediaContent = !!(msg.img && !msg.isVoiceNote);
+    const _hasMediaContent = !!((msg.img || (msg.images && msg.images.length)) && !msg.isVoiceNote);
     const _hasTextContent  = !!(msg.text && msg.text.trim());
 
     /* Reply quote (if this message is a reply) */
@@ -7979,18 +8147,46 @@ function _renderMessages(partner, messages) {
           sentLabel.textContent = "👁 View once sent";
           bubble.appendChild(sentLabel);
         }
+      } else if (msg.images && msg.images.length > 1) {
+        /* Multi-image collage */
+        const _imgs = msg.images;
+        const _cnt  = _imgs.length;
+        const _show = Math.min(_cnt, 4);
+        const _cls  = _cnt === 2 ? "collage-2" : _cnt === 3 ? "collage-3" : _cnt === 4 ? "collage-4" : "collage-many";
+        const collage = document.createElement("div");
+        collage.className = `chat-collage ${_cls}`;
+        _imgs.slice(0, _show).forEach((url, i) => {
+          const ci = document.createElement("div");
+          ci.className = "ci";
+          const cimg = document.createElement("img");
+          cimg.src = url;
+          cimg.onclick = () => {
+            document.getElementById("postImgViewerImg").src = url;
+            document.getElementById("postImgViewer").classList.add("open");
+          };
+          ci.appendChild(cimg);
+          if (i === _show - 1 && _cnt > _show) {
+            const more = document.createElement("div");
+            more.className = "ci-more";
+            more.textContent = `+${_cnt - _show}`;
+            more.onclick = cimg.onclick;
+            ci.appendChild(more);
+          }
+          collage.appendChild(ci);
+        });
+        bubble.appendChild(collage);
       } else {
         const imgWrap = document.createElement("div");
         imgWrap.className = "chat-media-wrap";
         imgWrap.style.minHeight = "180px";
         const img = document.createElement("img");
-        img.src = msg.img;
+        img.src = msg.images ? msg.images[0] : msg.img;
         img.className = "chat-media";
         img.style.cursor = "pointer";
         img.onload  = () => { imgWrap.style.minHeight = ""; };
         img.onerror = () => { imgWrap.style.minHeight = ""; };
         img.onclick = () => {
-          document.getElementById("postImgViewerImg").src = msg.img;
+          document.getElementById("postImgViewerImg").src = img.src;
           document.getElementById("postImgViewer").classList.add("open");
         };
         imgWrap.appendChild(img);
@@ -7998,13 +8194,43 @@ function _renderMessages(partner, messages) {
       }
     }
 
-    if (msg.text && !msg.img) {
-      bubble.appendChild(document.createTextNode(msg.text));
-    } else if (msg.text && msg.img && !msg.isFile && !msg.isVoiceNote) {
-      const t = document.createElement("div");
-      t.style.cssText = "margin-top:6px;";
-      t.textContent = msg.text;
-      bubble.appendChild(t);
+    if (msg.text) {
+      const _isCaption = (_hasMediaContent || (msg.images && msg.images.length)) && !msg.isFile && !msg.isVoiceNote;
+      const _msgWords  = msg.text.split(/\s+/).filter(Boolean);
+      if (!isMine && _msgWords.length > 120) {
+        const _short = _msgWords.slice(0, 120).join(" ");
+        const _tw = document.createElement("div");
+        if (_isCaption) _tw.style.cssText = "margin-top:6px;";
+        const _shortEl = document.createElement("span");
+        _shortEl.textContent = _short;
+        const _ellEl = document.createElement("span");
+        _ellEl.textContent = "… ";
+        const _fullEl = document.createElement("span");
+        _fullEl.style.display = "none";
+        _fullEl.textContent = msg.text + " ";
+        const _smBtn = document.createElement("button");
+        _smBtn.className = "chat-see-more-btn";
+        _smBtn.textContent = "See more";
+        _smBtn.onclick = function() {
+          const exp = _fullEl.style.display !== "none";
+          _shortEl.style.display = exp ? "" : "none";
+          _ellEl.style.display   = exp ? "" : "none";
+          _fullEl.style.display  = exp ? "none" : "";
+          this.textContent       = exp ? "See more" : "See less";
+        };
+        _tw.appendChild(_shortEl);
+        _tw.appendChild(_ellEl);
+        _tw.appendChild(_fullEl);
+        _tw.appendChild(_smBtn);
+        bubble.appendChild(_tw);
+      } else if (_isCaption) {
+        const t = document.createElement("div");
+        t.style.cssText = "margin-top:6px;";
+        t.textContent = msg.text;
+        bubble.appendChild(t);
+      } else {
+        bubble.appendChild(document.createTextNode(msg.text));
+      }
     }
 
     /* Thin border for media-only messages */
@@ -8138,7 +8364,7 @@ function handlePostImageSelect(e) {
   e.target.value = "";
   if (!files.length) return;
   const totalUsed = postImgFiles.length;
-  const toProcess = files.slice(0, Math.max(0, 3 - totalUsed)); /* max 3 images */
+  const toProcess = files.slice(0, Math.max(0, 5 - totalUsed)); /* max 5 images */
   if (!toProcess.length) return;
   _postCropQueue = [...toProcess];
   _processNextPostCrop();
@@ -8147,7 +8373,7 @@ window.handlePostImageSelect = handlePostImageSelect;
 
 function _processNextPostCrop() {
   if (!_postCropQueue.length) { renderPostImgPreviews(); return; }
-  if (postImgFiles.length >= 3) { _postCropQueue = []; renderPostImgPreviews(); return; } /* max 3 images */
+  if (postImgFiles.length >= 5) { _postCropQueue = []; renderPostImgPreviews(); return; } /* max 5 images */
   const f = _postCropQueue.shift();
   const reader = new FileReader();
   reader.onload = () => {
@@ -8528,12 +8754,16 @@ window.submitPost = async function () {
     postImgFiles = _ppStagedFiles.map(x => x.cropped || x.raw);
   }
 
-  if (_postVideoFile) {
+  const _uploadedVideoUrls = [];
+  if (_postVideoFiles.length) {
     const _ppBtn = document.getElementById("ppPostBtn");
     if (_ppBtn) { _ppBtn.disabled = true; _ppBtn.textContent = "Uploading…"; }
     try {
-      const rawUrl = await uploadToCloudinary(_postVideoFile, "video");
-      videoUrl = rawUrl.replace("/upload/", "/upload/du_30/");
+      for (const vf of _postVideoFiles) {
+        const rawUrl = await uploadToCloudinary(vf, "video");
+        _uploadedVideoUrls.push(rawUrl.replace("/upload/", "/upload/du_30/"));
+      }
+      videoUrl = _uploadedVideoUrls[0] || null;
     } catch {
       if (_ppBtn) { _ppBtn.disabled = false; _ppBtn.textContent = "Post"; }
       alert("Video upload failed. Please try again.");
@@ -8563,7 +8793,8 @@ window.submitPost = async function () {
       text,
       stamp: nowStamp(),
       ...(images.length ? { images } : {}),
-      ...(videoUrl      ? { videoUrl } : {})
+      ...(videoUrl               ? { videoUrl }                : {}),
+      ...(_uploadedVideoUrls.length > 1 ? { videos: _uploadedVideoUrls } : {})
     });
     _lastPostedId = _newPostRef.id;
     const _wasOnForYou = isOnForYou;
@@ -8698,27 +8929,34 @@ function _buildPostCard(post) {
   const card      = document.createElement("div");
   card.className  = "post-card";
   if (post.id) card.dataset.postId = post.id;
-  const hasMedia = (post.images && post.images.length) || post.videoUrl;
+  /* Normalize video URLs (support both legacy videoUrl and new videos array) */
+  const _videoUrls = post.videos?.length ? post.videos : (post.videoUrl ? [post.videoUrl] : []);
+  const hasMedia = (post.images && post.images.length) || _videoUrls.length;
 
   let mediaHtml = "";
   /* Images first, then video */
   const _videoToggle = `(function(w){w.classList.toggle('playing');var v=w.querySelector('video');if(w.classList.contains('playing')){v.controls=true;v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');v.controls=false;});}else{v.pause();v.muted=true;v.controls=false;}})(this)`;
   const _playIcon = `<div class="post-video-play-btn"><svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.55)"/><polygon points="9.5,7 18,12 9.5,17" fill="white"/></svg></div>`;
 
-  /* ≥3 images OR ≥2 images + video → swipeable carousel */
+  /* ≥3 images OR ≥2 images + any video OR ≥2 videos → Threads-style carousel */
   const _isCarousel = (post.images && post.images.length >= 3) ||
-                      (post.images && post.images.length >= 2 && post.videoUrl);
+                      (post.images && post.images.length >= 2 && _videoUrls.length >= 1) ||
+                      (_videoUrls.length >= 2);
   if (_isCarousel) {
-    const _citems = (post.images || []).map(u => ({ type: 'image', url: escapeHtml(u) }));
-    if (post.videoUrl) _citems.splice(1, 0, { type: 'video', url: escapeHtml(post.videoUrl) });
+    const _citems = [
+      ...(post.images || []).map(u => ({ type: 'image', url: escapeHtml(u) })),
+      ..._videoUrls.map(u => ({ type: 'video', url: escapeHtml(u) }))
+    ];
+    const _total = _citems.length;
     const _carHtml = _citems.map(it => {
       if (it.type === 'video') return `<div class="pc-item" onclick="${_videoToggle}"><video src="${it.url}" playsinline muted preload="metadata" onloadedmetadata="if(!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>${_playIcon}</div>`;
       return `<div class="pc-item" onclick="openPostImgViewer('${it.url}')"><img src="${it.url}" alt="post image"></div>`;
     }).join('');
-    mediaHtml += `<div class="post-carousel">${_carHtml}</div>`;
+    const _dotsHtml = _total > 1 ? `<div class="pc-dots">${_citems.map((_, i) => `<span class="pc-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>` : '';
+    mediaHtml += `<div class="post-carousel">${_carHtml}</div>${_dotsHtml}`;
   } else {
     if (post.images && post.images.length) {
-      const hasVid = !!post.videoUrl;
+      const hasVid = _videoUrls.length > 0;
       if (post.images.length === 1) {
         const cls = hasVid ? "with-video" : "single";
         mediaHtml += `<div class="post-images ${cls}"><img src="${escapeHtml(post.images[0])}" alt="post image" onclick="openPostImgViewer('${escapeHtml(post.images[0])}')"></div>`;
@@ -8726,12 +8964,12 @@ function _buildPostCard(post) {
         mediaHtml += `<div class="post-images pair">${post.images.map(url => `<img src="${escapeHtml(url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(url)}')">`).join("")}</div>`;
       }
     }
-    if (post.videoUrl) {
+    if (_videoUrls.length) {
       const _hasImgs = post.images && post.images.length;
       const _vClass = _hasImgs ? "post-video-wrap photo-video" : "post-video-wrap single-video";
       mediaHtml += `
         <div class="${_vClass}" onclick="${_videoToggle}">
-          <video class="post-video" src="${escapeHtml(post.videoUrl)}" playsinline muted preload="metadata" onloadedmetadata="if(this.readyState>=1&&!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>
+          <video class="post-video" src="${escapeHtml(_videoUrls[0])}" playsinline muted preload="metadata" onloadedmetadata="if(this.readyState>=1&&!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>
           ${_playIcon}
         </div>`;
     }
@@ -8758,13 +8996,17 @@ function _buildPostCard(post) {
 
   if (isOwn && post.id) addLongPress(card, () => _showPostActionMenu(post, card));
   if (post.id) setTimeout(() => _fetchCommentCount(post.id), 0);
-  /* Scroll carousel to 2nd item after DOM paint */
+  /* Wire carousel dots indicator */
   if (_isCarousel) {
     setTimeout(() => {
       const car = card.querySelector('.post-carousel');
-      if (car) {
-        const first = car.querySelector('.pc-item');
-        if (first && first.offsetWidth > 0) car.scrollLeft = first.offsetWidth + 8;
+      const dotsEl = card.querySelector('.pc-dots');
+      if (car && dotsEl) {
+        const dots = dotsEl.querySelectorAll('.pc-dot');
+        car.addEventListener('scroll', () => {
+          const idx = Math.round(car.scrollLeft / car.offsetWidth);
+          dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        }, { passive: true });
       }
     }, 80);
   }
@@ -8962,11 +9204,7 @@ async function renderProfile() {
     bioEl.textContent   = bio;
   }
 
-  /* Fans count */
-  _getFanCount(currentUser).then(count => {
-    const fansEl = document.getElementById("profileFansCount");
-    if (fansEl) fansEl.textContent = `Fans: ${count.toLocaleString()}`;
-  });
+  /* Fans count removed from own profile page */
 
   /* Apply saved text size */
   _applyTextSize(localStorage.getItem("mychat_text_size") || "medium");
@@ -9437,6 +9675,9 @@ const _ICE_CONFIG = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+    { urls: "stun:stun3.l.google.com:19302" },
+    { urls: "stun:stun4.l.google.com:19302" },
     {
       urls: "turn:openrelay.metered.ca:80",
       username: "openrelayproject",
@@ -9451,8 +9692,14 @@ const _ICE_CONFIG = {
       urls: "turns:openrelay.metered.ca:443",
       username: "openrelayproject",
       credential: "openrelayproject"
+    },
+    {
+      urls: "turn:openrelay.metered.ca:80?transport=tcp",
+      username: "openrelayproject",
+      credential: "openrelayproject"
     }
-  ]
+  ],
+  iceCandidatePoolSize: 10
 };
 
 /* ── Call state ── */
@@ -9595,12 +9842,18 @@ function _showInCallUI(name, type) {
   const voiceBg    = document.getElementById("voiceCallBackground");
   const icVoiceAv  = document.getElementById("icVoiceAvatar");
 
+  /* Wire local video */
+  if (_localStream && localVid) { localVid.srcObject = _localStream; localVid.play().catch(() => {}); }
+  /* Wire remote stream in case ontrack already fired before UI was shown */
+  if (_remoteStream) {
+    if (remoteVid && remoteVid.srcObject !== _remoteStream) { remoteVid.srcObject = _remoteStream; remoteVid.muted = false; remoteVid.play().catch(() => {}); }
+    const ra = document.getElementById("remoteAudio");
+    if (ra && ra.srcObject !== _remoteStream) { ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
+  }
   if (isVideo) {
     remoteVid.style.display = "block";
     localVid.style.display  = "block";
     if (voiceBg) voiceBg.style.display = "none";
-    /* Wire local stream to local video */
-    if (_localStream && localVid) localVid.srcObject = _localStream;
   } else {
     remoteVid.style.display = "none";
     localVid.style.display  = "none";
@@ -9622,8 +9875,10 @@ function _hideInCallUI() {
   ov.classList.remove("ic-minimized");
   const remoteVid = document.getElementById("remoteVideo");
   const localVid  = document.getElementById("localVideo");
-  if (remoteVid) remoteVid.srcObject = null;
-  if (localVid)  localVid.srcObject  = null;
+  if (remoteVid) { remoteVid.srcObject = null; remoteVid.load(); }
+  if (localVid)  { localVid.srcObject  = null; localVid.load(); }
+  const ra = document.getElementById("remoteAudio");
+  if (ra) { ra.srcObject = null; ra.load(); }
   if (_callTimerInt) { clearInterval(_callTimerInt); _callTimerInt = null; }
 }
 
@@ -9632,9 +9887,8 @@ function _listenCallerICE() {
   const q = collection(db, "calls", _callId, "callerCandidates");
   _callerICEUnsub = onSnapshot(q, snap => {
     snap.docChanges().forEach(async ch => {
-      if (ch.type === "added" && _peerConn) {
-        try { await _peerConn.addIceCandidate(new RTCIceCandidate(ch.doc.data())); } catch(_){}
-      }
+      if (ch.type !== "added" || !_peerConn || !_peerConn.remoteDescription) return;
+      try { await _peerConn.addIceCandidate(new RTCIceCandidate(ch.doc.data())); } catch(_){}
     });
   });
 }
@@ -9642,15 +9896,59 @@ function _listenCalleeICE() {
   const q = collection(db, "calls", _callId, "calleeCandidates");
   _calleeICEUnsub = onSnapshot(q, snap => {
     snap.docChanges().forEach(async ch => {
-      if (ch.type === "added" && _peerConn) {
-        try { await _peerConn.addIceCandidate(new RTCIceCandidate(ch.doc.data())); } catch(_){}
-      }
+      if (ch.type !== "added" || !_peerConn || !_peerConn.remoteDescription) return;
+      try { await _peerConn.addIceCandidate(new RTCIceCandidate(ch.doc.data())); } catch(_){}
     });
   });
 }
 
+/* ── Write a call-history message to the shared conversation ── */
+async function _writeCallHistoryMsg(toastMsg) {
+  /* Only the caller writes, once per call */
+  if (_callRole !== "caller" || !_callId || !_callRemoteName) return;
+  let callStatus = null;
+  if      (toastMsg === "Call ended")    callStatus = "answered";
+  else if (toastMsg === "Call declined") callStatus = "declined";
+  else if (toastMsg === "User is busy")  callStatus = "busy";
+  else if (toastMsg === "No answer")     callStatus = "missed";
+  if (!callStatus) return; /* null = cancelled — no message */
+
+  const me      = normalizeName(currentUser);
+  const partner = normalizeName(_callRemoteName);
+  if (!me || !partner || me === partner) return;
+
+  const stamp    = nowStamp();
+  const duration = callStatus === "answered" ? _callSeconds : 0;
+  try {
+    const tid = await ensureConversation(me, partner);
+    await addDoc(collection(db, "conversations", tid, "messages"), {
+      sender: me, kind: "call",
+      callType: _callType || "voice",
+      callStatus, callDuration: duration,
+      time: formatTimeFromStamp(stamp), stamp
+    });
+    const typeIcon = (_callType === "video") ? "📹" : "📞";
+    const lastText = callStatus === "answered"  ? `${typeIcon} Call · ${_fmtDur(duration)}`
+                   : callStatus === "missed"    ? `${typeIcon} Missed call`
+                   : callStatus === "declined"  ? `${typeIcon} Call declined`
+                   : `${typeIcon} Busy`;
+    await updateDoc(doc(db, "conversations", tid), {
+      lastStamp: stamp, lastText, lastSender: me,
+      lastIsImg: false, lastIsVid: false,
+      [`unread_${partner}`]: increment(1)
+    }).catch(() => {});
+  } catch(e) { /* non-fatal */ }
+}
+function _fmtDur(secs) {
+  if (!secs || secs < 1) return "0s";
+  const m = Math.floor(secs / 60), s = secs % 60;
+  return m === 0 ? `${s}s` : `${m}:${String(s).padStart(2,"0")}`;
+}
+
 /* ── Full cleanup ── */
 function _cleanupCall(toastMsg) {
+  /* Capture & persist call history BEFORE variables are cleared */
+  _writeCallHistoryMsg(toastMsg);
   _stopRingtone();
   if (_callAutoTimeout) { clearTimeout(_callAutoTimeout); _callAutoTimeout = null; }
   if (_callTimerInt)    { clearInterval(_callTimerInt);  _callTimerInt = null; }
@@ -9707,9 +10005,19 @@ async function _initiateCall(type) {
 
   _remoteStream = new MediaStream();
   _peerConn.ontrack = e => {
-    e.streams[0]?.getTracks().forEach(t => _remoteStream.addTrack(t));
+    if (e.track && !_remoteStream.getTrackById(e.track.id)) _remoteStream.addTrack(e.track);
     const rv = document.getElementById("remoteVideo");
-    if (rv) { rv.srcObject = _remoteStream; rv.muted = false; }
+    if (rv) { if (rv.srcObject !== _remoteStream) rv.srcObject = _remoteStream; rv.muted = false; rv.play().catch(() => {}); }
+    const ra = document.getElementById("remoteAudio");
+    if (ra && ra.srcObject !== _remoteStream) { ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
+  };
+  _peerConn.onconnectionstatechange = () => {
+    const st = _peerConn?.connectionState;
+    if (st === "failed") _showCallToast("Connection failed — check network");
+    if (st === "disconnected") _showCallToast("Connection lost…");
+  };
+  _peerConn.oniceconnectionstatechange = () => {
+    if (_peerConn?.iceConnectionState === "failed") _peerConn.restartIce && _peerConn.restartIce();
   };
 
   _peerConn.onicecandidate = e => {
@@ -9810,9 +10118,19 @@ async function _acceptCall() {
 
   _remoteStream = new MediaStream();
   _peerConn.ontrack = e => {
-    e.streams[0]?.getTracks().forEach(t => _remoteStream.addTrack(t));
+    if (e.track && !_remoteStream.getTrackById(e.track.id)) _remoteStream.addTrack(e.track);
     const rv = document.getElementById("remoteVideo");
-    if (rv) { rv.srcObject = _remoteStream; rv.muted = false; }
+    if (rv) { if (rv.srcObject !== _remoteStream) rv.srcObject = _remoteStream; rv.muted = false; rv.play().catch(() => {}); }
+    const ra = document.getElementById("remoteAudio");
+    if (ra && ra.srcObject !== _remoteStream) { ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
+  };
+  _peerConn.onconnectionstatechange = () => {
+    const st = _peerConn?.connectionState;
+    if (st === "failed") _showCallToast("Connection failed — check network");
+    if (st === "disconnected") _showCallToast("Connection lost…");
+  };
+  _peerConn.oniceconnectionstatechange = () => {
+    if (_peerConn?.iceConnectionState === "failed") _peerConn.restartIce && _peerConn.restartIce();
   };
 
   _peerConn.onicecandidate = e => {
@@ -10028,7 +10346,7 @@ function updateSendButtonState() {
   if (!input || !sendBtn) return;
   const blocked  = currentChatName ? (isBlocked(currentChatName) || isTargetBlockingMe(currentChatName)) : false;
   const hasText  = (input.value || "").trim().length > 0;
-  const hasMedia = attachedMedia !== null;
+  const hasMedia = attachedMedia !== null || _chatImagesQueue.length > 0;
   const canSend  = !blocked && (hasText || hasMedia);
   sendBtn.classList.toggle("active", canSend);
   sendBtn.disabled = !canSend;
@@ -10181,8 +10499,30 @@ function showMediaPreview() {
 }
 window.showMediaPreview = showMediaPreview;
 
+function _showChatImagesPreview() {
+  const wrap  = document.getElementById("previewArea");
+  const thumb = document.getElementById("thumbnailContainer");
+  if (!wrap || !thumb) return;
+  thumb.innerHTML = "";
+  const grid = document.createElement("div");
+  grid.style.cssText = "display:grid;grid-template-columns:repeat(3,44px);gap:3px;";
+  _chatImagesQueue.forEach(item => {
+    const img = document.createElement("img");
+    img.src = item.dataUrl;
+    img.style.cssText = "width:44px;height:44px;object-fit:cover;border-radius:5px;";
+    grid.appendChild(img);
+  });
+  const lbl = document.createElement("div");
+  lbl.style.cssText = "font-size:11px;color:#9ca3af;margin-top:3px;text-align:center;";
+  lbl.textContent = `${_chatImagesQueue.length} photos`;
+  thumb.appendChild(grid);
+  thumb.appendChild(lbl);
+  wrap.style.display = "block";
+  updateSendButtonState();
+}
 function clearMediaQueue() {
   attachedMedia = null;
+  _chatImagesQueue = [];
   const wrap  = document.getElementById("previewArea");
   const thumb = document.getElementById("thumbnailContainer");
   if (wrap)  wrap.style.display = "none";
@@ -10339,11 +10679,36 @@ async function sendText() {
   /* Keep keyboard open — refocus immediately, not deferred */
   try { input.focus(); } catch(_) {}
   window.__justSentMessage = true;
-  if (attachedMedia) {
+  if (_chatImagesQueue.length > 0) {
+    const _imgs = [..._chatImagesQueue];
+    const _multiText = text;
+    const _rtMulti = _replyToMsg; _cancelReply();
+    clearMediaQueue();
+    try { input.blur(); } catch(_) {}
+    const chatBox = document.getElementById("chatBox");
+    const sendEl = document.createElement("div");
+    sendEl.className = "chat-sending-indicator";
+    sendEl.textContent = `Sending ${_imgs.length} photos…`;
+    if (chatBox) { chatBox.appendChild(sendEl); chatBox.scrollTop = chatBox.scrollHeight; }
+    try {
+      const _urls = await Promise.all(_imgs.map(async item => {
+        const blob = await fetch(item.dataUrl).then(r => r.blob());
+        const f = new File([blob], "photo.jpg", { type: blob.type });
+        return window.uploadToCloudinary(f, "image");
+      }));
+      sendEl.remove();
+      await addMsgImages(currentChatName, _urls, _multiText, _rtMulti);
+    } catch(err) {
+      sendEl.remove();
+      alert("Failed to send photos. Please try again.");
+    }
+    setTimeout(_scrollChatToBottom, 50);
+  } else if (attachedMedia) {
     const isVid  = attachedMedia.type === "video";
     const isFile = attachedMedia.type === "file";
     const media  = attachedMedia;
     clearMediaQueue();
+    try { input.blur(); } catch(_) {} /* dismiss keyboard after media send */
     const chatBox = document.getElementById("chatBox");
     const fallbackText = isVid ? "🎥 Video" : isFile ? `📎 ${media.fileName}` : "📷 Photo";
     const _rt1 = _replyToMsg; _cancelReply();
@@ -10387,8 +10752,6 @@ async function sendText() {
   }
   /* Scroll to bottom so sent message is at top of input */
   setTimeout(_scrollChatToBottom, 50);
-  /* Keep keyboard open */
-  setTimeout(() => { try { input.focus(); } catch(_) {} }, 60);
 }
 window.sendText = sendText;
 
@@ -10426,7 +10789,25 @@ function setupChatUI() {
   document.getElementById("popupPhotoItem")?.addEventListener("click", () => { closePopup(); photoInput?.click(); });
   document.getElementById("popupVideoItem")?.addEventListener("click", () => { closePopup(); videoInput?.click(); });
   document.getElementById("popupFileItem")?.addEventListener("click",  () => { closePopup(); fileInput?.click(); });
-  if (photoInput) photoInput.addEventListener("change", e => { const f = e.target.files?.[0]; if (f) openImageDirect(f); });
+  if (photoInput) photoInput.addEventListener("change", e => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    e.target.value = "";
+    if (files.length === 1) { openImageDirect(files[0]); return; }
+    clearMediaQueue();
+    _chatImagesQueue = [];
+    let _loaded = 0;
+    const _batch = files.slice(0, 9);
+    _batch.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        _chatImagesQueue.push({ file, dataUrl: String(reader.result || "") });
+        _loaded++;
+        if (_loaded === _batch.length) _showChatImagesPreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  });
   if (videoInput) videoInput.addEventListener("change", e => { const f = e.target.files?.[0]; if (f) openVideoDirect(f); });
   if (fileInput)  fileInput.addEventListener("change",  e => {
     const f = e.target.files?.[0];
@@ -10882,7 +11263,7 @@ function openPostPage() {
   /* Reset state */
   postImgFiles    = [];
   _ppStagedFiles  = [];
-  _postVideoFile  = null;
+  _postVideoFiles = [];
   /* Clear UI */
   const ta = document.getElementById("ppTextarea");
   if (ta) { ta.value = ""; }
@@ -10904,7 +11285,7 @@ function openPostPage() {
 function closePostPage() {
   postImgFiles    = [];
   _ppStagedFiles  = [];
-  _postVideoFile  = null;
+  _postVideoFiles = [];
   const vp = document.getElementById("ppVideoPreview");
   if (vp) { vp.innerHTML = ""; vp.style.display = "none"; }
   document.getElementById("ppImgPreviews").innerHTML = "";
@@ -10940,7 +11321,7 @@ let _ppStagedFiles = []; /* [{raw: File, url: string, cropped: File|null}] */
 window.ppHandleImageSelect = function(e) {
   const files = Array.from(e.target.files || []);
   e.target.value = "";
-  const remaining = 3 - _ppStagedFiles.length;
+  const remaining = 5 - _ppStagedFiles.length;
   if (remaining <= 0) return;
   files.filter(f => f.type.startsWith("image/")).slice(0, remaining).forEach(f => {
     _ppStagedFiles.push({ raw: f, url: URL.createObjectURL(f), cropped: null });
@@ -10985,11 +11366,15 @@ window.ppHandleVideoSelect = function(e) {
   const file = e.target.files[0];
   e.target.value = "";
   if (!file || !file.type.startsWith("video/")) return;
-  if (_postVideoFile) return; /* only 1 video allowed (images up to 3 are separate) */
+  if (_postVideoFiles.length >= 2) return; /* max 2 videos */
   const preview = document.getElementById("ppVideoPreview");
+  const vidIdx = _postVideoFiles.length;
+  _postVideoFiles.push(file); /* reserve slot */
 
-  /* Show video preview immediately — no waiting for metadata probe */
   const immediateUrl = URL.createObjectURL(file);
+  const wrap = document.createElement("div");
+  wrap.className = "pp-vid-wrap";
+  wrap.dataset.vidIdx = String(vidIdx);
   const thumbVid = document.createElement("video");
   thumbVid.src      = immediateUrl;
   thumbVid.muted    = true;
@@ -11002,19 +11387,23 @@ window.ppHandleVideoSelect = function(e) {
   rmBtn.style.cssText = "margin-top:4px;background:none;border:1px solid #4b5563;border-radius:6px;color:#9ca3af;font-size:11px;padding:3px 8px;cursor:pointer;";
   rmBtn.textContent = "✕ Remove video";
   rmBtn.onclick = () => {
-    _postVideoFile = null;
+    const idx = parseInt(wrap.dataset.vidIdx);
+    if (!isNaN(idx)) _postVideoFiles.splice(idx, 1);
     URL.revokeObjectURL(immediateUrl);
-    if (preview) { preview.innerHTML = ""; preview.style.display = "none"; }
+    wrap.remove();
+    if (preview) {
+      preview.querySelectorAll('.pp-vid-wrap').forEach((w, i) => { w.dataset.vidIdx = String(i); });
+      if (!preview.querySelector('.pp-vid-wrap')) preview.style.display = "none";
+    }
   };
+  wrap.appendChild(thumbVid);
+  wrap.appendChild(rmBtn);
   if (preview) {
-    preview.innerHTML = "";
-    preview.appendChild(thumbVid);
-    preview.appendChild(rmBtn);
+    preview.appendChild(wrap);
     preview.style.display = "block";
   }
 
   /* Probe duration in background; if > 30s trim and swap src */
-  _postVideoFile = file;
   const probeUrl = URL.createObjectURL(file);
   const probe    = document.createElement("video");
   probe.preload  = "metadata";
@@ -11024,13 +11413,13 @@ window.ppHandleVideoSelect = function(e) {
     if ((probe.duration || 0) > 30.5) {
       try {
         const trimmed = await _trimVideoTo30s(file);
-        _postVideoFile = trimmed;
+        _postVideoFiles[vidIdx] = trimmed;
         URL.revokeObjectURL(immediateUrl);
         thumbVid.src = URL.createObjectURL(trimmed);
         const note = document.createElement("div");
         note.style.cssText = "font-size:11px;color:#9ca3af;margin-top:2px;";
         note.textContent = "✂️ Trimmed to first 30 seconds";
-        if (preview) preview.appendChild(note);
+        wrap.appendChild(note);
       } catch(_) {}
     }
   };
@@ -11041,16 +11430,21 @@ window.ppHandleVideoSelect = function(e) {
    POST VIDEO — For You (≤ 30 seconds)
    CHANGE 6: does NOT clear images when video selected
 ═══════════════════════════════════════ */
-let _postVideoFile = null;
+let _postVideoFiles = []; /* up to 2 video files */
 
 function handlePostVideoSelect(e) {
   const file = e.target.files[0];
   e.target.value = "";
   if (!file || !file.type.startsWith("video/")) return;
-  if (_postVideoFile) return; /* only 1 video allowed (images up to 3 are separate) */
+  if (_postVideoFiles.length >= 2) return; /* max 2 videos */
   const preview = document.getElementById("postVideoPreview");
   if (!preview) return;
-  preview.innerHTML = '<div style="text-align:center;padding:8px;font-size:12px;color:#6b7280;">Reading video…</div>';
+  const vidIdx = _postVideoFiles.length;
+  _postVideoFiles.push(file); /* reserve slot */
+  const indicator = document.createElement("div");
+  indicator.style.cssText = "text-align:center;padding:8px;font-size:12px;color:#6b7280;";
+  indicator.textContent = "Reading video…";
+  preview.appendChild(indicator);
   preview.style.display = "block";
   const probeUrl = URL.createObjectURL(file);
   const probe    = document.createElement("video");
@@ -11059,15 +11453,14 @@ function handlePostVideoSelect(e) {
   probe.onloadedmetadata = async () => {
     URL.revokeObjectURL(probeUrl);
     const dur = probe.duration || 0;
-    /* CHANGE 6: do NOT clear images — allow both side by side */
     let finalFile = file;
     let wasTrimmed = false;
     if (dur > 30.5) {
-      preview.innerHTML = '<div style="text-align:center;padding:8px;font-size:12px;color:#6b7280;">Trimming to 30 s…</div>';
+      indicator.textContent = "Trimming to 30 s…";
       wasTrimmed = true;
       try { finalFile = await _trimVideoTo30s(file); } catch (_) { finalFile = file; }
     }
-    _postVideoFile = finalFile;
+    _postVideoFiles[vidIdx] = finalFile;
     const objUrl   = URL.createObjectURL(finalFile);
     const thumbVid = document.createElement("video");
     thumbVid.src = objUrl;
@@ -11079,14 +11472,22 @@ function handlePostVideoSelect(e) {
     thumbVid.onloadedmetadata = () => { thumbVid.currentTime = 1; };
     const previewWrap = document.createElement("div");
     previewWrap.className = "post-video-preview-wrap";
+    previewWrap.dataset.vidIdx = String(vidIdx);
     const rmBtn = document.createElement("button");
     rmBtn.className = "rm-vid";
     rmBtn.title = "Remove";
     rmBtn.textContent = "✕";
-    rmBtn.onclick = clearPostVideo;
+    rmBtn.onclick = () => {
+      const idx = parseInt(previewWrap.dataset.vidIdx);
+      if (!isNaN(idx)) _postVideoFiles.splice(idx, 1);
+      URL.revokeObjectURL(objUrl);
+      previewWrap.remove();
+      preview.querySelectorAll('.post-video-preview-wrap').forEach((w, i) => { w.dataset.vidIdx = String(i); });
+      if (!preview.querySelector('.post-video-preview-wrap')) preview.style.display = "none";
+    };
     previewWrap.appendChild(thumbVid);
     previewWrap.appendChild(rmBtn);
-    preview.innerHTML = "";
+    indicator.remove();
     preview.appendChild(previewWrap);
     if (wasTrimmed) {
       const note = document.createElement("div");
@@ -11098,8 +11499,9 @@ function handlePostVideoSelect(e) {
   };
   probe.onerror = () => {
     URL.revokeObjectURL(probeUrl);
-    preview.innerHTML = "";
-    preview.style.display = "none";
+    _postVideoFiles.splice(vidIdx, 1);
+    indicator.remove();
+    if (!preview.querySelector('.post-video-preview-wrap')) preview.style.display = "none";
     alert("Could not read video file. Please try a different file.");
   };
 }
@@ -11140,7 +11542,7 @@ function cancelFySearch() {
 window.cancelFySearch = cancelFySearch;
 
 function clearPostVideo() {
-  _postVideoFile = null;
+  _postVideoFiles = [];
   const preview = document.getElementById("postVideoPreview");
   if (preview) { preview.innerHTML = ""; preview.style.display = "none"; }
 }
@@ -11222,6 +11624,9 @@ function openCommentModal(postId, scrollToCommentId) {
   _commentPostId = postId;
   const page = document.getElementById("commentPage");
   if (!page) return;
+
+  /* Clear any stale reply target immediately, before any UI work */
+  _cancelCommentReply();
 
   /* Scroll active inner scroll wrapper so the tapped post stays visible.
      Skip when the hashtag page is open — the forYouPage is still in the DOM
@@ -15375,6 +15780,9 @@ window.closePostDetailPage = closePostDetailPage;
       </div>
     </div>
   </div>
+
+  <!-- Hidden audio element for remote audio (voice calls + fallback for video) -->
+  <audio id="remoteAudio" autoplay playsinline style="display:none;"></audio>
 
   <!-- Call toast notification -->
   <div id="callToast" class="call-toast"></div>
