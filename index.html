@@ -5675,24 +5675,24 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
 .msg-call-card {
   display: flex; flex-direction: row; align-items: center; gap: 12px;
   padding: 11px 14px 11px 11px; border-radius: 16px;
-  width: 240px; max-width: 240px; position: relative;
-  cursor: default; -webkit-tap-highlight-color: transparent;
+  width: 240px; max-width: 240px; cursor: default;
+  -webkit-tap-highlight-color: transparent;
 }
-.msg-call-card.me    { background: #007878; align-self: flex-end;  border-bottom-right-radius: 4px; margin-left: auto; }
-.msg-call-card.other { background: #2f3336; align-self: flex-start; border-bottom-left-radius: 4px; }
-body.light-mode .msg-call-card.other { background: #e5e7eb; }
-.call-card-icon { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.call-card-icon.ci-answered { background: rgba(74,222,128,0.18); }
-.call-card-icon.ci-missed   { background: rgba(248,113,113,0.18); }
-.call-card-icon.ci-declined { background: rgba(156,163,175,0.15); }
-.call-card-icon.ci-busy     { background: rgba(250,204,21,0.18); }
-.call-card-body { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; overflow:hidden; }
-.call-card-label { font-size:13px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3; }
-body.light-mode .msg-call-card.other .call-card-label   { color: #111827; }
-.call-card-duration { font-size:12px; color:rgba(255,255,255,0.78); font-weight:500; }
-body.light-mode .msg-call-card.other .call-card-duration { color: #374151; }
-.call-card-meta { font-size:11px; color:rgba(255,255,255,0.5); line-height:1.3; }
-body.light-mode .msg-call-card.other .call-card-meta { color: #6b7280; }
+.msg-call-card.me    { background:#007878; align-self:flex-end;  border-bottom-right-radius:4px; margin-left:auto; }
+.msg-call-card.other { background:#2f3336; align-self:flex-start; border-bottom-left-radius:4px; }
+body.light-mode .msg-call-card.other { background:#e5e7eb; }
+.call-card-icon { width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.call-card-icon.ci-answered { background:rgba(74,222,128,0.18); }
+.call-card-icon.ci-missed   { background:rgba(248,113,113,0.18); }
+.call-card-icon.ci-declined { background:rgba(156,163,175,0.15); }
+.call-card-icon.ci-busy     { background:rgba(250,204,21,0.18); }
+.call-card-body { display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;overflow:hidden; }
+.call-card-label { font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3; }
+body.light-mode .msg-call-card.other .call-card-label   { color:#111827; }
+.call-card-duration { font-size:12px;color:rgba(255,255,255,0.78);font-weight:500; }
+body.light-mode .msg-call-card.other .call-card-duration { color:#374151; }
+.call-card-meta { font-size:11px;color:rgba(255,255,255,0.5);line-height:1.3; }
+body.light-mode .msg-call-card.other .call-card-meta { color:#6b7280; }
 </style>
 </head>
 <body>
@@ -7954,24 +7954,17 @@ function _renderMessages(partner, messages) {
     const wrap = document.createElement("div");
     wrap.style.cssText = `display:flex;flex-direction:column;align-items:${isMine ? "flex-end" : "flex-start"};margin-bottom:2px;`;
 
-    /* ── Call history card ── */
     if (msg.kind === "call") {
       const side     = isMine ? "me" : "other";
       const isVid    = msg.callType === "video";
       const typeWord = isVid ? "Video Call" : "Voice Call";
       let label = "", iconCls = "ci-answered";
-      if (msg.callStatus === "answered") {
-        label = isMine ? `Outgoing ${typeWord}` : `Incoming ${typeWord}`; iconCls = "ci-answered";
-      } else if (msg.callStatus === "missed") {
-        label = isMine ? "No Answer" : `Missed ${typeWord}`;              iconCls = "ci-missed";
-      } else if (msg.callStatus === "declined") {
-        label = isMine ? "Call Declined" : "Declined";                    iconCls = "ci-declined";
-      } else if (msg.callStatus === "busy") {
-        label = "Busy";                                                    iconCls = "ci-busy";
-      } else {
-        label = typeWord; iconCls = "ci-declined";
-      }
-      const icoClr = { "ci-answered":"#4ade80","ci-missed":"#f87171","ci-busy":"#facc15","ci-declined":"#9ca3af" }[iconCls];
+      if      (msg.callStatus === "answered") { label = isMine ? `Outgoing ${typeWord}` : `Incoming ${typeWord}`; iconCls = "ci-answered"; }
+      else if (msg.callStatus === "missed")   { label = isMine ? "No Answer" : `Missed ${typeWord}`;              iconCls = "ci-missed";   }
+      else if (msg.callStatus === "declined") { label = isMine ? "Call Declined" : "Declined";                    iconCls = "ci-declined"; }
+      else if (msg.callStatus === "busy")     { label = "Busy";                                                    iconCls = "ci-busy";     }
+      else                                    { label = typeWord;                                                   iconCls = "ci-declined"; }
+      const icoClr  = {"ci-answered":"#4ade80","ci-missed":"#f87171","ci-busy":"#facc15","ci-declined":"#9ca3af"}[iconCls];
       const icoPath = isVid
         ? `<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>`
         : `<path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>`;
@@ -9637,9 +9630,9 @@ const _ICE_CONFIG = {
     { urls: "stun:stun2.l.google.com:19302" },
     { urls: "stun:stun3.l.google.com:19302" },
     { urls: "stun:stun4.l.google.com:19302" },
-    { urls: "turn:openrelay.metered.ca:80",             username: "openrelayproject", credential: "openrelayproject" },
-    { urls: "turn:openrelay.metered.ca:443",            username: "openrelayproject", credential: "openrelayproject" },
-    { urls: "turns:openrelay.metered.ca:443",           username: "openrelayproject", credential: "openrelayproject" },
+    { urls: "turn:openrelay.metered.ca:80",              username: "openrelayproject", credential: "openrelayproject" },
+    { urls: "turn:openrelay.metered.ca:443",             username: "openrelayproject", credential: "openrelayproject" },
+    { urls: "turns:openrelay.metered.ca:443",            username: "openrelayproject", credential: "openrelayproject" },
     { urls: "turn:openrelay.metered.ca:80?transport=tcp", username: "openrelayproject", credential: "openrelayproject" }
   ],
   iceCandidatePoolSize: 10
@@ -9792,9 +9785,9 @@ function _showInCallUI(name, type) {
 
   /* Wire local video immediately */
   if (_localStream && localVid) { localVid.srcObject = _localStream; localVid.play().catch(() => {}); }
-  /* Wire remote audio — even if ontrack hasn't fired yet, srcObject is set so play() works when tracks arrive */
-  const ra = document.getElementById("remoteAudio");
-  if (ra) { if (ra.srcObject !== _remoteStream) ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
+  /* Pre-wire remote audio element so it's ready when tracks arrive via ontrack */
+  const _icRa = document.getElementById("remoteAudio");
+  if (_icRa) { if (_icRa.srcObject !== _remoteStream) _icRa.srcObject = _remoteStream; _icRa.play().catch(() => {}); }
   if (isVideo) {
     remoteVid.style.display = "block";
     localVid.style.display  = "block";
@@ -9824,8 +9817,8 @@ function _hideInCallUI() {
   const localVid  = document.getElementById("localVideo");
   if (remoteVid) { remoteVid.srcObject = null; remoteVid.load(); }
   if (localVid)  { localVid.srcObject  = null; localVid.load(); }
-  const raEl = document.getElementById("remoteAudio");
-  if (raEl) { raEl.srcObject = null; raEl.load(); }
+  const _hiRa = document.getElementById("remoteAudio");
+  if (_hiRa) { _hiRa.srcObject = null; _hiRa.load(); }
   if (_callTimerInt) { clearInterval(_callTimerInt); _callTimerInt = null; }
 }
 
@@ -9878,8 +9871,9 @@ function _hideReconnectUI() {
   if (!_callTimerInt && _callId) _startCallTimer();
 }
 
-/* ── ICE restart ── */
+/* ── ICE restart (used both for initial silent restart and network reconnect) ── */
 function _startReconnect() {
+  /* Called on connection drop — shows spinner and starts 30 s timeout */
   if (!_callId || !_peerConn) return;
   _showReconnectUI();
   if (!_reconnectTimer) {
@@ -9889,17 +9883,23 @@ function _startReconnect() {
   }
   if (_callRole === "caller") setTimeout(_doICERestart, 1500);
 }
+
 async function _doICERestart() {
+  /* Creates a new offer with iceRestart:true and writes it to Firestore.
+     Called immediately on call-answer (silent) and on network reconnect (with UI). */
   if (!_peerConn || !_callId) return;
   try {
     const offer = await _peerConn.createOffer({ iceRestart: true });
     await _peerConn.setLocalDescription(offer);
     await updateDoc(doc(db, "calls", _callId), {
-      reconnectOffer: { type: offer.type, sdp: offer.sdp }, reconnectAt: nowStamp()
+      reconnectOffer: { type: offer.type, sdp: offer.sdp },
+      reconnectAt:    nowStamp()
     }).catch(() => {});
   } catch(e) {}
 }
+
 async function _handleReconnectOffer(offerData) {
+  /* Callee: receives new offer, creates answer, writes back */
   if (!_peerConn || !_callId) return;
   try {
     await _peerConn.setRemoteDescription(new RTCSessionDescription(offerData));
@@ -9910,21 +9910,21 @@ async function _handleReconnectOffer(offerData) {
     }).catch(() => {});
   } catch(e) {}
 }
+
 async function _handleReconnectAnswer(answerData) {
+  /* Caller: applies the callee's answer to complete renegotiation */
   if (!_peerConn) return;
   try { await _peerConn.setRemoteDescription(new RTCSessionDescription(answerData)); } catch(e) {}
 }
 
-/* ── Call history message ──
-   FIX: all volatile state (_callType, _callSeconds, _callRemoteName) is captured
-   synchronously BEFORE the first await, so _cleanupCall's variable-clearing
-   cannot race with the async Firestore writes.                                   */
+/* ── Call history message ── */
 async function _writeCallHistoryMsg(toastMsg) {
   if (_callRole !== "caller" || !_callId || !_callRemoteName) return;
-  /* ↓ Capture everything NOW before any await or _cleanupCall nulls them */
-  const capturedType     = _callType     || "voice";
-  const capturedRemote   = _callRemoteName;
-  const capturedSeconds  = _callSeconds  || 0;
+  /* Capture volatile state synchronously BEFORE any await so _cleanupCall
+     cannot race and null them out                                          */
+  const capturedType    = _callType    || "voice";
+  const capturedRemote  = _callRemoteName;
+  const capturedSeconds = _callSeconds || 0;
 
   let callStatus = null;
   if      (toastMsg === "Call ended")    callStatus = "answered";
@@ -9941,7 +9941,7 @@ async function _writeCallHistoryMsg(toastMsg) {
     const tid = await ensureConversation(me, partner);
     await addDoc(collection(db, "conversations", tid, "messages"), {
       sender: me, kind: "call",
-      callType:     capturedType,      /* "voice" or "video" — captured synchronously */
+      callType:     capturedType,
       callStatus,
       callDuration: duration,
       time: formatTimeFromStamp(stamp), stamp
@@ -10028,20 +10028,11 @@ async function _initiateCall(type) {
 
   _remoteStream = new MediaStream();
   _peerConn.ontrack = e => {
-    /* Add track if not already present */
     if (e.track && !_remoteStream.getTrackById(e.track.id)) _remoteStream.addTrack(e.track);
-    /* Wire + play remote video — always play() so initial connection works immediately */
     const rv = document.getElementById("remoteVideo");
-    if (rv) {
-      if (rv.srcObject !== _remoteStream) { rv.srcObject = _remoteStream; rv.muted = false; }
-      rv.play().catch(() => {});
-    }
-    /* Wire + play remote audio — always play() on every track event */
+    if (rv) { if (rv.srcObject !== _remoteStream) { rv.srcObject = _remoteStream; rv.muted = false; } rv.play().catch(() => {}); }
     const ra = document.getElementById("remoteAudio");
-    if (ra) {
-      if (ra.srcObject !== _remoteStream) ra.srcObject = _remoteStream;
-      ra.play().catch(() => {});
-    }
+    if (ra) { if (ra.srcObject !== _remoteStream) ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
   };
   _peerConn.onconnectionstatechange = () => {
     const st = _peerConn?.connectionState;
@@ -10089,6 +10080,11 @@ async function _initiateCall(type) {
         await _peerConn.setRemoteDescription(new RTCSessionDescription(data.answer));
         _listenCalleeICE();
         _showInCallUI(partner, type);
+        /* Immediately force a silent ICE restart so both sides get fresh ontrack
+           events and media flows from the very first moment — no waiting for a
+           connection failure. The callee's Firestore listener handles the offer
+           and replies with an answer, completing the renegotiation cycle. */
+        setTimeout(_doICERestart, 400);
       } catch(err) { _showCallToast("Call setup error"); }
 
     } else if (status === "declined") {
@@ -10103,8 +10099,9 @@ async function _initiateCall(type) {
       _cleanupCall("No answer");
     }
 
-    /* ICE restart: handle reconnect answer from callee */
-    if (data.reconnectAnswer && _callRole === "caller" && _peerConn && _isReconnecting) {
+    /* Handle reconnect answer — no _isReconnecting guard so both the initial
+       silent restart and any subsequent network-drop reconnect work the same way */
+    if (data.reconnectAnswer && _callRole === "caller" && _peerConn) {
       const aSdp = data.reconnectAnswer.sdp;
       if (aSdp && aSdp !== _lastReconnectAnswerSdp) {
         _lastReconnectAnswerSdp = aSdp;
@@ -10162,20 +10159,11 @@ async function _acceptCall() {
 
   _remoteStream = new MediaStream();
   _peerConn.ontrack = e => {
-    /* Add track if not already present */
     if (e.track && !_remoteStream.getTrackById(e.track.id)) _remoteStream.addTrack(e.track);
-    /* Wire + play remote video — always play() so initial connection works immediately */
     const rv = document.getElementById("remoteVideo");
-    if (rv) {
-      if (rv.srcObject !== _remoteStream) { rv.srcObject = _remoteStream; rv.muted = false; }
-      rv.play().catch(() => {});
-    }
-    /* Wire + play remote audio — always play() on every track event */
+    if (rv) { if (rv.srcObject !== _remoteStream) { rv.srcObject = _remoteStream; rv.muted = false; } rv.play().catch(() => {}); }
     const ra = document.getElementById("remoteAudio");
-    if (ra) {
-      if (ra.srcObject !== _remoteStream) ra.srcObject = _remoteStream;
-      ra.play().catch(() => {});
-    }
+    if (ra) { if (ra.srcObject !== _remoteStream) ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
   };
   _peerConn.onconnectionstatechange = () => {
     const st = _peerConn?.connectionState;
@@ -10221,13 +10209,14 @@ async function _acceptCall() {
     const s = data.status;
     if (s === "ended" || s === "cancelled") { _cleanupCall(s === "ended" ? "Call ended" : null); return; }
 
-    /* ICE restart: handle reconnect offer from caller */
+    /* Handle ICE restart offer from caller.
+       If _isReconnecting is already true this is a real reconnect → UI already shown.
+       Otherwise it's the silent initial restart — process quietly with no spinner. */
     if (data.reconnectOffer && _callRole === "callee" && _peerConn) {
       const oSdp = data.reconnectOffer.sdp;
       if (oSdp && oSdp !== _lastReconnectOfferSdp) {
         _lastReconnectOfferSdp = oSdp;
-        if (!_isReconnecting) _startReconnect();
-        _handleReconnectOffer(data.reconnectOffer);
+        _handleReconnectOffer(data.reconnectOffer); /* always process; spinner only if already reconnecting */
       }
     }
   });
