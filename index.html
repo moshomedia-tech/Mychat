@@ -5653,76 +5653,42 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
 .in-call-minimize-btn:active { background: rgba(255,255,255,0.35); }
 .call-toast.visible { opacity:1; transform: translateX(-50%) translateY(0); }
 
-/* ── Reconnecting banner (in-call overlay) ── */
+/* ── Reconnecting banner ── */
 .reconnect-banner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.72);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  padding: 12px 24px;
-  border-radius: 999px;
-  z-index: 10;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  white-space: nowrap;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-  pointer-events: none;
+  background: rgba(0,0,0,0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: #fff; font-size: 15px; font-weight: 600;
+  padding: 12px 24px; border-radius: 999px; z-index: 10;
+  display: none; align-items: center; gap: 10px;
+  white-space: nowrap; box-shadow: 0 4px 24px rgba(0,0,0,0.5); pointer-events: none;
 }
 .reconnect-banner.visible { display: flex; }
 .reconnect-spinner {
   width: 18px; height: 18px;
-  border: 2.5px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: reconnSpin 0.8s linear infinite;
-  flex-shrink: 0;
+  border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff;
+  border-radius: 50%; animation: reconnSpin 0.8s linear infinite; flex-shrink: 0;
 }
 @keyframes reconnSpin { to { transform: rotate(360deg); } }
 
-/* ── Call History Message Card ── */
+/* ── Call History Card ── */
 .msg-call-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px 11px 11px;
-  border-radius: 16px;
-  width: 240px;
-  max-width: 240px;
-  position: relative;
-  cursor: default;
-  -webkit-tap-highlight-color: transparent;
+  display: flex; flex-direction: row; align-items: center; gap: 12px;
+  padding: 11px 14px 11px 11px; border-radius: 16px;
+  width: 240px; max-width: 240px; position: relative;
+  cursor: default; -webkit-tap-highlight-color: transparent;
 }
-.msg-call-card.me {
-  background: #007878;
-  align-self: flex-end;
-  border-bottom-right-radius: 4px;
-  margin-left: auto;
-}
-.msg-call-card.other {
-  background: #2f3336;
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
-}
+.msg-call-card.me    { background: #007878; align-self: flex-end;  border-bottom-right-radius: 4px; margin-left: auto; }
+.msg-call-card.other { background: #2f3336; align-self: flex-start; border-bottom-left-radius: 4px; }
 body.light-mode .msg-call-card.other { background: #e5e7eb; }
-.call-card-icon {
-  width: 46px; height: 46px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
+.call-card-icon { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .call-card-icon.ci-answered { background: rgba(74,222,128,0.18); }
 .call-card-icon.ci-missed   { background: rgba(248,113,113,0.18); }
 .call-card-icon.ci-declined { background: rgba(156,163,175,0.15); }
 .call-card-icon.ci-busy     { background: rgba(250,204,21,0.18); }
 .call-card-body { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; overflow:hidden; }
 .call-card-label { font-size:13px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3; }
-body.light-mode .msg-call-card.other .call-card-label { color: #111827; }
+body.light-mode .msg-call-card.other .call-card-label   { color: #111827; }
 .call-card-duration { font-size:12px; color:rgba(255,255,255,0.78); font-weight:500; }
 body.light-mode .msg-call-card.other .call-card-duration { color: #374151; }
 .call-card-meta { font-size:11px; color:rgba(255,255,255,0.5); line-height:1.3; }
@@ -7990,27 +7956,27 @@ function _renderMessages(partner, messages) {
 
     /* ── Call history card ── */
     if (msg.kind === "call") {
-      const side    = isMine ? "me" : "other";
-      const isVid   = msg.callType === "video";
+      const side     = isMine ? "me" : "other";
+      const isVid    = msg.callType === "video";
       const typeWord = isVid ? "Video Call" : "Voice Call";
       let label = "", iconCls = "ci-answered";
       if (msg.callStatus === "answered") {
         label = isMine ? `Outgoing ${typeWord}` : `Incoming ${typeWord}`; iconCls = "ci-answered";
       } else if (msg.callStatus === "missed") {
-        label = isMine ? "No Answer" : `Missed ${typeWord}`; iconCls = "ci-missed";
+        label = isMine ? "No Answer" : `Missed ${typeWord}`;              iconCls = "ci-missed";
       } else if (msg.callStatus === "declined") {
-        label = isMine ? "Call Declined" : "Declined"; iconCls = "ci-declined";
+        label = isMine ? "Call Declined" : "Declined";                    iconCls = "ci-declined";
       } else if (msg.callStatus === "busy") {
-        label = "Busy"; iconCls = "ci-busy";
+        label = "Busy";                                                    iconCls = "ci-busy";
       } else {
         label = typeWord; iconCls = "ci-declined";
       }
-      const icoClr = iconCls === "ci-answered" ? "#4ade80" : iconCls === "ci-missed" ? "#f87171" : iconCls === "ci-busy" ? "#facc15" : "#9ca3af";
+      const icoClr = { "ci-answered":"#4ade80","ci-missed":"#f87171","ci-busy":"#facc15","ci-declined":"#9ca3af" }[iconCls];
       const icoPath = isVid
         ? `<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>`
         : `<path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>`;
-      const icoSvg = `<svg width="22" height="22" viewBox="0 0 24 24" fill="${icoClr}">${icoPath}</svg>`;
-      const durLine = (msg.callStatus === "answered" && msg.callDuration > 0)
+      const icoSvg   = `<svg width="22" height="22" viewBox="0 0 24 24" fill="${icoClr}">${icoPath}</svg>`;
+      const durLine  = (msg.callStatus === "answered" && msg.callDuration > 0)
         ? `<div class="call-card-duration">⏱ ${_fmtDur(msg.callDuration)}</div>` : "";
       const metaLine = `<div class="call-card-meta">${formatDateFromStamp(msg.stamp)} · ${msg.time || formatTimeFromStamp(msg.stamp)}</div>`;
       const card = document.createElement("div");
@@ -9671,9 +9637,9 @@ const _ICE_CONFIG = {
     { urls: "stun:stun2.l.google.com:19302" },
     { urls: "stun:stun3.l.google.com:19302" },
     { urls: "stun:stun4.l.google.com:19302" },
-    { urls: "turn:openrelay.metered.ca:80",      username: "openrelayproject", credential: "openrelayproject" },
-    { urls: "turn:openrelay.metered.ca:443",     username: "openrelayproject", credential: "openrelayproject" },
-    { urls: "turns:openrelay.metered.ca:443",    username: "openrelayproject", credential: "openrelayproject" },
+    { urls: "turn:openrelay.metered.ca:80",             username: "openrelayproject", credential: "openrelayproject" },
+    { urls: "turn:openrelay.metered.ca:443",            username: "openrelayproject", credential: "openrelayproject" },
+    { urls: "turns:openrelay.metered.ca:443",           username: "openrelayproject", credential: "openrelayproject" },
     { urls: "turn:openrelay.metered.ca:80?transport=tcp", username: "openrelayproject", credential: "openrelayproject" }
   ],
   iceCandidatePoolSize: 10
@@ -9698,10 +9664,10 @@ let _currentFacingMode = "user"; /* "user" | "environment" */
 let _audioCtx        = null;   /* Web Audio for ringtone */
 let _ringNodes       = [];     /* Oscillator + gain nodes */
 /* ── Reconnection state ── */
-let _isReconnecting        = false;
-let _reconnectTimer        = null;   /* timeout before giving up */
-let _lastReconnectOfferSdp = null;   /* guard: don't re-process same offer */
-let _lastReconnectAnswerSdp= null;   /* guard: don't re-process same answer */
+let _isReconnecting         = false;
+let _reconnectTimer         = null;
+let _lastReconnectOfferSdp  = null;
+let _lastReconnectAnswerSdp = null;
 
 /* ── Web-Audio ringtone (iPhone-style double-ring pattern) ── */
 function _startRingtone() {
@@ -9824,18 +9790,17 @@ function _showInCallUI(name, type) {
   const voiceBg    = document.getElementById("voiceCallBackground");
   const icVoiceAv  = document.getElementById("icVoiceAvatar");
 
-  /* Wire local video */
+  /* Wire local video immediately */
   if (_localStream && localVid) { localVid.srcObject = _localStream; localVid.play().catch(() => {}); }
-  /* Wire remote stream if ontrack already fired before UI appeared */
-  if (_remoteStream) {
-    if (remoteVid && remoteVid.srcObject !== _remoteStream) { remoteVid.srcObject = _remoteStream; remoteVid.muted = false; remoteVid.play().catch(() => {}); }
-    const ra = document.getElementById("remoteAudio");
-    if (ra && ra.srcObject !== _remoteStream) { ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
-  }
+  /* Wire remote audio — even if ontrack hasn't fired yet, srcObject is set so play() works when tracks arrive */
+  const ra = document.getElementById("remoteAudio");
+  if (ra) { if (ra.srcObject !== _remoteStream) ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
   if (isVideo) {
     remoteVid.style.display = "block";
     localVid.style.display  = "block";
     if (voiceBg) voiceBg.style.display = "none";
+    if (remoteVid.srcObject !== _remoteStream) { remoteVid.srcObject = _remoteStream; remoteVid.muted = false; }
+    remoteVid.play().catch(() => {});
   } else {
     remoteVid.style.display = "none";
     localVid.style.display  = "none";
@@ -9884,13 +9849,11 @@ function _listenCalleeICE() {
   });
 }
 
-/* ── Reconnect UI helpers ── */
+/* ── Reconnect UI ── */
 function _showReconnectUI() {
-  if (_isReconnecting) return; /* already showing */
+  if (_isReconnecting) return;
   _isReconnecting = true;
-  /* Pause the call timer display */
   if (_callTimerInt) { clearInterval(_callTimerInt); _callTimerInt = null; }
-  /* Show spinner banner */
   let banner = document.getElementById("reconnectBanner");
   if (!banner) {
     banner = document.createElement("div");
@@ -9900,7 +9863,6 @@ function _showReconnectUI() {
     document.getElementById("inCallOverlay")?.appendChild(banner);
   }
   banner.classList.add("visible");
-  /* Dim the timer text */
   const timerEl = document.getElementById("inCallTimer");
   if (timerEl) timerEl.style.opacity = "0.4";
 }
@@ -9913,39 +9875,30 @@ function _hideReconnectUI() {
   if (banner) banner.classList.remove("visible");
   const timerEl = document.getElementById("inCallTimer");
   if (timerEl) timerEl.style.opacity = "";
-  /* Resume call timer */
   if (!_callTimerInt && _callId) _startCallTimer();
 }
 
-/* ── ICE Restart (caller initiates, callee responds) ── */
+/* ── ICE restart ── */
 function _startReconnect() {
   if (!_callId || !_peerConn) return;
   _showReconnectUI();
-  /* Absolute timeout — give up after 30 s */
   if (!_reconnectTimer) {
     _reconnectTimer = setTimeout(() => {
-      if (_isReconnecting) {
-        _showCallToast("Could not reconnect");
-        _endCall();
-      }
+      if (_isReconnecting) { _showCallToast("Could not reconnect"); _endCall(); }
     }, 30000);
   }
-  /* Caller triggers the ICE restart after a short stabilisation delay */
   if (_callRole === "caller") setTimeout(_doICERestart, 1500);
 }
-
 async function _doICERestart() {
   if (!_peerConn || !_callId) return;
   try {
     const offer = await _peerConn.createOffer({ iceRestart: true });
     await _peerConn.setLocalDescription(offer);
     await updateDoc(doc(db, "calls", _callId), {
-      reconnectOffer: { type: offer.type, sdp: offer.sdp },
-      reconnectAt:    nowStamp()
+      reconnectOffer: { type: offer.type, sdp: offer.sdp }, reconnectAt: nowStamp()
     }).catch(() => {});
-  } catch(e) { /* non-fatal */ }
+  } catch(e) {}
 }
-
 async function _handleReconnectOffer(offerData) {
   if (!_peerConn || !_callId) return;
   try {
@@ -9955,36 +9908,45 @@ async function _handleReconnectOffer(offerData) {
     await updateDoc(doc(db, "calls", _callId), {
       reconnectAnswer: { type: answer.type, sdp: answer.sdp }
     }).catch(() => {});
-  } catch(e) { /* non-fatal */ }
+  } catch(e) {}
 }
-
 async function _handleReconnectAnswer(answerData) {
   if (!_peerConn) return;
-  try {
-    await _peerConn.setRemoteDescription(new RTCSessionDescription(answerData));
-  } catch(e) { /* non-fatal */ }
+  try { await _peerConn.setRemoteDescription(new RTCSessionDescription(answerData)); } catch(e) {}
 }
 
-/* ── Write call history to conversation ── */
+/* ── Call history message ──
+   FIX: all volatile state (_callType, _callSeconds, _callRemoteName) is captured
+   synchronously BEFORE the first await, so _cleanupCall's variable-clearing
+   cannot race with the async Firestore writes.                                   */
 async function _writeCallHistoryMsg(toastMsg) {
   if (_callRole !== "caller" || !_callId || !_callRemoteName) return;
+  /* ↓ Capture everything NOW before any await or _cleanupCall nulls them */
+  const capturedType     = _callType     || "voice";
+  const capturedRemote   = _callRemoteName;
+  const capturedSeconds  = _callSeconds  || 0;
+
   let callStatus = null;
   if      (toastMsg === "Call ended")    callStatus = "answered";
   else if (toastMsg === "Call declined") callStatus = "declined";
   else if (toastMsg === "User is busy")  callStatus = "busy";
   else if (toastMsg === "No answer")     callStatus = "missed";
   if (!callStatus) return;
-  const me = normalizeName(currentUser), partner = normalizeName(_callRemoteName);
+
+  const me = normalizeName(currentUser), partner = normalizeName(capturedRemote);
   if (!me || !partner || me === partner) return;
-  const stamp = nowStamp(), duration = callStatus === "answered" ? _callSeconds : 0;
+  const stamp    = nowStamp();
+  const duration = callStatus === "answered" ? capturedSeconds : 0;
   try {
     const tid = await ensureConversation(me, partner);
     await addDoc(collection(db, "conversations", tid, "messages"), {
-      sender: me, kind: "call", callType: _callType || "voice",
-      callStatus, callDuration: duration,
+      sender: me, kind: "call",
+      callType:     capturedType,      /* "voice" or "video" — captured synchronously */
+      callStatus,
+      callDuration: duration,
       time: formatTimeFromStamp(stamp), stamp
     });
-    const typeIcon = (_callType === "video") ? "📹" : "📞";
+    const typeIcon = capturedType === "video" ? "📹" : "📞";
     const lastText = callStatus === "answered"  ? `${typeIcon} Call · ${_fmtDur(duration)}`
                    : callStatus === "missed"    ? `${typeIcon} Missed call`
                    : callStatus === "declined"  ? `${typeIcon} Call declined`
@@ -10004,8 +9966,7 @@ function _fmtDur(secs) {
 
 /* ── Full cleanup ── */
 function _cleanupCall(toastMsg) {
-  /* Write call history BEFORE variables are cleared */
-  _writeCallHistoryMsg(toastMsg);
+  _writeCallHistoryMsg(toastMsg); /* captures volatile vars synchronously first */
   _hideReconnectUI();
   _stopRingtone();
   if (_callAutoTimeout) { clearTimeout(_callAutoTimeout); _callAutoTimeout = null; }
@@ -10067,11 +10028,20 @@ async function _initiateCall(type) {
 
   _remoteStream = new MediaStream();
   _peerConn.ontrack = e => {
+    /* Add track if not already present */
     if (e.track && !_remoteStream.getTrackById(e.track.id)) _remoteStream.addTrack(e.track);
+    /* Wire + play remote video — always play() so initial connection works immediately */
     const rv = document.getElementById("remoteVideo");
-    if (rv) { if (rv.srcObject !== _remoteStream) rv.srcObject = _remoteStream; rv.muted = false; rv.play().catch(() => {}); }
+    if (rv) {
+      if (rv.srcObject !== _remoteStream) { rv.srcObject = _remoteStream; rv.muted = false; }
+      rv.play().catch(() => {});
+    }
+    /* Wire + play remote audio — always play() on every track event */
     const ra = document.getElementById("remoteAudio");
-    if (ra && ra.srcObject !== _remoteStream) { ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
+    if (ra) {
+      if (ra.srcObject !== _remoteStream) ra.srcObject = _remoteStream;
+      ra.play().catch(() => {});
+    }
   };
   _peerConn.onconnectionstatechange = () => {
     const st = _peerConn?.connectionState;
@@ -10133,7 +10103,7 @@ async function _initiateCall(type) {
       _cleanupCall("No answer");
     }
 
-    /* ── ICE restart: handle reconnect answer from callee ── */
+    /* ICE restart: handle reconnect answer from callee */
     if (data.reconnectAnswer && _callRole === "caller" && _peerConn && _isReconnecting) {
       const aSdp = data.reconnectAnswer.sdp;
       if (aSdp && aSdp !== _lastReconnectAnswerSdp) {
@@ -10192,11 +10162,20 @@ async function _acceptCall() {
 
   _remoteStream = new MediaStream();
   _peerConn.ontrack = e => {
+    /* Add track if not already present */
     if (e.track && !_remoteStream.getTrackById(e.track.id)) _remoteStream.addTrack(e.track);
+    /* Wire + play remote video — always play() so initial connection works immediately */
     const rv = document.getElementById("remoteVideo");
-    if (rv) { if (rv.srcObject !== _remoteStream) rv.srcObject = _remoteStream; rv.muted = false; rv.play().catch(() => {}); }
+    if (rv) {
+      if (rv.srcObject !== _remoteStream) { rv.srcObject = _remoteStream; rv.muted = false; }
+      rv.play().catch(() => {});
+    }
+    /* Wire + play remote audio — always play() on every track event */
     const ra = document.getElementById("remoteAudio");
-    if (ra && ra.srcObject !== _remoteStream) { ra.srcObject = _remoteStream; ra.play().catch(() => {}); }
+    if (ra) {
+      if (ra.srcObject !== _remoteStream) ra.srcObject = _remoteStream;
+      ra.play().catch(() => {});
+    }
   };
   _peerConn.onconnectionstatechange = () => {
     const st = _peerConn?.connectionState;
@@ -10242,12 +10221,12 @@ async function _acceptCall() {
     const s = data.status;
     if (s === "ended" || s === "cancelled") { _cleanupCall(s === "ended" ? "Call ended" : null); return; }
 
-    /* ── ICE restart: handle reconnect offer from caller ── */
+    /* ICE restart: handle reconnect offer from caller */
     if (data.reconnectOffer && _callRole === "callee" && _peerConn) {
       const oSdp = data.reconnectOffer.sdp;
       if (oSdp && oSdp !== _lastReconnectOfferSdp) {
         _lastReconnectOfferSdp = oSdp;
-        if (!_isReconnecting) _startReconnect(); /* show reconnecting UI on callee too */
+        if (!_isReconnecting) _startReconnect();
         _handleReconnectOffer(data.reconnectOffer);
       }
     }
@@ -15869,7 +15848,7 @@ window.closePostDetailPage = closePostDetailPage;
     </div>
   </div>
 
-  <!-- Hidden audio element for remote audio during calls -->
+  <!-- Remote audio for calls (voice + audio track of video calls) -->
   <audio id="remoteAudio" autoplay playsinline style="display:none;"></audio>
 
   <!-- Call toast notification -->
