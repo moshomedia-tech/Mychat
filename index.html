@@ -11151,7 +11151,7 @@ async function _searchChatMsgsAsync(q, container, msgHdr, loader) {
 }
 
 function _chatSrchHighlight(escaped, q) {
-  const safe = q.replace(/[.*+?^${}()|[\]\]/g, "\$&");
+  const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return escaped.replace(new RegExp("(" + safe + ")", "gi"), "<mark>$1</mark>");
 }
 
