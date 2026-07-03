@@ -5653,30 +5653,28 @@ body.pink-mode .call-option-item, body.pink-mode .chat-dots-item { color: #9d005
 .in-call-minimize-btn:active { background: rgba(255,255,255,0.35); }
 .call-toast.visible { opacity:1; transform: translateX(-50%) translateY(0); }
 
-/* ── Reconnecting banner ── */
+/* ── Connecting / Reconnecting banner ── */
 .reconnect-banner {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  color: #fff; font-size: 15px; font-weight: 600;
-  padding: 12px 24px; border-radius: 999px; z-index: 10;
-  display: none; align-items: center; gap: 10px;
-  white-space: nowrap; box-shadow: 0 4px 24px rgba(0,0,0,0.5); pointer-events: none;
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  color:#fff; font-size:15px; font-weight:600;
+  padding:12px 24px; border-radius:999px; z-index:10;
+  display:none; align-items:center; gap:10px;
+  white-space:nowrap; box-shadow:0 4px 24px rgba(0,0,0,0.5); pointer-events:none;
 }
-.reconnect-banner.visible { display: flex; }
+.reconnect-banner.visible { display:flex; }
 .reconnect-spinner {
-  width: 18px; height: 18px;
-  border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff;
-  border-radius: 50%; animation: reconnSpin 0.8s linear infinite; flex-shrink: 0;
+  width:18px; height:18px;
+  border:2.5px solid rgba(255,255,255,0.3); border-top-color:#fff;
+  border-radius:50%; animation:reconnSpin 0.8s linear infinite; flex-shrink:0;
 }
-@keyframes reconnSpin { to { transform: rotate(360deg); } }
+@keyframes reconnSpin { to { transform:rotate(360deg); } }
 
 /* ── Call History Card ── */
 .msg-call-card {
-  display: flex; flex-direction: row; align-items: center; gap: 12px;
-  padding: 11px 14px 11px 11px; border-radius: 16px;
-  width: 240px; max-width: 240px; cursor: default;
-  -webkit-tap-highlight-color: transparent;
+  display:flex; flex-direction:row; align-items:center; gap:12px;
+  padding:11px 14px 11px 11px; border-radius:16px;
+  width:240px; max-width:240px; cursor:default; -webkit-tap-highlight-color:transparent;
 }
 .msg-call-card.me    { background:#007878; align-self:flex-end;  border-bottom-right-radius:4px; margin-left:auto; }
 .msg-call-card.other { background:#2f3336; align-self:flex-start; border-bottom-left-radius:4px; }
@@ -5693,6 +5691,71 @@ body.light-mode .msg-call-card.other .call-card-label   { color:#111827; }
 body.light-mode .msg-call-card.other .call-card-duration { color:#374151; }
 .call-card-meta { font-size:11px;color:rgba(255,255,255,0.5);line-height:1.3; }
 body.light-mode .msg-call-card.other .call-card-meta { color:#6b7280; }
+
+/* ── Full-conversation chat search ── */
+.chat-srch-hdr {
+  padding: 8px 14px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #64748b;
+}
+.chat-srch-msg {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  transition: background .15s;
+}
+.chat-srch-msg:active { background: rgba(255,255,255,.08); }
+.chat-srch-msg-meta { font-size: 11px; color: #64748b; }
+.chat-srch-msg-body { font-size: 13px; margin-top: 3px; line-height: 1.4; }
+.chat-srch-msg-body mark {
+  background: rgba(251,191,36,.35);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.chat-srch-empty { padding: 26px 16px; text-align: center; color: #64748b; font-size: 14px; }
+/* Scroll-to message highlight flash */
+@keyframes _msgFlash {
+  0%   { background: rgba(251,191,36,.45); }
+  100% { background: transparent; }
+}
+.msg-highlight-flash { animation: _msgFlash 2.5s ease forwards; border-radius: 10px; }
+
+/* ── iOS Add-to-Home-Screen notification banner ── */
+#iosInstallBanner {
+  position: fixed;
+  bottom: 76px;
+  left: 12px;
+  right: 12px;
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  padding: 14px 16px;
+  z-index: 9200;
+  box-shadow: 0 6px 28px rgba(0,0,0,.55);
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  animation: slideUpBanner .4s ease;
+}
+@keyframes slideUpBanner {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+#iosInstallBanner .ios-banner-icon { font-size: 26px; flex-shrink: 0; }
+#iosInstallBanner .ios-banner-body { flex: 1; font-size: 13px; line-height: 1.45; }
+#iosInstallBanner .ios-banner-close {
+  background: none; border: none; color: #94a3b8;
+  font-size: 20px; cursor: pointer; padding: 2px 4px;
+  flex-shrink: 0; line-height: 1;
+}
 </style>
 </head>
 <body>
@@ -6953,6 +7016,7 @@ import {
   where,
   orderBy,
   getDocs,
+  limit,
   onSnapshot,
   serverTimestamp,
   increment,
@@ -7332,8 +7396,11 @@ onAuthStateChanged(auth, async (user) => {
         }
       }
     }
-    if (currentUser) navigateToHome();
-    else if (document.getElementById("homeSection").style.display === "none") navigateToAuth();
+    if (currentUser) {
+      navigateToHome();
+      /* Tell service worker which user is logged in (for background call alerts) */
+      setTimeout(_swNotifyUser, 1200);
+    } else if (document.getElementById("homeSection").style.display === "none") navigateToAuth();
   } else {
     navigateToAuth();
   }
@@ -7960,8 +8027,8 @@ function _renderMessages(partner, messages) {
       const typeWord = isVid ? "Video Call" : "Voice Call";
       let label = "", iconCls = "ci-answered";
       if      (msg.callStatus === "answered") { label = isMine ? `Outgoing ${typeWord}` : `Incoming ${typeWord}`; iconCls = "ci-answered"; }
-      else if (msg.callStatus === "missed")   { label = isMine ? "No Answer" : `Missed ${typeWord}`;              iconCls = "ci-missed";   }
-      else if (msg.callStatus === "declined") { label = isMine ? "Call Declined" : "Declined";                    iconCls = "ci-declined"; }
+      else if (msg.callStatus === "missed")   { label = isMine ? "No Answer"            : `Missed ${typeWord}`;   iconCls = "ci-missed";   }
+      else if (msg.callStatus === "declined") { label = isMine ? "Call Declined"        : "Declined";             iconCls = "ci-declined"; }
       else if (msg.callStatus === "busy")     { label = "Busy";                                                    iconCls = "ci-busy";     }
       else                                    { label = typeWord;                                                   iconCls = "ci-declined"; }
       const icoClr  = {"ci-answered":"#4ade80","ci-missed":"#f87171","ci-busy":"#facc15","ci-declined":"#9ca3af"}[iconCls];
@@ -8149,7 +8216,7 @@ function _renderMessages(partner, messages) {
     if (msg.text) {
       const _isCaption = (_hasMediaContent || (msg.images && msg.images.length)) && !msg.isFile && !msg.isVoiceNote;
       const _msgWords  = msg.text.split(/\s+/).filter(Boolean);
-      if (!isMine && _msgWords.length > 120) {
+      if (_msgWords.length > 120) {  /* truncate both sent and received */
         const _short = _msgWords.slice(0, 120).join(" ");
         const _tw = document.createElement("div");
         if (_isCaption) _tw.style.cssText = "margin-top:6px;";
@@ -9656,7 +9723,6 @@ let _callAutoTimeout = null;
 let _currentFacingMode = "user"; /* "user" | "environment" */
 let _audioCtx        = null;   /* Web Audio for ringtone */
 let _ringNodes       = [];     /* Oscillator + gain nodes */
-/* ── Reconnection state ── */
 let _isReconnecting         = false;
 let _reconnectTimer         = null;
 let _lastReconnectOfferSdp  = null;
@@ -9785,7 +9851,7 @@ function _showInCallUI(name, type) {
 
   /* Wire local video immediately */
   if (_localStream && localVid) { localVid.srcObject = _localStream; localVid.play().catch(() => {}); }
-  /* Pre-wire remote audio element so it's ready when tracks arrive via ontrack */
+  /* Pre-wire remote audio so it is ready the moment ontrack fires */
   const _icRa = document.getElementById("remoteAudio");
   if (_icRa) { if (_icRa.srcObject !== _remoteStream) _icRa.srcObject = _remoteStream; _icRa.play().catch(() => {}); }
   if (isVideo) {
@@ -9800,6 +9866,8 @@ function _showInCallUI(name, type) {
     if (voiceBg) { voiceBg.style.display = "flex"; }
     if (icVoiceAv) icVoiceAv.innerHTML = _buildCallAvatar(name);
   }
+  /* Show "Connecting…" spinner immediately — cleared when ICE reaches "connected" */
+  _showConnectUI("Connecting…");
 
   /* Show/hide camera controls based on call type */
   document.getElementById("ctrlCamera").style.display  = isVideo ? "flex" : "none";
@@ -9842,9 +9910,17 @@ function _listenCalleeICE() {
   });
 }
 
-/* ── Reconnect UI ── */
-function _showReconnectUI() {
-  if (_isReconnecting) return;
+/* ── Connecting / Reconnecting banner ──────────────────────
+   _showConnectUI("Connecting…")   — called at call start
+   _showConnectUI("Reconnecting…") — called on connection drop
+   Both share the same spinner element; label changes per situation.       */
+function _showConnectUI(label) {
+  if (_isReconnecting) {
+    /* Already showing — just update the label if needed */
+    const b = document.getElementById("reconnectBanner");
+    if (b) b.innerHTML = `<div class="reconnect-spinner"></div>${label}`;
+    return;
+  }
   _isReconnecting = true;
   if (_callTimerInt) { clearInterval(_callTimerInt); _callTimerInt = null; }
   let banner = document.getElementById("reconnectBanner");
@@ -9852,9 +9928,9 @@ function _showReconnectUI() {
     banner = document.createElement("div");
     banner.id = "reconnectBanner";
     banner.className = "reconnect-banner";
-    banner.innerHTML = `<div class="reconnect-spinner"></div>Reconnecting…`;
     document.getElementById("inCallOverlay")?.appendChild(banner);
   }
+  banner.innerHTML = `<div class="reconnect-spinner"></div>${label}`;
   banner.classList.add("visible");
   const timerEl = document.getElementById("inCallTimer");
   if (timerEl) timerEl.style.opacity = "0.4";
@@ -9871,11 +9947,12 @@ function _hideReconnectUI() {
   if (!_callTimerInt && _callId) _startCallTimer();
 }
 
-/* ── ICE restart (used both for initial silent restart and network reconnect) ── */
+/* ── ICE restart ────────────────────────────────────────────
+   _startReconnect() — triggered by network drop (shows "Reconnecting…")
+   _doICERestart()   — shared by both initial connect and reconnect        */
 function _startReconnect() {
-  /* Called on connection drop — shows spinner and starts 30 s timeout */
   if (!_callId || !_peerConn) return;
-  _showReconnectUI();
+  _showConnectUI("Reconnecting…");
   if (!_reconnectTimer) {
     _reconnectTimer = setTimeout(() => {
       if (_isReconnecting) { _showCallToast("Could not reconnect"); _endCall(); }
@@ -9883,10 +9960,7 @@ function _startReconnect() {
   }
   if (_callRole === "caller") setTimeout(_doICERestart, 1500);
 }
-
 async function _doICERestart() {
-  /* Creates a new offer with iceRestart:true and writes it to Firestore.
-     Called immediately on call-answer (silent) and on network reconnect (with UI). */
   if (!_peerConn || !_callId) return;
   try {
     const offer = await _peerConn.createOffer({ iceRestart: true });
@@ -9897,9 +9971,7 @@ async function _doICERestart() {
     }).catch(() => {});
   } catch(e) {}
 }
-
 async function _handleReconnectOffer(offerData) {
-  /* Callee: receives new offer, creates answer, writes back */
   if (!_peerConn || !_callId) return;
   try {
     await _peerConn.setRemoteDescription(new RTCSessionDescription(offerData));
@@ -9910,18 +9982,16 @@ async function _handleReconnectOffer(offerData) {
     }).catch(() => {});
   } catch(e) {}
 }
-
 async function _handleReconnectAnswer(answerData) {
-  /* Caller: applies the callee's answer to complete renegotiation */
   if (!_peerConn) return;
   try { await _peerConn.setRemoteDescription(new RTCSessionDescription(answerData)); } catch(e) {}
 }
 
-/* ── Call history message ── */
+/* ── Call history (caller writes once per call) ─────────────
+   All volatile state is captured synchronously before any await
+   so _cleanupCall's variable-clearing cannot race with Firestore writes. */
 async function _writeCallHistoryMsg(toastMsg) {
   if (_callRole !== "caller" || !_callId || !_callRemoteName) return;
-  /* Capture volatile state synchronously BEFORE any await so _cleanupCall
-     cannot race and null them out                                          */
   const capturedType    = _callType    || "voice";
   const capturedRemote  = _callRemoteName;
   const capturedSeconds = _callSeconds || 0;
@@ -9930,7 +10000,7 @@ async function _writeCallHistoryMsg(toastMsg) {
   if      (toastMsg === "Call ended")    callStatus = "answered";
   else if (toastMsg === "Call declined") callStatus = "declined";
   else if (toastMsg === "User is busy")  callStatus = "busy";
-  else if (toastMsg === "No answer")     callStatus = "missed";
+  else if (toastMsg === "No answer")     callStatus = "missed";  /* covers cancel + timeout */
   if (!callStatus) return;
 
   const me = normalizeName(currentUser), partner = normalizeName(capturedRemote);
@@ -9966,7 +10036,7 @@ function _fmtDur(secs) {
 
 /* ── Full cleanup ── */
 function _cleanupCall(toastMsg) {
-  _writeCallHistoryMsg(toastMsg); /* captures volatile vars synchronously first */
+  _writeCallHistoryMsg(toastMsg);
   _hideReconnectUI();
   _stopRingtone();
   if (_callAutoTimeout) { clearTimeout(_callAutoTimeout); _callAutoTimeout = null; }
@@ -10080,10 +10150,8 @@ async function _initiateCall(type) {
         await _peerConn.setRemoteDescription(new RTCSessionDescription(data.answer));
         _listenCalleeICE();
         _showInCallUI(partner, type);
-        /* Immediately force a silent ICE restart so both sides get fresh ontrack
-           events and media flows from the very first moment — no waiting for a
-           connection failure. The callee's Firestore listener handles the offer
-           and replies with an answer, completing the renegotiation cycle. */
+        /* Start same ICE negotiation cycle used during reconnect — banner already
+           shows "Connecting…" (set by _showInCallUI); clears when ICE reaches connected */
         setTimeout(_doICERestart, 400);
       } catch(err) { _showCallToast("Call setup error"); }
 
@@ -10095,12 +10163,11 @@ async function _initiateCall(type) {
       _cleanupCall("Call ended");
     } else if (status === "cancelled") {
       _cleanupCall(null);
-    } else if (status === "unanswered") {
+    } else if (status === "unanswered" || status === "missed") {
       _cleanupCall("No answer");
     }
 
-    /* Handle reconnect answer — no _isReconnecting guard so both the initial
-       silent restart and any subsequent network-drop reconnect work the same way */
+    /* Reconnect answer — shared by "Connecting…" initial cycle + "Reconnecting…" drops */
     if (data.reconnectAnswer && _callRole === "caller" && _peerConn) {
       const aSdp = data.reconnectAnswer.sdp;
       if (aSdp && aSdp !== _lastReconnectAnswerSdp) {
@@ -10127,7 +10194,8 @@ async function _cancelOutgoingCall() {
   if (_callId) {
     await updateDoc(doc(db, "calls", _callId), { status: "cancelled" }).catch(() => {});
   }
-  _cleanupCall(null);
+  /* Pass "No answer" so _writeCallHistoryMsg records a missed call for the callee */
+  _cleanupCall("No answer");
 }
 window._cancelOutgoingCall = _cancelOutgoingCall;
 
@@ -10138,6 +10206,8 @@ async function _acceptCall() {
   if (!_callId || !_callRemoteName) return;
   _stopRingtone();
   _hideIncomingCallUI();
+  /* Unsub the per-call-doc ringing watcher so it doesn't fire on accept */
+  if (_callUnsub) { _callUnsub(); _callUnsub = null; }
 
   const type = _callType;
   const partner = _callRemoteName;
@@ -10202,21 +10272,20 @@ async function _acceptCall() {
 
   _showInCallUI(partner, type);
 
-  /* Listen for caller ending + ICE restart offers */
+  /* Listen for caller ending + reconnect offers */
   _callUnsub = onSnapshot(doc(db, "calls", _callId), snap => {
     if (!snap.exists()) return;
     const data = snap.data();
     const s = data.status;
     if (s === "ended" || s === "cancelled") { _cleanupCall(s === "ended" ? "Call ended" : null); return; }
 
-    /* Handle ICE restart offer from caller.
-       If _isReconnecting is already true this is a real reconnect → UI already shown.
-       Otherwise it's the silent initial restart — process quietly with no spinner. */
+    /* ICE restart offer from caller — handles both the initial "Connecting…" cycle
+       and any subsequent "Reconnecting…" cycle silently and identically */
     if (data.reconnectOffer && _callRole === "callee" && _peerConn) {
       const oSdp = data.reconnectOffer.sdp;
       if (oSdp && oSdp !== _lastReconnectOfferSdp) {
         _lastReconnectOfferSdp = oSdp;
-        _handleReconnectOffer(data.reconnectOffer); /* always process; spinner only if already reconnecting */
+        _handleReconnectOffer(data.reconnectOffer);
       }
     }
   });
@@ -10345,11 +10414,22 @@ function _startIncomingCallListener() {
       _showIncomingCallUI(data);
       _startRingtone();
 
+      /* Per-call-doc watcher: stop ringing immediately if caller cancels/ends */
+      _callUnsub = onSnapshot(doc(db, "calls", callId), cancelSnap => {
+        if (!cancelSnap.exists()) return;
+        const cst = cancelSnap.data().status;
+        if (cst === "cancelled" || cst === "ended" || cst === "unanswered") {
+          if (_callUnsub) { _callUnsub(); _callUnsub = null; }
+          _cleanupCall(null);
+        }
+      });
+
       /* Auto-miss after 60 s if callee never responds */
       setTimeout(async () => {
         const s = await getDoc(doc(db, "calls", callId)).catch(() => null);
         if (s?.exists() && s.data().status === "ringing") {
           await updateDoc(doc(db, "calls", callId), { status: "missed" }).catch(() => {});
+          if (_callUnsub) { _callUnsub(); _callUnsub = null; }
           _cleanupCall(null);
         }
       }, 60000);
@@ -10937,7 +11017,169 @@ window._adjustChatForKeyboard = _adjustChatForKeyboard;
 /* ════════════════════════════════════════
    FILTER FUNCTIONS
 ═══════════════════════════════════════ */
-function filterChats() { renderChatList(); }
+function filterChats() {
+  const q = String(document.getElementById("search")?.value || "").trim().toLowerCase();
+  if (!q) { renderChatList(); return; }
+  _renderChatSearchSync(q);
+}
+
+/* ── Immediate render: matching partners ── */
+function _renderChatSearchSync(q) {
+  const page = document.getElementById("chatPage");
+  if (!page || !currentUser) return;
+  const me = normalizeName(currentUser);
+  const allConvs = Object.values(conversations).filter(c => {
+    const parts = (c.participants || []).map(normalizeName);
+    return parts.includes(me) && c.lastStamp > 0;
+  });
+  const partnerHits = allConvs
+    .map(c => (c.participants || []).find(p => normalizeName(p) !== me) || "")
+    .filter(p => p && normalizeName(p).includes(q));
+
+  page.innerHTML = "";
+
+  if (partnerHits.length) {
+    const h = document.createElement("div");
+    h.className = "chat-srch-hdr";
+    h.textContent = "People";
+    page.appendChild(h);
+    partnerHits.forEach(p => {
+      const conv = allConvs.find(c => (c.participants||[]).some(x => normalizeName(x) === normalizeName(p)));
+      const stamp = conv ? conv.lastStamp : 0;
+      const div = document.createElement("div");
+      div.className = "chat";
+      div.innerHTML = `
+        <div class="avatar" onclick="event.stopPropagation();viewUserProfile('${escapeHtml(p)}',event)">${renderAvatarHTML(p)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="name">${escapeHtml(p)}</div>
+          <div class="status ${isActiveRecently(p) ? "" : "offline"}">${isActiveRecently(p) ? "Online" : "Offline"}</div>
+        </div>
+        <div class="time">${stamp ? formatTimeFromStamp(stamp) : ""}</div>`;
+      div.onclick = () => { document.getElementById("search").value = ""; openChat(p); };
+      page.appendChild(div);
+    });
+  }
+
+  /* Messages header + loader — async section filled below */
+  const msgHdr = document.createElement("div");
+  msgHdr.className = "chat-srch-hdr";
+  msgHdr.style.display = "none";
+  msgHdr.textContent = "Messages";
+  page.appendChild(msgHdr);
+
+  const loader = document.createElement("div");
+  loader.className = "chat-srch-empty";
+  loader.textContent = "Searching messages…";
+  page.appendChild(loader);
+
+  _searchChatMsgsAsync(q, page, msgHdr, loader);
+}
+
+async function _searchChatMsgsAsync(q, container, msgHdr, loader) {
+  if (!currentUser) { loader.remove(); return; }
+  const me = normalizeName(currentUser);
+  const partners = Object.values(conversations)
+    .filter(c => (c.participants||[]).map(normalizeName).includes(me) && c.lastStamp > 0)
+    .map(c => (c.participants||[]).find(p => normalizeName(p) !== me) || "")
+    .filter(Boolean);
+
+  const hits = [];
+  for (const partner of partners) {
+    const convId = [me, normalizeName(partner)].sort().join("_");
+    try {
+      const snap = await getDocs(query(
+        collection(db, "conversations", convId, "messages"),
+        orderBy("stamp", "desc"),
+        limit(60)
+      ));
+      snap.forEach(d => {
+        const data = d.data();
+        if (data.text && data.text.toLowerCase().includes(q)) {
+          hits.push({ partner, msgId: d.id, text: data.text, stamp: data.stamp || 0, sender: data.sender || "" });
+        }
+      });
+    } catch(_) {}
+  }
+
+  loader.remove();
+
+  if (!hits.length) {
+    if (!container.querySelector(".chat-srch-hdr")) { /* no people either */
+      const empty = document.createElement("div");
+      empty.className = "chat-srch-empty";
+      empty.textContent = "No results for “" + q + "”";
+      container.appendChild(empty);
+    } else {
+      msgHdr.style.display = "";
+      const empty = document.createElement("div");
+      empty.className = "chat-srch-empty";
+      empty.textContent = "No matching messages";
+      container.appendChild(empty);
+    }
+    return;
+  }
+
+  hits.sort((a, b) => {
+    const aMs = a.stamp?.toMillis?.() ?? Number(a.stamp) ?? 0;
+    const bMs = b.stamp?.toMillis?.() ?? Number(b.stamp) ?? 0;
+    return bMs - aMs;
+  });
+
+  msgHdr.style.display = "";
+  hits.slice(0, 30).forEach(r => {
+    const isMine  = normalizeName(r.sender) === me;
+    const timeStr = r.stamp ? formatTimeFromStamp(r.stamp?.toMillis?.() || Number(r.stamp) || 0) : "";
+    const snippet = _chatSrchHighlight(escapeHtml(r.text), q);
+    const row = document.createElement("div");
+    row.className = "chat-srch-msg";
+    row.innerHTML = `
+      <div class="avatar" style="flex-shrink:0">${renderAvatarHTML(r.partner)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
+          <span class="name" style="font-size:14px;">${escapeHtml(r.partner)}</span>
+          <span class="chat-srch-msg-meta">${timeStr}</span>
+        </div>
+        <div class="chat-srch-msg-meta">${isMine ? "You" : escapeHtml(r.partner)}:</div>
+        <div class="chat-srch-msg-body">${snippet}</div>
+      </div>`;
+    row.onclick = () => {
+      document.getElementById("search").value = "";
+      _openChatHighlight(r.partner, r.msgId, q);
+    };
+    container.appendChild(row);
+  });
+}
+
+function _chatSrchHighlight(escaped, q) {
+  const safe = q.replace(/[.*+?^${}()|[\]\]/g, "\$&");
+  return escaped.replace(new RegExp("(" + safe + ")", "gi"), "<mark>$1</mark>");
+}
+
+async function _openChatHighlight(partner, msgId, q) {
+  await openChat(partner);
+  let attempts = 0;
+  const tryScroll = () => {
+    const chatBox = document.getElementById("chatBox");
+    if (!chatBox) return;
+    let target = msgId ? chatBox.querySelector('[data-msgid="' + CSS.escape(msgId) + '"]') : null;
+    if (!target && q) {
+      for (const b of chatBox.querySelectorAll(".bubble")) {
+        if (b.textContent.toLowerCase().includes(q)) {
+          target = b.closest(".msg-wrap") || b;
+          break;
+        }
+      }
+    }
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.classList.add("msg-highlight-flash");
+      setTimeout(() => target.classList.remove("msg-highlight-flash"), 2600);
+    } else if (attempts++ < 14) {
+      setTimeout(tryScroll, 350);
+    }
+  };
+  setTimeout(tryScroll, 600);
+}
 function filterPosts() {
   const q = document.getElementById("fySearch")?.value || "";
   renderPostFeed(q);
@@ -12531,6 +12773,8 @@ function closeUserPosts() {
       _fy.classList.remove("nav-scrolled");
       const _fyS = document.getElementById("fyForYouScroll");
       if (_fyS) _fyS.scrollTop = fyScrollPos;
+      const _folSClose = document.getElementById("fyFollowingScroll");
+      if (_folSClose) _folSClose.scrollTop = followingScrollPos;
     }
     document.getElementById("profilePage").style.display = "none";
     currentPage = 1;
@@ -14340,6 +14584,10 @@ async function initializeHomeComponent() {
   _setupChatSwipeBack();
   _setupProfilePostsSwipe();
   _setupCommentSwipe();
+
+  /* ── Service Worker (background call alerts + iOS PWA push) ── */
+  _registerSW();
+  _showIOSInstallBanner();
   _setupNotifSwipe();
   _startNotifBadgeListen();
   applyStoredTheme();
@@ -15234,7 +15482,18 @@ function _setupProfilePostsSwipe() {
       const t = activeTab ? activeTab.innerText.toLowerCase() : "profile";
       const dest = t.includes("for you") ? "forYouPage" : t.includes("chats") ? "chatPage" : "profilePage";
       const destEl = document.getElementById(dest);
-      if (destEl) destEl.style.display = "block";
+      if (destEl) {
+        if (dest === "forYouPage") {
+          /* Restore scroll BEFORE reveal so background never flashes at top */
+          const _swFyS = document.getElementById("fyForYouScroll");
+          if (_swFyS) _swFyS.scrollTop = fyScrollPos;
+          const _swFolS = document.getElementById("fyFollowingScroll");
+          if (_swFolS) _swFolS.scrollTop = followingScrollPos;
+          destEl.style.display = "flex";
+        } else {
+          destEl.style.display = "block";
+        }
+      }
     }
     if (tracking && dx > 0) { up.style.transform = "translateX(" + dx + "px)"; }
   }, { passive: true });
@@ -15263,14 +15522,80 @@ function _setupProfilePostsSwipe() {
 /* ════════════════════════════════════════
    SWIPE: COMMENT PAGE → CLOSE (right swipe)
 ═══════════════════════════════════════ */
+/* ════════════════════════════════════════
+   SERVICE WORKER — background call alerts
+   Works when app is backgrounded (iOS PWA 16.4+, Android PWA).
+   Place firebase-messaging-sw.js at the root of your web server.
+════════════════════════════════════════ */
+async function _registerSW() {
+  if (!("serviceWorker" in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.register("firebase-messaging-sw.js", { scope: "./" });
+    /* Once controller is active, send current user */
+    const _send = () => {
+      if (currentUser && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: "SW_SET_USER", username: normalizeName(currentUser) });
+      }
+    };
+    if (navigator.serviceWorker.controller) {
+      _send();
+    } else {
+      navigator.serviceWorker.addEventListener("controllerchange", _send, { once: true });
+    }
+  } catch(_e) {}
+}
+window._registerSW = _registerSW;
+
+/* Call after login / username is confirmed */
+function _swNotifyUser() {
+  if (!("serviceWorker" in navigator) || !navigator.serviceWorker.controller) return;
+  navigator.serviceWorker.controller.postMessage({ type: "SW_SET_USER", username: normalizeName(currentUser) });
+}
+function _swClearUser() {
+  if (!("serviceWorker" in navigator) || !navigator.serviceWorker.controller) return;
+  navigator.serviceWorker.controller.postMessage({ type: "SW_CLEAR_USER" });
+}
+window._swNotifyUser = _swNotifyUser;
+window._swClearUser  = _swClearUser;
+
+/* ── iOS "Add to Home Screen" banner ── */
+function _showIOSInstallBanner() {
+  const isIOS = /ipad|iphone|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  const isPWA = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  if (!isIOS || isPWA) return;
+  if (localStorage.getItem("ios_banner_dismissed")) return;
+  const banner = document.createElement("div");
+  banner.id = "iosInstallBanner";
+  banner.innerHTML = `
+    <div class="ios-banner-icon">📲</div>
+    <div class="ios-banner-body">
+      <strong>Enable call alerts on iPhone</strong><br>
+      Tap <b>Share</b> ⬆️ → <b>"Add to Home Screen"</b> to receive incoming call notifications when the app is closed.
+    </div>
+    <button class="ios-banner-close" onclick="
+      this.parentElement.remove();
+      localStorage.setItem('ios_banner_dismissed','1');
+    ">✕</button>`;
+  document.body.appendChild(banner);
+  setTimeout(() => {
+    if (banner.parentElement) {
+      banner.style.transition = "opacity .5s";
+      banner.style.opacity = "0";
+      setTimeout(() => banner.remove(), 520);
+    }
+  }, 18000);
+}
+window._showIOSInstallBanner = _showIOSInstallBanner;
+
 function _setupCommentSwipe() {
   const cp = document.getElementById("commentPage");
   if (!cp || cp._commentSwipeBound) return;
   cp._commentSwipeBound = true;
-  let sx = 0, sy = 0, tracking = false, downTracking = false;
+  let sx = 0, sy = 0, syRel = 0, tracking = false, downTracking = false;
   cp.addEventListener("touchstart", e => {
-    sx           = e.touches[0].clientX;
-    sy           = e.touches[0].clientY;
+    sx     = e.touches[0].clientX;
+    sy     = e.touches[0].clientY;
+    syRel  = sy - cp.getBoundingClientRect().top; /* y relative to sheet top */
     tracking     = false;
     downTracking = false;
     cp.style.transition = "";
@@ -15279,11 +15604,10 @@ function _setupCommentSwipe() {
     const dx = e.touches[0].clientX - sx;
     const dy = e.touches[0].clientY - sy;
     if (!tracking && !downTracking) {
-      /* Downward swipe anywhere on the sheet to dismiss */
+      /* Downward swipe ONLY from the top handle zone (≤60 px from sheet top) */
       if (dy > 12 && Math.abs(dy) > Math.abs(dx)) {
-        const scrollEl = document.getElementById("commentPageScroll");
-        if (!scrollEl || scrollEl.scrollTop <= 0) { downTracking = true; return; }
-        return;
+        if (syRel <= 60) { downTracking = true; }
+        return;  /* never trigger dismiss from inside the list */
       }
       /* Right-swipe from left edge */
       if (sx > 60) return;
@@ -15837,7 +16161,7 @@ window.closePostDetailPage = closePostDetailPage;
     </div>
   </div>
 
-  <!-- Remote audio for calls (voice + audio track of video calls) -->
+  <!-- Remote audio element for all calls -->
   <audio id="remoteAudio" autoplay playsinline style="display:none;"></audio>
 
   <!-- Call toast notification -->
