@@ -6,6 +6,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
+<meta name="theme-color" content="#008b8b" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="MyChat" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20192%20192%22%3E%3Crect%20width%3D%22192%22%20height%3D%22192%22%20rx%3D%2242%22%20fill%3D%22%23008b8b%22%2F%3E%3Cpath%20d%3D%22M48%2060c0-8.8%207.2-16%2016-16h64c8.8%200%2016%207.2%2016%2016v54c0%208.8-7.2%2016-16%2016H96l-28%2024v-24h-4c-8.8%200-16-7.2-16-16V60Z%22%20fill%3D%22white%22%2F%3E%3Ccircle%20cx%3D%2282%22%20cy%3D%2287%22%20r%3D%228%22%20fill%3D%22%23008b8b%22%2F%3E%3Ccircle%20cx%3D%22110%22%20cy%3D%2287%22%20r%3D%228%22%20fill%3D%22%23008b8b%22%2F%3E%3C%2Fsvg%3E" />
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22MyChat%22%2C%22short_name%22%3A%22MyChat%22%2C%22description%22%3A%22MyChat%22%2C%22id%22%3A%22.%2F%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23008b8b%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2522http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2522%2520viewBox%253D%25220%25200%2520192%2520192%2522%253E%253Crect%2520width%253D%2522192%2522%2520height%253D%2522192%2522%2520rx%253D%252242%2522%2520fill%253D%2522%2523008b8b%2522%252F%253E%253Cpath%2520d%253D%2522M48%252060c0-8.8%25207.2-16%252016-16h64c8.8%25200%252016%25207.2%252016%252016v54c0%25208.8-7.2%252016-16%252016H96l-28%252024v-24h-4c-8.8%25200-16-7.2%252016-16V60Z%2522%2520fill%253D%2522white%2522%252F%253E%253Ccircle%2520cx%253D%252282%2522%2520cy%253D%252287%2522%2520r%253D%25228%2522%2520fill%253D%2522%2523008b8b%2522%252F%253E%253Ccircle%2520cx%253D%2522110%2522%2520cy%253D%252287%2522%2520r%253D%25228%2522%2520fill%253D%2522%2523008b8b%2522%252F%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D" />
 <title>MyChat</title>
 
 <style>
@@ -175,46 +182,67 @@ button.submit-btn:hover {
   flex-direction: column;
   /*border-bottom: 1px solid rgba(0,0,0,0.06);*/
 }
-/* CHANGE 15: net bar half height */
-.header-net-bar {
-  display: flex;
+/* Network status is an overlay so it never changes header height or pushes content. */
+.network-status-pill {
+  position: fixed;
+  top: 26px;
+  left: 50%;
+  z-index: 400;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+  gap: 7px;
+  min-height: 28px;
+  max-width: min(88vw, 260px);
+  padding: 6px 13px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  box-sizing: border-box;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
   overflow: hidden;
-  max-height: 0;
-  padding: 0 12px;
+  text-overflow: ellipsis;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: max-height 0.35s, padding 0.35s, opacity 0.35s, background 0.35s;
+  transform: translate(-50%, -50%) scale(.94);
+  transition: opacity .26s ease, transform .26s ease, visibility .26s ease,
+              background .26s ease, color .26s ease, border-color .26s ease;
 }
-.header-net-bar.net-online {
-  max-height: 14px;
-  padding: 2px 12px;
+.network-status-pill.is-visible {
   opacity: 1;
-  pointer-events: auto;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+.network-status-pill.net-stable {
   background: #065f46;
-  color: #6ee7b7;
+  border-color: rgba(110,231,183,.25);
+  color: #d1fae5;
 }
-.header-net-bar.net-offline {
-  max-height: 14px;
-  padding: 2px 12px;
-  opacity: 1;
-  pointer-events: auto;
+.network-status-pill.net-poor {
+  background: #92400e;
+  border-color: rgba(253,186,116,.28);
+  color: #ffedd5;
+}
+.network-status-pill.net-offline {
   background: #7f1d1d;
-  color: #fca5a5;
+  border-color: rgba(252,165,165,.25);
+  color: #fee2e2;
 }
-.header-net-dot {
+.network-status-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.header-net-bar.online  .header-net-dot { background: #34d399; }
-.header-net-bar.offline .header-net-dot {
+.network-status-pill.net-stable .network-status-dot { background: #34d399; }
+.network-status-pill.net-poor .network-status-dot {
+  background: #fbbf24;
+  animation: netpulse 1.4s ease-in-out infinite;
+}
+.network-status-pill.net-offline .network-status-dot {
   background: #f87171;
   animation: netpulse 1.2s ease-in-out infinite;
 }
@@ -1298,7 +1326,7 @@ body.light-mode .vn-rec-timer { color: #111827; }
   display: flex;
   align-items: center;
   overflow: hidden;
-  max-height: 72vw;
+  max-height: 100%;
   border-radius: 10px;
   /* skeleton colour visible while image loads */
   background: #e5e7eb;
@@ -1309,10 +1337,10 @@ body.dark-mode .chat-media-wrap { background: #1e293b; }
   width: 100%;
   height: auto;
   flex-shrink: 0;
-  /* 4:3 aspect-ratio reserves the final display height before the image
-     loads, preventing any reflow or bubble-jump once data arrives */
-  aspect-ratio: 4/3;
+  /* Sizing is finalized by _applyChatImageSizing once dimensions are known. */
+  aspect-ratio: 1/1;
   object-fit: cover;
+  object-position: center;
   border-radius: 10px;
   display: block;
   cursor: pointer;
@@ -3243,21 +3271,146 @@ body.light-mode .ng-contact-item:hover { background: #f3f4f6; }
 .crop-btn-save   { background: #008b8b; color: #fff; }
 .crop-hint { color: rgba(255,255,255,0.55); font-size: 12px; margin-bottom: 14px; }
 
-/* ── Pinned message bar ── */
+/* ── Group bio pill ── */
 #groupPinnedBar {
-  display: none; align-items: center; gap: 10px;
-  padding: 8px 14px; cursor: pointer;
-  background: rgba(0,139,139,0.12);
-  border-bottom: 1px solid rgba(0,139,139,0.2);
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+  width: calc(100% - 24px);
+  box-sizing: border-box;
+  margin: 10px 12px 4px;
+  padding: 10px 13px 11px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 999px;
+  cursor: default;
+  color: #f7f9f9;
+  /* Match received-message bubbles in dark mode. */
+  background: #2f3336;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
   flex-shrink: 0;
+  transition: border-radius 0.28s ease, box-shadow 0.28s ease;
 }
-body.light-mode #groupPinnedBar { background: rgba(0,139,139,0.07); }
 #groupPinnedBar.has-pin { display: flex; }
-.pinned-bar-icon { flex-shrink: 0; color: #008b8b; }
+#groupPinnedBar.is-expanded {
+  border-radius: 24px;
+  box-shadow: 0 5px 16px rgba(0,0,0,0.22);
+}
+.pinned-bar-icon {
+  flex: 0 0 23px;
+  width: 23px;
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #5eead4;
+  background: rgba(94,234,212,0.14);
+  font-size: 13px;
+  line-height: 1;
+}
 .pinned-bar-body { flex: 1; min-width: 0; }
-.pinned-bar-label { font-size: 10px; font-weight: 700; color: #008b8b; text-transform: uppercase; letter-spacing: .06em; }
-.pinned-bar-text { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: inherit; opacity: 0.85; }
-.pinned-bar-unpin { flex-shrink: 0; background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 16px; padding: 2px 4px; }
+.pinned-bar-label {
+  margin-bottom: 2px;
+  font-size: 10px;
+  line-height: 13px;
+  font-weight: 800;
+  color: #5eead4;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.pinned-bar-text-wrap {
+  position: relative;
+  max-height: 2.75em;
+  overflow: hidden;
+  transition: max-height 0.28s ease;
+}
+#groupPinnedBar.is-expanded .pinned-bar-text-wrap { max-height: 14em; }
+.pinned-bar-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.38;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  color: inherit;
+  opacity: 0.96;
+}
+#groupPinnedBar.has-more:not(.is-expanded) .pinned-bar-text-wrap::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 42px;
+  height: 1.4em;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(47,51,54,0), #2f3336 78%);
+}
+.pinned-bar-see-more {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  margin-top: 7px;
+  padding: 3px 10px;
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: #f7f9f9;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#groupPinnedBar.has-more .pinned-bar-see-more { display: inline-flex; }
+.pinned-bar-see-more:active { transform: scale(0.98); }
+
+body.light-mode #groupPinnedBar {
+  /* Match received-message bubbles in light mode. */
+  color: #111827;
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.14);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+body.light-mode .pinned-bar-icon {
+  color: #0f766e;
+  background: rgba(13,148,136,0.12);
+}
+body.light-mode .pinned-bar-label { color: #0f766e; }
+body.light-mode .pinned-bar-see-more {
+  color: #374151;
+  background: rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.14);
+}
+body.light-mode #groupPinnedBar.has-more:not(.is-expanded) .pinned-bar-text-wrap::after {
+  background: linear-gradient(90deg, rgba(255,255,255,0), #ffffff 78%);
+}
+body.lavender-mode #groupPinnedBar {
+  color: #111827;
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.14);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+body.lavender-mode .pinned-bar-icon,
+body.lavender-mode .pinned-bar-label { color: #6d28d9; }
+body.lavender-mode .pinned-bar-icon { background: rgba(124,58,237,0.10); }
+body.lavender-mode .pinned-bar-see-more { color: #6d28d9; border-color: rgba(124,58,237,0.25); background: rgba(124,58,237,0.08); }
+body.lavender-mode #groupPinnedBar.has-more:not(.is-expanded) .pinned-bar-text-wrap::after {
+  background: linear-gradient(90deg, rgba(255,255,255,0), #ffffff 78%);
+}
+body.pink-mode #groupPinnedBar {
+  color: #111827;
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.14);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+body.pink-mode .pinned-bar-icon,
+body.pink-mode .pinned-bar-label { color: #be185d; }
+body.pink-mode .pinned-bar-icon { background: rgba(233,30,140,0.10); }
+body.pink-mode .pinned-bar-see-more { color: #be185d; border-color: rgba(233,30,140,0.24); background: rgba(233,30,140,0.07); }
+body.pink-mode #groupPinnedBar.has-more:not(.is-expanded) .pinned-bar-text-wrap::after {
+  background: linear-gradient(90deg, rgba(255,255,255,0), #ffffff 78%);
+}
 
 /* ── Only-admins toggle (group info sheet) ── */
 .gi-toggle-row {
@@ -7205,6 +7358,140 @@ body.lavender-mode .msg-call-card.other .call-card-meta    { color:#6d28d9; }
     border-color:#008b8b;box-shadow:0 0 0 2px rgba(0,139,139,0.35);
     }
 
+/* ── Chat media: preserve natural height, cap only tall media at 1:1 ── */
+.chat-media-wrap {
+  width: 100%;
+  max-width: 100%;
+  max-height: none;
+  min-height: 0;
+  box-sizing: border-box;
+}
+.chat-media-wrap.chat-media-natural {
+  aspect-ratio: var(--chat-media-ratio);
+}
+.chat-media-wrap.chat-media-constrained,
+.chat-media-wrap.chat-media-unknown {
+  aspect-ratio: 1 / 1;
+}
+.chat-media-wrap .chat-media {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  object-fit: cover;
+  object-position: center;
+  background: transparent;
+}
+.chat-media-wrap.chat-media-natural .chat-media {
+  object-fit: contain;
+  object-position: center;
+}
+.msg-time-row .msg-seen {
+  display: inline-flex !important;
+}
+.chat-collage .chat-media-wrap {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto !important;
+  border-radius: 0;
+}
+.chat-collage .chat-media-wrap .chat-media {
+  border-radius: 0;
+}
+
+/* ── Group messages use the same bubble geometry as one-to-one chats,
+   with the incoming sender avatar kept beside the bubble. ── */
+.msg-group-wrap {
+  width: 100%;
+}
+.msg-group-wrap.msg-group-incoming {
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 6px;
+}
+.msg-group-wrap .msg-group-avatar-side {
+  width: 28px;
+  height: 28px;
+  margin-top: 8px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.msg-group-wrap .msg-group-avatar-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.msg-group-wrap.msg-group-incoming .msg.other {
+  max-width: calc(72% - 34px);
+}
+.msg-group-sender-name.inside {
+  display: block;
+  margin: -1px 0 3px;
+  line-height: 15px;
+}
+.msg.me .msg-group-sender-name.inside {
+  color: rgba(255,255,255,0.78);
+}
+body.light-mode .msg.me .msg-group-sender-name.inside {
+  color: rgba(255,255,255,0.9);
+}
+
+/* ── Smooth tab indicator and page motion ── */
+.bottom-nav {
+  isolation: isolate;
+}
+.bottom-nav .nav-tab-indicator {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  height: calc(100% - 8px);
+  width: 0;
+  border-radius: 50px;
+  background: rgba(255,255,255,0.15);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transform: translateX(0);
+  transition: transform 0.36s cubic-bezier(0.22,0.8,0.28,1),
+              width 0.36s cubic-bezier(0.22,0.8,0.28,1),
+              opacity 0.2s ease,
+              background 0.2s ease;
+}
+body.light-mode .bottom-nav .nav-tab-indicator {
+  background: rgba(0,0,0,0.10);
+}
+.bottom-nav .tab,
+.bottom-nav .nav-profile-capsule {
+  position: relative;
+  z-index: 1;
+}
+.bottom-nav .tab.active {
+  background: transparent !important;
+}
+.bottom-nav .nav-profile-capsule.nav-profile-active {
+  background: transparent !important;
+}
+.spa-page-transition {
+  animation: spaPageEnter 0.28s cubic-bezier(0.22,0.8,0.28,1) both;
+  will-change: transform, opacity;
+}
+@keyframes spaPageEnter {
+  from { opacity: 0; transform: translate3d(14px,0,0); }
+  to   { opacity: 1; transform: translate3d(0,0,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav .nav-tab-indicator,
+  .spa-page-transition,
+  .chat-entering,
+  .chat-leaving {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
     /* ─── MARKET PAGE ─── */
     #marketPage{
     display:none;flex-direction:column;position:fixed;
@@ -7853,11 +8140,6 @@ body.lavender-mode .msg-call-card.other .call-card-meta    { color:#6d28d9; }
   <div id="spaAppContainer">
 
     <div class="header">
-      <!-- Network status strip -->
-      <div class="header-net-bar" id="netBar">
-        <span class="header-net-dot"></span>
-        <span id="netBarText"></span>
-      </div>
       <!-- Main header row -->
       <div class="header-main-row">
         <div class="header-title">MyChat</div>
@@ -7879,6 +8161,12 @@ body.lavender-mode .msg-call-card.other .call-card-meta    { color:#6d28d9; }
           <span class="notif-badge" id="notifBadge" style="display:none">0</span>
         </button>
       </div>
+    </div>
+
+    <!-- Network status overlay; fixed so it sits over the header without affecting layout. -->
+    <div class="network-status-pill" id="networkStatusPill" role="status" aria-live="polite" aria-hidden="true">
+      <span class="network-status-dot"></span>
+      <span id="networkStatusText"></span>
     </div>
 
     <!-- NOTIFICATION SETTINGS MODAL -->
@@ -8046,12 +8334,21 @@ body.lavender-mode .msg-call-card.other .call-card-meta    { color:#6d28d9; }
         You blocked this user.
       </div>
 
-      <!-- Group bio pinned bar — sits above the chat box, below the header -->
+      <!-- Group bio pill — sits above the conversation, below the header -->
       <div id="groupPinnedBar">
-        <div class="pinned-bar-icon">📌</div>
         <div class="pinned-bar-body">
           <div class="pinned-bar-label">Group Bio</div>
-          <div class="pinned-bar-text" id="groupBioText"></div>
+          <div class="pinned-bar-text-wrap" id="groupBioTextWrap">
+            <div class="pinned-bar-text" id="groupBioText"></div>
+          </div>
+          <button
+            type="button"
+            class="pinned-bar-see-more"
+            id="groupBioSeeMore"
+            aria-expanded="false"
+            aria-controls="groupBioTextWrap"
+            onclick="_toggleGroupBio(event)"
+          >See more</button>
         </div>
       </div>
 
@@ -9457,10 +9754,22 @@ async function markGroupAsRead(groupId) {
   const me = normalizeName(currentUser);
   const unreadKey = `unread_${me}`;
   const conv = conversations[groupId] || {};
-  if ((conv[unreadKey] || 0) > 0) {
+  const readStamp = nowStamp();
+  const previousRead = Number((conv.lastRead || {})[me] || 0);
+  const hasUnread = Number(conv[unreadKey] || 0) > 0;
+  /* Rendering a group can happen several times while listeners settle. Do
+     not write the same read marker on every render, or Firestore snapshots
+     would keep re-rendering the chat indefinitely. */
+  if (!hasUnread && previousRead && readStamp - previousRead < 30000) return;
+  if (!conv.lastRead) conv.lastRead = {};
+  conv.lastRead[me] = readStamp;
+  if (hasUnread) {
     if (conv) conv[unreadKey] = 0; /* optimistic local update */
-    await updateDoc(doc(db, "conversations", groupId), { [unreadKey]: 0 }).catch(() => {});
   }
+  await updateDoc(doc(db, "conversations", groupId), {
+    [unreadKey]: 0,
+    [`lastRead.${me}`]: readStamp
+  }).catch(() => {});
 }
 function getUnreadCount(partner) {
   const tid = threadId(currentUser, partner);
@@ -9642,6 +9951,9 @@ async function firebaseResetPassword(email) {
 
 async function firebaseLogout() {
   _teardownListeners();
+  if (typeof window._clearLockChatSessionAccess === "function") {
+    window._clearLockChatSessionAccess();
+  }
   currentUser = "";
   await signOut(auth);
   navigateToAuth();
@@ -10275,7 +10587,7 @@ async function ensureConversation(a, b) {
   return tid;
 }
 
-async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = false, isFile = false, fileName = "", replyTo = null) {
+async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = false, isFile = false, fileName = "", replyTo = null, mediaMeta = null) {
   partner = normalizeName(partner);
   const isSelf = currentChatType === "self" && partner === normalizeName(currentUser);
   if (!partner) return;
@@ -10303,6 +10615,10 @@ async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = 
     msgData.viewOnce = true;
     msgData.viewed   = false;
   }
+  if (mediaMeta && Number(mediaMeta.width) > 0 && Number(mediaMeta.height) > 0) {
+    msgData.width  = Number(mediaMeta.width);
+    msgData.height = Number(mediaMeta.height);
+  }
   if (replyTo) msgData.replyTo = replyTo;
   await addDoc(collection(db, "conversations", tid, "messages"), msgData);
   const lastText = mediaUrl ? (isVid ? "🎥 Video" : isFile ? `📎 ${fileName || "File"}` : "📷 Photo") : (text || "");
@@ -10314,6 +10630,7 @@ async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = 
     lastSender: normalizeName(currentUser),
     lastIsImg:  !!mediaUrl,
     lastIsVid:  !!isVid,
+    chatCleared: false,
     [unreadKey]: increment(1)
   };
   /* Mark conversation as two-way the first time a reply is sent */
@@ -10326,24 +10643,91 @@ async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = 
   updateActivity();
 }
 
-async function addMsgImages(partner, imageUrls, text, replyTo) {
+async function addMsgImages(partner, imageUrls, text, replyTo, imageDimensions = []) {
   partner = normalizeName(partner);
   if (!partner || partner === normalizeName(currentUser)) return;
   if (isBlocked(partner))          { alert("Unblock this user first."); return; }
   if (isTargetBlockingMe(partner)) { alert("You cannot chat with this user"); return; }
+  const safeImageUrls = Array.isArray(imageUrls) ? imageUrls.slice(0, 9) : [];
+  if (!safeImageUrls.length) return;
   const tid   = await ensureConversation(currentUser, partner);
   const stamp = nowStamp();
   const time  = formatTimeFromStamp(stamp);
-  const msgData = { sender: normalizeName(currentUser), text: text || "", images: imageUrls, img: imageUrls[0] || null, isVid: false, time, stamp };
+  const msgData = {
+    sender: normalizeName(currentUser), text: text || "",
+    images: safeImageUrls, img: safeImageUrls[0] || null, isVid: false, time, stamp,
+    ...(imageDimensions.length ? { imageDimensions: imageDimensions.slice(0, safeImageUrls.length) } : {})
+  };
   if (replyTo) msgData.replyTo = replyTo;
   await addDoc(collection(db, "conversations", tid, "messages"), msgData);
-  const lastText = `📷 ${imageUrls.length} Photos`;
+  const lastText = `📷 ${safeImageUrls.length} Photos`;
   const unreadKey = `unread_${normalizeName(partner)}`;
-  await updateDoc(doc(db, "conversations", tid), { lastStamp: stamp, lastText, lastSender: normalizeName(currentUser), lastIsImg: true, lastIsVid: false, [unreadKey]: increment(1) });
+  await updateDoc(doc(db, "conversations", tid), { lastStamp: stamp, lastText, lastSender: normalizeName(currentUser), lastIsImg: true, lastIsVid: false, chatCleared: false, [unreadKey]: increment(1) });
   markAsRead(partner);
   updateActivity();
 }
 window.addMsgImages = addMsgImages;
+
+/* Store image dimensions with new chat messages so the final display space
+   can be reserved before a remote image has decoded. */
+function _getImageDimensions(dataUrl) {
+  return new Promise(resolve => {
+    const probe = new Image();
+    probe.onload = () => resolve({
+      width: probe.naturalWidth || probe.width || 0,
+      height: probe.naturalHeight || probe.height || 0
+    });
+    probe.onerror = () => resolve({ width: 0, height: 0 });
+    probe.src = dataUrl;
+  });
+}
+
+function _getChatImageMeta(msg, index = 0) {
+  const list = Array.isArray(msg?.imageDimensions) ? msg.imageDimensions : [];
+  const item = list[index] || (index === 0 ? msg : null) || {};
+  const width = Number(item.width || item.imageWidth || 0);
+  const height = Number(item.height || item.imageHeight || 0);
+  return width > 0 && height > 0 ? { width, height } : null;
+}
+
+function _applyChatImageSizing(wrap, img, meta) {
+  if (!wrap || !img) return;
+  wrap.classList.remove("chat-media-natural", "chat-media-constrained", "chat-media-unknown");
+  if (!meta || !meta.width || !meta.height) {
+    wrap.classList.add("chat-media-unknown");
+    return;
+  }
+  const ratio = meta.width / meta.height;
+  wrap.style.setProperty("--chat-media-ratio", `${ratio}`);
+  /* Landscape/square media keeps its natural ratio. Portrait media is
+     cropped into a square, never stretched and never padded. */
+  wrap.classList.add(ratio < 1 ? "chat-media-constrained" : "chat-media-natural");
+}
+
+function _createChatImage(url, msg, index, onClick) {
+  const wrap = document.createElement("div");
+  wrap.className = "chat-media-wrap";
+  const img = document.createElement("img");
+  img.src = url;
+  img.className = "chat-media";
+  img.loading = "eager";
+  img.decoding = "async";
+  img.alt = "Chat image";
+  img.style.cursor = "pointer";
+  const meta = _getChatImageMeta(msg, index);
+  _applyChatImageSizing(wrap, img, meta);
+  if (!meta) {
+    img.addEventListener("load", () => {
+      _applyChatImageSizing(wrap, img, {
+        width: img.naturalWidth,
+        height: img.naturalHeight
+      });
+    }, { once: true });
+  }
+  img.onclick = onClick;
+  wrap.appendChild(img);
+  return wrap;
+}
 
 function _renderMessagesFromCache(tid, partner) {
   _renderMessages(partner, []);
@@ -10499,14 +10883,18 @@ function _renderMessages(partner, messages) {
         bubble.appendChild(a);
       } else if (msg.isVid) {
         const vWrap = document.createElement("div");
-        vWrap.style.cssText = "position:relative;border-radius:12px;overflow:hidden;display:flex;align-items:center;max-height:72vw;background:#1e293b;";
+        vWrap.className = "chat-media-wrap";
         const v = document.createElement("video");
         v.src = msg.img;
         v.className = "chat-media";
         v.preload = "metadata";
         v.playsInline = true;
         v.style.cursor = "pointer";
-        v.onloadedmetadata = () => { if (v.readyState >= 1 && v.currentTime === 0) v.currentTime = 0.5; };
+        v.onloadedmetadata = () => {
+          _applyChatImageSizing(vWrap, v, { width: v.videoWidth, height: v.videoHeight });
+          if (v.readyState >= 1 && v.currentTime === 0) v.currentTime = 0.5;
+        };
+        _applyChatImageSizing(vWrap, v, null);
         v.onclick = () => {
           const viewer = document.getElementById("chatVideoViewer");
           const vid = document.getElementById("chatVideoViewerVid");
@@ -10523,14 +10911,14 @@ function _renderMessages(partner, messages) {
         if (!isMine && !msg.viewed) {
           const vow = document.createElement("div");
           vow.className = "vo-bubble-wrap";
-          const blurImg = document.createElement("img");
-          blurImg.src = msg.img;
-          blurImg.className = "chat-media vo-blur-img";
+           const imageWrap = _createChatImage(msg.img, msg, 0, () => openViewOnceImage(msg.img, tid, msg.id, bubble));
+           const blurImg = imageWrap.querySelector("img");
+           if (blurImg) blurImg.classList.add("vo-blur-img");
           const overlay = document.createElement("div");
           overlay.className = "vo-tap-overlay";
           overlay.innerHTML = `<span class="vo-tap-label">👁 View once</span>`;
           overlay.onclick = () => openViewOnceImage(msg.img, tid, msg.id, bubble);
-          vow.appendChild(blurImg);
+           vow.appendChild(imageWrap);
           vow.appendChild(overlay);
           bubble.appendChild(vow);
         } else if (!isMine && msg.viewed) {
@@ -10541,15 +10929,16 @@ function _renderMessages(partner, messages) {
           sentLabel.textContent = "👁 View once sent";
           bubble.appendChild(sentLabel);
         }
-      } else if (msg.images && msg.images.length > 1) {
-        /* Multi-image collage */
+      } else if (msg.images && msg.images.length > 2) {
+        /* 3–9 images stay together in one collage. Render every image,
+           rather than truncating to the first four, so every tile remains
+           individually tappable. */
         const _imgs = msg.images;
         const _cnt  = _imgs.length;
-        const _show = Math.min(_cnt, 4);
         const _cls  = _cnt === 2 ? "collage-2" : _cnt === 3 ? "collage-3" : _cnt === 4 ? "collage-4" : "collage-many";
         const collage = document.createElement("div");
         collage.className = `chat-collage ${_cls}`;
-        _imgs.slice(0, _show).forEach((url, i) => {
+         _imgs.slice(0, 9).forEach((url, i) => {
           const ci = document.createElement("div");
           ci.className = "ci";
           const cimg = document.createElement("img");
@@ -10559,31 +10948,21 @@ function _renderMessages(partner, messages) {
             document.getElementById("postImgViewer").classList.add("open");
           };
           ci.appendChild(cimg);
-          if (i === _show - 1 && _cnt > _show) {
-            const more = document.createElement("div");
-            more.className = "ci-more";
-            more.textContent = `+${_cnt - _show}`;
-            more.onclick = cimg.onclick;
-            ci.appendChild(more);
-          }
           collage.appendChild(ci);
         });
         bubble.appendChild(collage);
       } else {
-        const imgWrap = document.createElement("div");
-        imgWrap.className = "chat-media-wrap";
-        const img = document.createElement("img");
-        img.src = msg.images ? msg.images[0] : msg.img;
-        img.className = "chat-media";
-        img.style.cursor = "pointer";
-        img.loading = "lazy";
-        img.decoding = "async";
-        img.onclick = () => {
-          document.getElementById("postImgViewerImg").src = img.src;
-          document.getElementById("postImgViewer").classList.add("open");
-        };
-        imgWrap.appendChild(img);
-        bubble.appendChild(imgWrap);
+         /* One or two images remain individually displayed. */
+         const inlineImages = Array.isArray(msg.images) && msg.images.length
+           ? msg.images.slice(0, 2) : [msg.img];
+         inlineImages.filter(Boolean).forEach((imageUrl, imageIndex) => {
+           const imgWrap = _createChatImage(imageUrl, msg, imageIndex, () => {
+             const img = imgWrap.querySelector("img");
+             document.getElementById("postImgViewerImg").src = img.src;
+             document.getElementById("postImgViewer").classList.add("open");
+           });
+           bubble.appendChild(imgWrap);
+         });
       }
     }
 
@@ -11274,7 +11653,10 @@ function renderChatList() {
     .filter(conv => {
       if (conv.type === "group" || conv.type === "self") return false;
       const parts = (conv.participants || []).map(normalizeName);
-      return parts.includes(me);
+      /* Opening a new user's chat creates a placeholder conversation with no
+         messages. Keep those placeholders out of the normal chat list until
+         the conversation is actually established by a message. */
+      return parts.includes(me) && Number(conv.lastStamp || 0) > 0;
     })
     .map(conv => {
       const partner = (conv.participants || []).find(p => normalizeName(p) !== me) || "";
@@ -11283,13 +11665,15 @@ function renderChatList() {
       if (q && !normalizeName(partner).includes(q) && !lastText.toLowerCase().includes(q)) return null;
       const unread = getUnreadCount(partner);
       const online = isActiveRecently(partner);
-      const lastLabel = conv.lastIsImg
-        ? (conv.lastIsVid ? "🎥 Video" : "📷 Photo")
-        : escapeHtml(lastText);
+      const lastLabel = conv.chatCleared
+        ? "Chat cleared"
+        : conv.lastIsImg
+          ? (conv.lastIsVid ? "🎥 Video" : "📷 Photo")
+          : escapeHtml(lastText);
       const typingKey = `typing_${normalizeName(partner)}`;
       const isTyping  = (conv[typingKey] || 0) > (nowStamp() - 4000);
       ensureProfile(partner);
-      return { kind: "dm", partner, lastLabel, stamp, unread, online, isTyping };
+      return { kind: "dm", partner, lastLabel, stamp, unread, online, isTyping, cleared: !!conv.chatCleared };
     })
     .filter(Boolean);
 
@@ -11390,7 +11774,7 @@ function renderChatList() {
       <div style="flex:1; min-width:0;">
         <div class="name">${escapeHtml(item.partner)}</div>
         <div class="status ${statusClass}">${statusText}</div>
-        <div class="last-message">${(typeof _isChatLocked === "function" && _isChatLocked(item.partner)) ? '<span style="color:#9ca3af;">🔒 Locked</span>' : (item.isTyping ? '<span style="color:#0d9488;font-style:italic;">typing...</span>' : item.lastLabel)}</div>
+        <div class="last-message">${(typeof _isChatLocked === "function" && _isChatLocked(item.partner)) ? '<span style="color:#9ca3af;">🔒 Locked</span>' : (item.isTyping && !item.cleared ? '<span style="color:#0d9488;font-style:italic;">typing...</span>' : item.lastLabel)}</div>
       </div>
       <div class="time">${timeText}</div>
       ${badge}
@@ -11739,7 +12123,10 @@ async function openChat(partner) {
   if (!partner) return;
   if (partner === normalizeName(currentUser)) { openLibraryChat(); return; }
   /* If chat is locked, prompt for PIN first */
-  if (typeof _isChatLocked === "function" && _isChatLocked(partner)) {
+  if (typeof _isChatLocked === "function" &&
+      _isChatLocked(partner) &&
+      !(typeof window._hasLockChatSessionAccess === "function" &&
+        window._hasLockChatSessionAccess(partner))) {
     _promptUnlockChat(partner, () => openChat(partner));
     return;
   }
@@ -11999,6 +12386,11 @@ function hideChat() {
   if (currentChatName && currentChatType === "dm") {
     const tid = threadId(currentUser, currentChatName);
     updateDoc(doc(db, "conversations", tid), { [`typing_${normalizeName(currentUser)}`]: 0 }).catch(() => {});
+    /* PIN access is session-only. Leaving the chat makes it require the PIN
+       again, while the conversation's permanent lock remains intact. */
+    if (typeof window._revokeLockChatSessionAccess === "function") {
+      window._revokeLockChatSessionAccess(currentChatName);
+    }
   }
   const ti = document.getElementById("typingIndicator");
   if (ti) ti.style.display = "none";
@@ -12063,7 +12455,18 @@ function _navTab(idx) {
     else if (idx === 2) window.showMatch();
     else if (idx === 3) window.showMarket();
     else if (idx === 4) window.showProfile();
+  requestAnimationFrame(() => {
+    const pageIds = ["chatPage", "forYouPage", "matchPage", "marketPage", "profilePage"];
+    const page = pageIds.map(id => document.getElementById(id))
+      .find(el => el && getComputedStyle(el).display !== "none");
+    if (page) {
+      page.classList.remove("spa-page-transition");
+      void page.offsetWidth;
+      page.classList.add("spa-page-transition");
+      setTimeout(() => page.classList.remove("spa-page-transition"), 340);
     }
+  });
+}
     window._navTab = _navTab;
 
 function showChats() {
@@ -12191,9 +12594,27 @@ function showProfile() {
 window.showProfile = showProfile;
 
 function setActiveTab(index) {
-  document.querySelectorAll(".tab").forEach((t, i) => t.classList.toggle("active", i === index));
+  const tabs = [...document.querySelectorAll(".tab")];
+  tabs.forEach((t, i) => t.classList.toggle("active", i === index));
   const cap = document.getElementById("navProfileCapsule");
   if (cap) cap.classList.toggle("nav-profile-active", index === 4);
+  const nav = document.querySelector(".bottom-nav");
+  if (nav) {
+    let indicator = nav.querySelector(".nav-tab-indicator");
+    if (!indicator) {
+      indicator = document.createElement("span");
+      indicator.className = "nav-tab-indicator";
+      nav.insertBefore(indicator, nav.firstChild);
+    }
+    const target = index === 4 ? cap : tabs[index];
+    if (target) {
+      const navRect = nav.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      indicator.style.width = `${targetRect.width}px`;
+      indicator.style.transform = `translateX(${targetRect.left - navRect.left}px)`;
+      indicator.style.opacity = "1";
+    }
+  }
 }
 window.setActiveTab = setActiveTab;
 window.renderChatList = renderChatList;
@@ -13466,9 +13887,19 @@ function _showSendFailure(chatBox, labelText, retryFn) {
 }
 
 async function sendText() {
-  /* Group chats have their own lightweight send path (no media/reply/edit/
-     view-once — groups only need plain text per the group chat spec). */
-  if (currentChatType === "group") { await sendGroupText(); return; }
+  /* Group chats use the same photo path as DMs, while retaining the
+     group-specific plain-text/edit behavior. */
+  if (currentChatType === "group") {
+    if (_chatImagesQueue.length || attachedMedia?.type === "image") {
+      await sendGroupImages();
+    } else if (attachedMedia) {
+      clearMediaQueue();
+      _matchToast("Groups currently support photo messages only.");
+    } else {
+      await sendGroupText();
+    }
+    return;
+  }
   /* ── Edit mode: save edit instead of sending ── */
   if (_editingMsg) {
     const input = document.getElementById("messageInput");
@@ -13517,8 +13948,9 @@ async function sendText() {
         const f = new File([blob], "photo.jpg", { type: blob.type });
         return window.uploadToCloudinary(f, "image");
       }));
+      const _dims = await Promise.all(_imgs.map(item => _getImageDimensions(item.dataUrl)));
       sendEl.remove();
-      await addMsgImages(currentChatName, _urls, _multiText, _rtMulti);
+      await addMsgImages(currentChatName, _urls, _multiText, _rtMulti, _dims);
     } catch(err) {
       sendEl.remove();
       alert("Failed to send photos. Please try again.");
@@ -13554,11 +13986,12 @@ async function sendText() {
         return;
       }
       sendEl.remove();
+      const _mediaMeta = !isVid && !isFile ? await _getImageDimensions(media.dataUrl) : null;
       try {
-        await addMsg(partner, text || fallbackText, mediaUrl, isVid, false, isFile, media.fileName || "", _rt1);
+        await addMsg(partner, text || fallbackText, mediaUrl, isVid, false, isFile, media.fileName || "", _rt1, _mediaMeta);
       } catch(e) {
         const _savedUrl = mediaUrl;
-        _showSendFailure(chatBox, text || fallbackText, () => addMsg(partner, text || fallbackText, _savedUrl, isVid, false, isFile, media.fileName || "", _rt1));
+        _showSendFailure(chatBox, text || fallbackText, () => addMsg(partner, text || fallbackText, _savedUrl, isVid, false, isFile, media.fileName || "", _rt1, _mediaMeta));
       }
     };
     await _doMediaSend();
@@ -14274,20 +14707,57 @@ async function openGroupChat(groupId) {
 }
 window.openGroupChat = openGroupChat;
 
-/* Update (or hide) the group bio pinned bar */
+/* Update (or hide) the group bio pill */
 function _updateGroupBioBar(groupData) {
-  const bar     = document.getElementById("groupPinnedBar");
-  const bioText = document.getElementById("groupBioText");
-  if (!bar || !bioText) return;
+  const bar      = document.getElementById("groupPinnedBar");
+  const bioText  = document.getElementById("groupBioText");
+  const textWrap = document.getElementById("groupBioTextWrap");
+  const moreBtn  = document.getElementById("groupBioSeeMore");
+  if (!bar || !bioText || !textWrap || !moreBtn) return;
   const bio = (groupData && groupData.groupBio || "").trim();
   if (bio) {
+    const bioChanged = bar.dataset.bio !== bio;
+    const wasExpanded = !bioChanged && bar.classList.contains("is-expanded");
+    bar.dataset.bio = bio;
     bioText.textContent = bio;
+    bar.classList.remove("is-expanded", "has-more");
+    moreBtn.textContent = "See more";
+    moreBtn.setAttribute("aria-expanded", "false");
     bar.classList.add("has-pin");
+
+    /* Measure the collapsed pill after it is visible so See more only
+       appears when the bio actually needs more than two lines. */
+    requestAnimationFrame(() => {
+      if (!bar.classList.contains("has-pin") || bar.dataset.bio !== bio) return;
+      const needsMore = bioText.scrollHeight > textWrap.clientHeight + 1;
+      bar.classList.toggle("has-more", needsMore);
+      if (needsMore && wasExpanded) {
+        bar.classList.add("is-expanded");
+        moreBtn.textContent = "See less";
+        moreBtn.setAttribute("aria-expanded", "true");
+      }
+    });
   } else {
+    bar.dataset.bio = "";
+    bioText.textContent = "";
+    moreBtn.textContent = "See more";
+    moreBtn.setAttribute("aria-expanded", "false");
+    bar.classList.remove("has-more", "is-expanded");
     bar.classList.remove("has-pin");
   }
 }
 window._updateGroupBioBar = _updateGroupBioBar;
+
+function _toggleGroupBio(event) {
+  event?.stopPropagation();
+  const bar = document.getElementById("groupPinnedBar");
+  const moreBtn = document.getElementById("groupBioSeeMore");
+  if (!bar || !moreBtn || !bar.classList.contains("has-more")) return;
+  const expanded = bar.classList.toggle("is-expanded");
+  moreBtn.textContent = expanded ? "See less" : "See more";
+  moreBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
+}
+window._toggleGroupBio = _toggleGroupBio;
 
 function listenToGroupMessages(groupId) {
   if (activeGroupMsgUnsub) { activeGroupMsgUnsub(); activeGroupMsgUnsub = null; }
@@ -14323,6 +14793,8 @@ function listenToGroupDoc(groupId) {
       syncComposerState();
       /* Update bio bar if bio changed */
       _updateGroupBioBar(currentGroupData);
+      /* Repaint ticks when another member reads an outgoing message. */
+      if (currentGroupMessages.length) _renderGroupMessages(currentGroupMessages);
     }
   });
 }
@@ -14352,21 +14824,71 @@ function _renderGroupMessages(messages) {
       box.appendChild(div);
     }
     const wrap = document.createElement("div");
-    wrap.style.cssText = `display:flex;flex-direction:column;align-items:${isMine ? "flex-end" : "flex-start"};margin-bottom:2px;max-width:100%;`;
+    wrap.className = `msg-group-wrap${isMine ? "" : " msg-group-incoming"}`;
+    /* Keep the normal one-to-one bubble flow. Incoming group messages add
+       only the identifying avatar beside the bubble. */
+    wrap.style.cssText = `display:flex;flex-direction:${isMine ? "column" : "row"};align-items:${isMine ? "flex-end" : "flex-start"};justify-content:${isMine ? "flex-end" : "flex-start"};gap:${isMine ? "0" : "6px"};margin-bottom:2px;max-width:100%;`;
 
     if (!isMine) {
-      /* WhatsApp-style: sender avatar + name above each incoming message */
       ensureProfile(msg.sender);
-      const senderRow = document.createElement("div");
-      senderRow.className = "msg-group-sender";
-      senderRow.innerHTML = `
-        <span class="msg-group-sender-avatar">${renderAvatarHTML(msg.sender)}</span>
-        <span class="msg-group-sender-name">${escapeHtml(msg.sender)}</span>`;
-      wrap.appendChild(senderRow);
+      const avatar = document.createElement("span");
+      avatar.className = "msg-group-sender-avatar msg-group-avatar-side";
+      avatar.innerHTML = renderAvatarHTML(msg.sender);
+      wrap.appendChild(avatar);
     }
 
     const bubble = document.createElement("div");
     bubble.className = `msg ${isMine ? "me" : "other"}`;
+    if (!isMine) {
+      const senderName = document.createElement("div");
+      senderName.className = "msg-group-sender-name inside";
+      senderName.textContent = msg.sender || "Unknown";
+      bubble.appendChild(senderName);
+    }
+
+    if (msg.replyTo) {
+      const quote = document.createElement("div");
+      quote.className = "msg-reply-quote";
+      quote.innerHTML = `<span class="msg-reply-quote-name">${escapeHtml(msg.replyTo.sender)}</span><span class="msg-reply-quote-body">${escapeHtml(msg.replyTo.text || "[media]")}</span>`;
+      bubble.appendChild(quote);
+    }
+
+    const groupImageUrls = Array.isArray(msg.images) && msg.images.length
+      ? msg.images : (msg.img ? [msg.img] : []);
+    if (groupImageUrls.length === 1) {
+      bubble.appendChild(_createChatImage(groupImageUrls[0], msg, 0, () => {
+        const viewerImg = document.getElementById("postImgViewerImg");
+        const viewer = document.getElementById("postImgViewer");
+        if (viewerImg) viewerImg.src = groupImageUrls[0];
+        if (viewer) viewer.classList.add("open");
+      }));
+    } else if (groupImageUrls.length > 2) {
+      const collage = document.createElement("div");
+      const groupCollageClass = groupImageUrls.length === 3 ? "collage-3"
+        : groupImageUrls.length === 4 ? "collage-4" : "collage-many";
+      collage.className = `chat-collage ${groupCollageClass}`;
+      groupImageUrls.slice(0, 9).forEach((url, imageIndex) => {
+        const tile = _createChatImage(url, msg, imageIndex, () => {
+          const viewerImg = document.getElementById("postImgViewerImg");
+          const viewer = document.getElementById("postImgViewer");
+          if (viewerImg) viewerImg.src = url;
+          if (viewer) viewer.classList.add("open");
+        });
+        tile.classList.add("ci");
+        collage.appendChild(tile);
+      });
+      bubble.appendChild(collage);
+    } else if (groupImageUrls.length === 2) {
+      groupImageUrls.forEach((url, imageIndex) => {
+        bubble.appendChild(_createChatImage(url, msg, imageIndex, () => {
+          const viewerImg = document.getElementById("postImgViewerImg");
+          const viewer = document.getElementById("postImgViewer");
+          if (viewerImg) viewerImg.src = url;
+          if (viewer) viewer.classList.add("open");
+        }));
+      });
+    }
+
     const _gRawText  = msg.text || "";
     const _gWords    = _gRawText.match(/\S+/g) || [];
     const textDiv    = document.createElement("div");
@@ -14401,10 +14923,18 @@ function _renderGroupMessages(messages) {
       textDiv.appendChild(_gEllEl);
       textDiv.appendChild(_gFullEl);
       textDiv.appendChild(_gBtn);
-    } else {
-      textDiv.textContent = _gRawText;
+      if (_gRawText) bubble.appendChild(textDiv);
+    } else if (_gRawText) {
+      /* Match the DM renderer: plain text stays inline so the floated
+         timestamp/Edited row can occupy the right edge of the last line. */
+      if (groupImageUrls.length) {
+        textDiv.style.cssText = "margin-top:6px;white-space:pre-wrap;";
+        textDiv.textContent = _gRawText;
+        bubble.appendChild(textDiv);
+      } else {
+        bubble.appendChild(document.createTextNode(_gRawText));
+      }
     }
-    bubble.appendChild(textDiv);
 
     /* Time row: "Edited •" label + timestamp — same structure as DMs */
     const timeRow = document.createElement("div");
@@ -14419,11 +14949,69 @@ function _renderGroupMessages(messages) {
     timeEl.className = "msg-time";
     timeEl.textContent = msg.time || formatTimeFromStamp(msg.stamp);
     timeRow.appendChild(timeEl);
+    if (isMine) {
+      const readMap = (currentGroupData && currentGroupData.lastRead) || {};
+      const seenBySomeone = Object.keys(readMap).some(member =>
+        normalizeName(member) !== me && Number(readMap[member]) >= Number(msg.stamp || 0)
+      );
+      const tick = document.createElement("span");
+      tick.className = "msg-tick";
+      if (seenBySomeone) {
+        tick.innerHTML = `<svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M1 5l3.5 3.5L12 1" stroke="#4dd0c4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 5l3.5 3.5L16 1" stroke="#4dd0c4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        tick.title = "Delivered";
+      } else {
+        tick.innerHTML = `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5l3 3L9 1" stroke="rgba(225,245,254,0.65)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        tick.title = "Sent";
+      }
+      timeRow.appendChild(tick);
+    }
     bubble.appendChild(timeRow);
 
     wrap.appendChild(bubble);
 
-    /* Long-press → edit / delete own messages (same as regular DMs) */
+    /* Swipe-right-to-reply — identical interaction to one-to-one chats. */
+    (function(msgObj, mine) {
+      const arrow = document.createElement("div");
+      arrow.className = "msg-swipe-arrow";
+      arrow.textContent = "↩";
+      wrap.style.position = "relative";
+      wrap.appendChild(arrow);
+      let _swX = null, _swY = null, _swTracking = false;
+      bubble.addEventListener("touchstart", function(ev) {
+        if (ev.touches.length !== 1) return;
+        _swX = ev.touches[0].clientX;
+        _swY = ev.touches[0].clientY;
+        _swTracking = false;
+        bubble.style.transition = "";
+      }, { passive: true });
+      bubble.addEventListener("touchmove", function(ev) {
+        if (_swX === null) return;
+        const dx = ev.touches[0].clientX - _swX;
+        const dy = Math.abs(ev.touches[0].clientY - (_swY || ev.touches[0].clientY));
+        if (!_swTracking) {
+          if (Math.abs(dx) > 8 && Math.abs(dx) > dy) _swTracking = true;
+          else if (dy > 8) { _swX = null; return; }
+        }
+        if (_swTracking && dx > 0) {
+          ev.preventDefault();
+          const shift = Math.min(dx, 70);
+          bubble.style.transform = "translateX(" + shift + "px)";
+          arrow.style.opacity = String(Math.min(shift / 45, 1));
+        }
+      }, { passive: false });
+      bubble.addEventListener("touchend", function(ev) {
+        if (_swX === null) return;
+        const dx = ev.changedTouches[0].clientX - _swX;
+        _swX = null;
+        bubble.style.transition = "transform 0.2s ease";
+        bubble.style.transform = "";
+        arrow.style.opacity = "0";
+        if (_swTracking && dx > 48) _startReply(msgObj, mine);
+        _swTracking = false;
+      }, { passive: true });
+    })(msg, isMine);
+
+    /* Long-press → edit / delete own messages (same as regular DMs). */
     if (isMine) {
       addLongPress(bubble, () => {
         const ageMs  = nowStamp() - (msg.stamp || 0);
@@ -14437,6 +15025,76 @@ function _renderGroupMessages(messages) {
 
   if (shouldScrollToBottom) setTimeout(_scrollChatToBottom, 30);
 }
+
+async function sendGroupImages() {
+  const input = document.getElementById("messageInput");
+  if (!input || !currentGroupId) return;
+  const text = input.value.trim();
+  const replyTo = _replyToMsg;
+  const items = (_chatImagesQueue.length
+    ? [..._chatImagesQueue]
+    : (attachedMedia?.type === "image" ? [attachedMedia] : [])).slice(0, 9);
+  if (!items.length) return;
+
+  input.value = "";
+  autoResizeMessageInput();
+  updateSendButtonState();
+  clearMediaQueue();
+  try { input.blur(); } catch(_) {}
+  window.__justSentMessage = true;
+
+  const chatBox = document.getElementById("chatBox");
+  const sendEl = document.createElement("div");
+  sendEl.className = "chat-sending-indicator";
+  sendEl.textContent = `Sending ${items.length} photo${items.length === 1 ? "" : "s"}…`;
+  if (chatBox) { chatBox.appendChild(sendEl); chatBox.scrollTop = chatBox.scrollHeight; }
+
+  try {
+    const [urls, dimensions] = await Promise.all([
+      Promise.all(items.map(async item => {
+        const blob = await fetch(item.dataUrl).then(r => r.blob());
+        return window.uploadToCloudinary(new File([blob], "photo.jpg", { type: blob.type }), "image");
+      })),
+      Promise.all(items.map(item => _getImageDimensions(item.dataUrl)))
+    ]);
+    const me = normalizeName(currentUser);
+    const stamp = nowStamp();
+    const gid = currentGroupId;
+    const members = (currentGroupData && currentGroupData.members) || [];
+    await addDoc(collection(db, "conversations", gid, "messages"), {
+      sender: me,
+      text,
+      images: urls,
+      img: urls[0] || null,
+      imageDimensions: dimensions,
+      isVid: false,
+      time: formatTimeFromStamp(stamp),
+       stamp,
+       ...(replyTo ? { replyTo } : {})
+    });
+    const unreadUpdates = {};
+    members.forEach(m => {
+      if (normalizeName(m) !== me) unreadUpdates[`unread_${normalizeName(m)}`] = increment(1);
+    });
+    await updateDoc(doc(db, "conversations", gid), {
+      lastStamp: stamp,
+      lastText: text || `📷 ${urls.length} Photo${urls.length === 1 ? "" : "s"}`,
+      lastSender: me,
+      lastIsImg: true,
+      lastIsVid: false,
+      chatCleared: false,
+      ...unreadUpdates
+    }).catch(() => {});
+    _cancelReply();
+    updateActivity();
+  } catch (e) {
+    _matchToast("Photos failed to send. Try again.");
+  } finally {
+    sendEl.remove();
+    setTimeout(_scrollChatToBottom, 50);
+  }
+}
+window.sendGroupImages = sendGroupImages;
 
 async function sendGroupText() {
   const input = document.getElementById("messageInput");
@@ -14460,6 +15118,7 @@ async function sendGroupText() {
 
   const text = input.value.trim();
   if (!text) return;
+  const replyTo = _replyToMsg;
   input.value = "";
   autoResizeMessageInput();
   updateSendButtonState();
@@ -14471,14 +15130,17 @@ async function sendGroupText() {
   const members = (currentGroupData && currentGroupData.members) || [];
   try {
     await addDoc(collection(db, "conversations", gid, "messages"), {
-      sender: me, text, time: formatTimeFromStamp(stamp), stamp
+      sender: me, text, time: formatTimeFromStamp(stamp), stamp,
+      ...(replyTo ? { replyTo } : {})
     });
     const unreadUpdates = {};
     members.forEach(m => { if (normalizeName(m) !== me) unreadUpdates[`unread_${normalizeName(m)}`] = increment(1); });
     await updateDoc(doc(db, "conversations", gid), {
       lastStamp: stamp, lastText: text, lastSender: me, lastIsImg: false, lastIsVid: false,
+      chatCleared: false,
       ...unreadUpdates
     }).catch(() => {});
+    _cancelReply();
     updateActivity();
   } catch(e) {
     _matchToast("Message failed to send. Try again.");
@@ -14495,9 +15157,12 @@ function hideGroupChat() {
   currentGroupMessages = [];
   currentChatType = "dm";
   document.body.classList.remove("in-group-chat");
-  /* Hide group bio bar */
+  /* Hide group bio pill */
   const bar = document.getElementById("groupPinnedBar");
-  if (bar) bar.classList.remove("has-pin");
+  if (bar) {
+    bar.dataset.bio = "";
+    bar.classList.remove("has-pin", "has-more", "is-expanded");
+  }
 }
 
 /* ── Group Info / Settings modal (owner-managed) ── */
@@ -15964,14 +16629,14 @@ function _showChatActionMenu(anchorEl, partner) {
   };
   menu.appendChild(delBtn);
 
-  /* Lock / Unlock Chat */
+  /* Lock / Remove Lock */
   const _lcBtn = document.createElement("button");
   const _lcIsLocked = typeof _isChatLocked === "function" && _isChatLocked(partner);
-  _lcBtn.textContent = _lcIsLocked ? "🔓 Unlock Chat" : "🔒 Lock Chat";
+  _lcBtn.textContent = _lcIsLocked ? "🔓 Remove Lock" : "🔒 Lock Chat";
   _lcBtn.onclick = e => {
     e.stopPropagation(); dismiss();
     if (_lcIsLocked) {
-      _promptUnlockChat(partner, () => { renderChatList && renderChatList(); });
+      _removeLockPermanently(partner);
     } else {
       _startLockChat(partner);
     }
@@ -16158,6 +16823,7 @@ async function _sendVoiceNote() {
       lastSender: normalizeName(currentUser),
       lastIsImg:  false,
       lastIsVid:  false,
+      chatCleared: false,
       [unreadKey]: increment(1)
     });
     markAsRead(partner);
@@ -16190,6 +16856,7 @@ async function _sendVoiceNote() {
           await updateDoc(doc(db, "conversations", rtid), {
             lastStamp: rstamp, lastText: "🎤 Voice note",
             lastSender: normalizeName(currentUser), lastIsImg: false, lastIsVid: false,
+            chatCleared: false,
             [rkeyUnread]: increment(1)
           });
           markAsRead(_vnPartner); updateActivity();
@@ -16387,15 +17054,13 @@ function showUserPosts(u) {
 
   /* ── Show / animate the page ── */
   const _up = document.getElementById("userPostsPage");
-  document.getElementById("chatPage").style.display    = "none";
-  document.querySelector(".top-bar").style.display     = "none";
-  document.querySelector(".new-chat").style.display    = "none";
-  document.getElementById("forYouPage").style.display  = "none";
-  document.getElementById("profilePage").style.display = "none";
+  if (window.__upHideSourcesTimer) clearTimeout(window.__upHideSourcesTimer);
   const _fyBar = document.querySelector(".fy-search-bar");
-  if (_fyBar) _fyBar.style.display = "none";
   const _botNav = document.querySelector(".bottom-nav");
-  if (_botNav) { _botNav.style.display = "none"; }
+  /* Keep the themed source surface underneath while the profile page slides
+     in. Hiding it first exposes the root background for one frame. */
+  if (_fyBar) _fyBar.style.display = "none";
+  if (_botNav) _botNav.style.display = "none";
   const _hdr = document.querySelector(".header");
   if (_hdr) _hdr.classList.remove("nav-hidden");
   navHidden = false;
@@ -16431,7 +17096,16 @@ function showUserPosts(u) {
   requestAnimationFrame(() => {
     _up.style.transition = "transform 0.30s cubic-bezier(0.25,0.46,0.45,0.94)";
     _up.style.transform  = "translateX(0)";
-    setTimeout(() => { _up.style.transition = ""; _up.scrollTop = 0; }, 320);
+    window.__upHideSourcesTimer = setTimeout(() => {
+      document.getElementById("chatPage").style.display    = "none";
+      document.querySelector(".top-bar").style.display     = "none";
+      document.querySelector(".new-chat").style.display    = "none";
+      document.getElementById("forYouPage").style.display  = "none";
+      document.getElementById("profilePage").style.display = "none";
+      _up.style.transition = "";
+      _up.scrollTop = 0;
+      window.__upHideSourcesTimer = null;
+    }, 320);
   });
 }
 
@@ -16455,6 +17129,13 @@ window._upToggleFollow = _upToggleFollow;
 
 function closeUserPosts() {
   const _upCloseEl = document.getElementById("userPostsPage");
+  if (window.__upHideSourcesTimer) {
+    clearTimeout(window.__upHideSourcesTimer);
+    window.__upHideSourcesTimer = null;
+  }
+  /* Reveal the destination before sliding away so the themed surface is
+     already painted underneath the outgoing page. */
+  _doCloseUserPostsNav();
   /* Slide out to the right before tearing down, matching the slide-in. */
   _upCloseEl.style.transition = "transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94)";
   _upCloseEl.style.transform  = "translateX(100%)";
@@ -16462,7 +17143,6 @@ function closeUserPosts() {
     _upCloseEl.style.display = "none";
     _upCloseEl.style.transform = "";
     _upCloseEl.style.transition = "";
-    _doCloseUserPostsNav();
   }, 290);
 }
 function _doCloseUserPostsNav() {
@@ -19433,31 +20113,176 @@ async function initializeHomeComponent() {
 window.initializeHomeComponent = initializeHomeComponent;
 
 /* ════════════════════════════════════════
-   NETWORK STATUS INDICATOR
+   NETWORK STATUS PILL
+   Uses navigator.onLine, Network Information API signals, and a small
+   same-origin reachability probe to distinguish offline from poor/unstable.
 ═══════════════════════════════════════ */
 let _netOnlineTimer = null;
+let _netProbeTimer = null;
+let _netProbeInFlight = false;
+let _netProbeFailures = 0;
+let _netLatencySamples = [];
+let _netState = "stable";
+let _netMonitorStarted = false;
 
-function _updateNetBar(isOnline) {
-  const bar  = document.getElementById("netBar");
-  const text = document.getElementById("netBarText");
-  if (!bar || !text) return;
-  bar.classList.remove("net-online", "net-offline");
-  if (isOnline) {
-    text.textContent = "Back online";
-    bar.classList.add("net-online");
+function _isMiniGameScreenActive() {
+  const page = document.getElementById("miniGamesPage");
+  return !!(page && page.classList.contains("open"));
+}
+
+function _getNetworkInformation() {
+  return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+}
+
+function _networkSignalsLookPoor() {
+  const connection = _getNetworkInformation();
+  if (!connection) return false;
+  const effectiveType = String(connection.effectiveType || "").toLowerCase();
+  const rtt = Number(connection.rtt || 0);
+  const downlink = Number(connection.downlink || 0);
+  return effectiveType === "slow-2g" ||
+         effectiveType === "2g" ||
+         rtt >= 900 ||
+         (downlink > 0 && downlink < 0.7);
+}
+
+function _networkProbeUrl() {
+  if (location.protocol !== "http:" && location.protocol !== "https:") return "";
+  const separator = location.href.includes("?") ? "&" : "?";
+  return location.href.split("#")[0] +
+    separator + "__mychat_network_probe=" + Date.now();
+}
+
+function _networkLatencyLooksPoor(latency) {
+  _netLatencySamples.push(latency);
+  if (_netLatencySamples.length > 4) _netLatencySamples.shift();
+  const average = _netLatencySamples.reduce((sum, value) => sum + value, 0) /
+    _netLatencySamples.length;
+  return latency >= 1800 || average >= 1000;
+}
+
+function _syncNetworkStatusPill() {
+  const pill = document.getElementById("networkStatusPill");
+  const text = document.getElementById("networkStatusText");
+  if (!pill || !text) return;
+
+  /* Mini Games are intentionally network-warning-free, including when the
+     page is offline or the game itself is open inside the games screen. */
+  if (_isMiniGameScreenActive()) {
     clearTimeout(_netOnlineTimer);
-    _netOnlineTimer = setTimeout(() => { bar.classList.remove("net-online"); }, 3000);
+    pill.classList.remove("is-visible");
+    pill.setAttribute("aria-hidden", "true");
+    return;
+  }
+
+  const labels = {
+    offline: "No Internet Connection",
+    poor: "Poor Connection",
+    stable: "Back Online"
+  };
+  pill.classList.remove("net-offline", "net-poor", "net-stable");
+  pill.classList.add("net-" + _netState);
+  text.textContent = labels[_netState] || labels.poor;
+  pill.classList.add("is-visible");
+  pill.setAttribute("aria-hidden", "false");
+
+  clearTimeout(_netOnlineTimer);
+  if (_netState === "stable") {
+    _netOnlineTimer = setTimeout(() => {
+      pill.classList.remove("is-visible");
+      pill.setAttribute("aria-hidden", "true");
+    }, 3000);
+  }
+}
+
+function _setNetworkState(nextState) {
+  const normalized = nextState === "offline" || nextState === "poor" ? nextState : "stable";
+  const changed = _netState !== normalized;
+  _netState = normalized;
+  if (changed || normalized !== "stable") _syncNetworkStatusPill();
+}
+
+async function _probeNetworkQuality() {
+  if (_netProbeInFlight || _isMiniGameScreenActive()) return;
+  if (!navigator.onLine) {
+    _netProbeFailures = 2;
+    _setNetworkState("offline");
+    return;
+  }
+
+  const url = _networkProbeUrl();
+  if (!url) {
+    _setNetworkState(_networkSignalsLookPoor() ? "poor" : "stable");
+    return;
+  }
+
+  _netProbeInFlight = true;
+  const started = performance.now();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4500);
+  try {
+    const response = await fetch(url, {
+      method: "HEAD",
+      cache: "no-store",
+      credentials: "same-origin",
+      signal: controller.signal
+    });
+    const latency = performance.now() - started;
+    /* A 405 still proves the server is reachable; use the latency signal. */
+    if (!response.ok && response.status !== 405) throw new Error("Network probe failed");
+    _netProbeFailures = 0;
+    const slow = _networkLatencyLooksPoor(latency);
+    _setNetworkState(slow || _networkSignalsLookPoor() ? "poor" : "stable");
+  } catch (_error) {
+    _netProbeFailures += 1;
+    _netLatencySamples = [];
+    _setNetworkState(_netProbeFailures >= 2 ? "offline" : "poor");
+  } finally {
+    clearTimeout(timeout);
+    _netProbeInFlight = false;
+  }
+}
+
+function _refreshNetworkStatusVisibility() {
+  if (_isMiniGameScreenActive()) {
+    _syncNetworkStatusPill();
   } else {
-    clearTimeout(_netOnlineTimer);
-    text.textContent = "No internet connection";
-    bar.classList.add("net-offline");
+    /* Do not manufacture a recovery message just because the user left
+       Mini Games; stable status is announced by _setNetworkState only when
+       the connection actually recovers. */
+    if (_netState !== "stable") _syncNetworkStatusPill();
+    _probeNetworkQuality();
   }
 }
 
 function initNetworkMonitor() {
-  if (!navigator.onLine) { _updateNetBar(false); }
-  window.addEventListener("offline", () => _updateNetBar(false));
-  window.addEventListener("online",  () => _updateNetBar(true));
+  if (_netMonitorStarted) {
+    _refreshNetworkStatusVisibility();
+    return;
+  }
+  _netMonitorStarted = true;
+  if (!navigator.onLine) {
+    _setNetworkState("offline");
+  } else if (_networkSignalsLookPoor()) {
+    _setNetworkState("poor");
+  }
+
+  window.addEventListener("offline", () => {
+    _netProbeFailures = 2;
+    _setNetworkState("offline");
+  });
+  window.addEventListener("online", () => {
+    _netProbeFailures = 0;
+    _probeNetworkQuality();
+  });
+
+  const connection = _getNetworkInformation();
+  if (connection && typeof connection.addEventListener === "function") {
+    connection.addEventListener("change", () => _probeNetworkQuality());
+  }
+
+  _probeNetworkQuality();
+  _netProbeTimer = setInterval(_probeNetworkQuality, 25000);
 }
 
 /* ════════════════════════════════════════
@@ -20891,6 +21716,7 @@ function openMiniGames() {
   if (hub) hub.scrollTop = 0;
   if (detail) { detail.classList.remove("open"); detail.setAttribute("aria-hidden", "true"); }
   if (stage) { stage.classList.remove("open"); stage.innerHTML = ""; }
+  _refreshNetworkStatusVisibility();
 }
 function closeMiniGames() {
   _ppStopGame();
@@ -20903,6 +21729,7 @@ function closeMiniGames() {
   if (hub) hub.scrollTop = 0;
   if (detail) { detail.classList.remove("open"); detail.setAttribute("aria-hidden", "true"); }
   if (stage) { stage.classList.remove("open"); stage.innerHTML = ""; }
+  _refreshNetworkStatusVisibility();
 }
 function closeMiniGameDetail() {
   _ppStopGame();
@@ -20912,6 +21739,7 @@ function closeMiniGameDetail() {
   if (page) page.classList.remove("game-active");
   if (detail) { detail.classList.remove("open"); detail.setAttribute("aria-hidden", "true"); }
   if (stage) { stage.classList.remove("open"); stage.innerHTML = ""; }
+  _refreshNetworkStatusVisibility();
 }
 function _ppOpenGameDetail(title, subtitle) {
   const page = document.getElementById("miniGamesPage");
@@ -20944,6 +21772,7 @@ function startMiniGame(type) {
   };
   const detail = details[type] || ["Mini Game", "Take a quick break"];
   _ppOpenGameDetail(detail[0], detail[1]);
+  _refreshNetworkStatusVisibility();
   if (type === "snake") _ppStartSnake();
   else if (type === "trivia") _ppStartTrivia();
   else if (type === "puzzle") _ppStartPuzzle();
@@ -21271,6 +22100,12 @@ window.closePostDetailPage = closePostDetailPage;
 
     /* ── _setNavActive: highlight tabs OR profile capsule ── */
     function _setNavActive(idx) {
+    /* Use the canonical active-tab routine so the animated indicator moves
+       along with the active class (including Marketplace). */
+    if (typeof setActiveTab === "function") {
+      setActiveTab(idx);
+      return;
+    }
     document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("active", i === idx));
     const cap = document.getElementById("navProfileCapsule");
     if (cap) cap.classList.toggle("nav-profile-active", idx === 4);
@@ -22914,6 +23749,60 @@ window._fbCollection = collection;
 window._fbWhere      = where;
 window._fbUpdateDoc  = updateDoc;
 window._fbDeleteDoc  = deleteDoc;
+/* The lock UI is a classic script, so expose only the account identity
+   callback it needs. The Firebase Auth UID keeps lock data isolated even if
+   two accounts use the same username-like chat target. */
+window._getMyChatAccountId = function() {
+  return auth.currentUser ? String(auth.currentUser.uid || "") : "";
+};
+
+/* Clear one authenticated user's DM thread completely. Firestore does not
+   delete subcollections when a parent document is removed, so delete every
+   message first and then retain the conversation document as a "Chat cleared"
+   placeholder until a new message updates its preview. */
+window._clearChatForCurrentAccount = async function(partner) {
+  const me = normalizeName(currentUser);
+  const target = normalizeName(partner);
+  if (!me || !target || me === target) {
+    throw new Error("This chat cannot be cleared.");
+  }
+
+  const tid = threadId(me, target);
+  const convRef = doc(db, "conversations", tid);
+  const convSnap = await getDoc(convRef);
+  if (!convSnap.exists()) return { cleared: false, tid };
+
+  const data = convSnap.data() || {};
+  const participants = Array.isArray(data.participants)
+    ? data.participants.map(normalizeName)
+    : [];
+  if (!participants.includes(me) || !participants.includes(target)) {
+    throw new Error("This conversation is not owned by the current account.");
+  }
+
+  const messageSnap = await getDocs(
+    collection(db, "conversations", tid, "messages")
+  );
+  const messageDocs = messageSnap.docs;
+  for (let i = 0; i < messageDocs.length; i += 450) {
+    const batch = writeBatch(db);
+    messageDocs.slice(i, i + 450).forEach(messageDoc => {
+      batch.delete(messageDoc.ref);
+    });
+    await batch.commit();
+  }
+  const clearedConversation = {
+    lastStamp: data.lastStamp || nowStamp(),
+    lastText: "Chat cleared",
+    lastSender: "",
+    lastIsImg: false,
+    lastIsVid: false,
+    chatCleared: true
+  };
+  await updateDoc(convRef, clearedConversation);
+  conversations[tid] = { id: tid, ...data, ...clearedConversation };
+  return { cleared: true, tid };
+};
 
 /* ════════════════════════════════════════
    FANS / FOLLOWING SHEET  (needs Firestore — lives in module)
@@ -23280,21 +24169,69 @@ window._checkUsernameAvail = _checkUsernameAvail;
    (localStorage only; Firestore calls use window._fb* bridge)
 ═══════════════════════════════════════ */
 var _lockChatTarget  = "";
-var _lockChatMode    = "";   /* "create" | "enter" */
+var _lockChatMode    = "";   /* "create" | "enter" | "remove" */
 var _lockChatPending = "";
 var _lockPinEntry    = "";
+/* Correct PIN entry grants access only until the user leaves the chat. */
+var _lockChatSessionAccess = new Set();
+window._lockChatSessionAccess = _lockChatSessionAccess;
 
+function _getLockAccountId() {
+  return typeof window._getMyChatAccountId === "function"
+    ? String(window._getMyChatAccountId() || "")
+    : "";
+}
+function _getLockAccountKey() {
+  var accountId = _getLockAccountId();
+  return accountId ? "mychat_lock_account_" + accountId : "";
+}
+function _getLockSessionKey(p) {
+  var nm = typeof normalizeName === "function" ? normalizeName(p) : String(p || "").trim().toLowerCase();
+  var accountKey = _getLockAccountKey();
+  return accountKey && nm ? accountKey + "::" + nm : "";
+}
 function _getLockKey(p) {
   var nm = typeof normalizeName === "function" ? normalizeName(p) : p.trim().toLowerCase();
-  return "mychat_lock_" + nm;
+  var accountKey = _getLockAccountKey();
+  return accountKey && nm ? accountKey + "_chat_" + nm : "";
 }
-function _isChatLocked(p)  { return !!localStorage.getItem(_getLockKey(p) + "_locked"); }
+function _getAccountLockPinKey() {
+  var accountKey = _getLockAccountKey();
+  return accountKey ? accountKey + "_pin_hash" : "";
+}
+function _isChatLocked(p) {
+  var key = _getLockKey(p);
+  return !!(key && localStorage.getItem(key + "_locked"));
+}
+function _getAccountLockHash() {
+  var key = _getAccountLockPinKey();
+  return key ? localStorage.getItem(key) : null;
+}
+function _getAcceptedLockHashes() {
+  var hash = _getAccountLockHash();
+  return hash ? [hash] : [];
+}
 function _hashPin(pin) {
   var h = 5381;
   for (var i = 0; i < pin.length; i++) h = ((h << 5) + h) ^ pin.charCodeAt(i);
   return String(h >>> 0);
 }
 window._isChatLocked = _isChatLocked;
+window._hasLockChatSessionAccess = function(p) {
+  var key = _getLockSessionKey(p);
+  return !!(key && _lockChatSessionAccess.has(key));
+};
+window._grantLockChatSessionAccess = function(p) {
+  var key = _getLockSessionKey(p);
+  if (key) _lockChatSessionAccess.add(key);
+};
+window._revokeLockChatSessionAccess = function(p) {
+  var key = _getLockSessionKey(p);
+  if (key) _lockChatSessionAccess.delete(key);
+};
+window._clearLockChatSessionAccess = function() {
+  _lockChatSessionAccess.clear();
+};
 
 function _lockPinRender() {
   for (var i = 0; i < 4; i++) {
@@ -23366,17 +24303,27 @@ function _lockPinError() {
 function _lockChatDismiss() {
   var m = document.getElementById("lockChatModal");
   if (m) m.classList.remove("open");
+  var forgotBtn = document.getElementById("lockChatForgotBtn");
+  if (forgotBtn) {
+    forgotBtn.disabled = false;
+    forgotBtn.textContent = "Forgot PIN?";
+  }
   _lockChatTarget = _lockChatMode = _lockChatPending = _lockPinEntry = "";
+  window._lockChatOnSuccess = null;
   _lockPinRender();
 }
 window._lockChatDismiss = _lockChatDismiss;
 
 function _startLockChat(partner) {
   _lockChatTarget = partner;
-  var key    = _getLockKey(partner);
-  var hasPin = !!localStorage.getItem(key + "_hash");
+  var hasPin = !!_getAccountLockHash();
   if (hasPin) {
-    localStorage.setItem(key + "_locked", "1");
+    var lockKey = _getLockKey(partner);
+    if (!lockKey) {
+      _showToastMsg("Please sign in again before locking chats");
+      return;
+    }
+    localStorage.setItem(lockKey + "_locked", "1");
     if (typeof window.renderChatList === "function") window.renderChatList();
     _showToastMsg("Chat locked \uD83D\uDD12");
   } else {
@@ -23398,7 +24345,7 @@ function _startLockChat(partner) {
 window._startLockChat = _startLockChat;
 
 function _promptUnlockChat(partner, onSuccess) {
-  _lockChatTarget = partner;
+  _lockChatTarget = typeof normalizeName === "function" ? normalizeName(partner) : partner;
   _lockChatMode   = "enter";
   _lockPinEntry   = "";
   window._lockChatOnSuccess = onSuccess;
@@ -23414,6 +24361,27 @@ function _promptUnlockChat(partner, onSuccess) {
   if (modal)  modal.classList.add("open");
 }
 window._promptUnlockChat = _promptUnlockChat;
+
+function _promptRemoveLockChat(partner) {
+  _lockChatTarget = typeof normalizeName === "function" ? normalizeName(partner) : partner;
+  _lockChatMode   = "remove";
+  _lockChatPending = "";
+  _lockPinEntry   = "";
+  window._lockChatOnSuccess = null;
+  var title  = document.getElementById("lockChatTitle");
+  var sub    = document.getElementById("lockChatSub");
+  var btnFgt = document.getElementById("lockChatForgotBtn");
+  var modal  = document.getElementById("lockChatModal");
+  if (title)  title.textContent  = "\uD83D\uDD13 Remove Lock";
+  if (sub)    sub.textContent    = "Enter your existing 4-digit PIN to remove this chat\u2019s lock.";
+  /* Removing a lock is an explicit permanent action; keep Forgot PIN tied to
+     the normal locked-chat entry flow instead of offering it here. */
+  if (btnFgt) btnFgt.style.display = "none";
+  _lockPinRender();
+  _lockPinShuffleKeypad();
+  if (modal) modal.classList.add("open");
+}
+window._promptRemoveLockChat = _promptRemoveLockChat;
 
 function _lockChatConfirm() {
   var pin = _lockPinEntry;
@@ -23436,17 +24404,45 @@ function _lockChatConfirm() {
       _lockPinError();
       return;
     }
-    localStorage.setItem(key + "_hash",   _hashPin(pin));
-    localStorage.setItem(key + "_locked", "1");
+    var accountPinKey = _getAccountLockPinKey();
+    var targetLockKey = _getLockKey(_lockChatTarget);
+    if (!accountPinKey || !targetLockKey) {
+      _lockChatDismiss();
+      _showToastMsg("Please sign in again before locking chats");
+      return;
+    }
+    localStorage.setItem(accountPinKey, _hashPin(pin));
+    localStorage.setItem(targetLockKey + "_locked", "1");
     _lockChatDismiss();
     if (typeof window.renderChatList === "function") window.renderChatList();
     _showToastMsg("Chat locked \uD83D\uDD12");
   } else {
-    var stored = localStorage.getItem(key + "_hash");
-    if (_hashPin(pin) === stored) {
-      localStorage.removeItem(key + "_locked");
+    var enteredHash = _hashPin(pin);
+    var acceptedHashes = _getAcceptedLockHashes();
+    if (acceptedHashes.includes(enteredHash)) {
+      if (_lockChatMode === "remove") {
+        /* This is the only path that permanently removes a chat lock. */
+        if (key) localStorage.removeItem(key + "_locked");
+        window._revokeLockChatSessionAccess(_lockChatTarget);
+        _lockChatDismiss();
+        if (typeof window.renderChatList === "function") window.renderChatList();
+        _showToastMsg("Chat lock removed");
+        return;
+      }
+      /* Normal chat entry keeps the conversation permanently locked. This
+         PIN entry is only temporary access for the current session. */
+      window._grantLockChatSessionAccess(_lockChatTarget);
+      var onSuccess = window._lockChatOnSuccess;
+      window._lockChatOnSuccess = null;
       _lockChatDismiss();
-      if (typeof window._lockChatOnSuccess === "function") window._lockChatOnSuccess();
+      /* Let the modal close commit its state before retrying openChat. */
+      if (typeof onSuccess === "function") {
+        requestAnimationFrame(function() {
+          Promise.resolve(onSuccess()).catch(function(err) {
+            console.error("Could not open unlocked chat:", err);
+          });
+        });
+      }
     } else {
       var sub3 = document.getElementById("lockChatSub");
       if (sub3) sub3.textContent = "Incorrect PIN \u2014 try again";
@@ -23456,23 +24452,53 @@ function _lockChatConfirm() {
 }
 window._lockChatConfirm = _lockChatConfirm;
 
-function _lockChatForgotPassword() {
+async function _lockChatForgotPassword() {
   var partner = _lockChatTarget;
   if (!confirm("Forgot PIN will permanently clear all messages in this chat and remove the lock. Continue?")) return;
   var key = _getLockKey(partner);
-  localStorage.removeItem(key + "_hash");
-  localStorage.removeItem(key + "_locked");
-  if (typeof window._fbDb !== "undefined" && window._fbDb && typeof window._fbDeleteDoc === "function") {
-    try {
-      var tid = (typeof threadId === "function") ? threadId(currentUser, partner) : null;
-      if (tid) window._fbDeleteDoc(window._fbDoc(window._fbDb, "conversations", tid)).catch(function(){});
-    } catch(_e) {}
+  if (!key || !_getLockAccountId()) {
+    _showToastMsg("Please sign in again before clearing this chat");
+    return;
   }
-  _lockChatDismiss();
-  if (typeof window.renderChatList === "function") window.renderChatList();
-  _showToastMsg("Chat unlocked and cleared");
+  var clearChat = window._clearChatForCurrentAccount;
+  if (typeof clearChat !== "function") {
+    _showToastMsg("Chat storage is not ready. Please try again.");
+    return;
+  }
+  var forgotBtn = document.getElementById("lockChatForgotBtn");
+  if (forgotBtn) {
+    forgotBtn.disabled = true;
+    forgotBtn.textContent = "Clearing…";
+  }
+  try {
+    await clearChat(partner);
+    localStorage.removeItem(key + "_locked");
+    window._revokeLockChatSessionAccess(partner);
+    _lockChatDismiss();
+    if (typeof window.showChats === "function") {
+      window.showChats();
+    } else if (typeof window.renderChatList === "function") {
+      window.renderChatList();
+    }
+    _showToastMsg("Chat unlocked and cleared");
+  } catch (err) {
+    console.error("Could not clear locked chat:", err);
+    if (forgotBtn) {
+      forgotBtn.disabled = false;
+      forgotBtn.textContent = "Forgot PIN?";
+    }
+    _showToastMsg("Could not clear this chat. Please try again.");
+  }
 }
 window._lockChatForgotPassword = _lockChatForgotPassword;
+
+/* Long-press "Remove Lock" is an explicit permanent action. */
+function _removeLockPermanently(partner) {
+  _promptRemoveLockChat(partner);
+}
+window._removeLockPermanently = _removeLockPermanently;
+/* Keep the old global name available for any older inline callers. */
+window._unlockChatPermanently = _removeLockPermanently;
 
 function _showToastMsg(msg) {
   var t = document.getElementById("_genericToast");
