@@ -1356,9 +1356,11 @@ body.dark-mode .chat-media-wrap { background: #1e293b; }
 }
 #chatVideoViewer.open { display: flex; }
 #chatVideoViewer video {
-  max-width: 95vw;
+  width: min(95vw, 1200px);
   max-height: 90vh;
   border-radius: 10px;
+  object-fit: contain;
+  background: #000;
 }
 #chatVideoViewer .cvv-close {
   position: absolute;
@@ -1387,13 +1389,26 @@ body.dark-mode .chat-media-wrap { background: #1e293b; }
   position: relative;
   background: transparent;
   border-top: none;
-  padding: 8px 12px;
-  padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+   padding: 8px 12px 14px;
+   padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
+   margin-bottom: 4px;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   overflow: visible;
   z-index: 2;
+}
+.msg-send-animate {
+  animation: msgSendFromComposer 360ms cubic-bezier(0.22,0.8,0.22,1) both;
+  transform-origin: right bottom;
+}
+@keyframes msgSendFromComposer {
+  from { opacity: 0; transform: translate3d(0, var(--msg-send-from-y, 34px), 0) scale(0.96); }
+  65% { opacity: 1; transform: translate3d(0, -3px, 0) scale(1.01); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .msg-send-animate { animation: none; }
 }
 /* Spacer below input box: zero-height so no bottom edge artifact */
 .chat-bottom-safe {
@@ -1404,14 +1419,53 @@ body.light-mode .chat-bottom-safe { background-color: transparent; }
 
 .preview-area {
   display: none;
-  padding: 10px 14px;
+   padding: 10px 14px 12px;
   border-bottom: 1px solid #2f3336;
   position: relative;
 }
+.chat-media-preview-track {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1px 2px 3px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.chat-media-preview-track::-webkit-scrollbar { display: none; }
+.chat-media-preview-card {
+  position: relative;
+  flex: 0 0 112px;
+  height: 82px;
+  overflow: hidden;
+  border-radius: 9px;
+  background: #111827;
+  scroll-snap-align: start;
+}
+.chat-media-preview-card img,
+.chat-media-preview-card video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #111827;
+}
+.chat-media-preview-card video {
+  object-fit: contain;
+}
+.chat-media-preview-count {
+  margin-top: 4px;
+  color: #9ca3af;
+  font-size: 11px;
+  text-align: center;
+}
 .preview-wrapper {
   position: relative;
-  display: inline-block;
-  max-width: 120px;
+  display: block;
+  width: 100%;
+  max-width: 100%;
 }
 .preview-thumbnail {
   max-width: 120px;
@@ -2089,14 +2143,14 @@ body.light-mode .pp-cancel-btn:hover { background: rgba(0,0,0,0.08); }
   min-width: 0;
 }
 .pp-compose-box {
-  border: 1px solid #374151;
-  border-radius: 12px;
-  padding: 10px 12px;
+  border: none;
+  border-radius: 0;
+  padding: 10px 0 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-body.light-mode .pp-compose-box { border-color: #d1d5db; }
+body.light-mode .pp-compose-box { border-color: transparent; }
 .pp-word-hint {
   font-size: 11px;
   color: #6b7280;
@@ -2104,11 +2158,13 @@ body.light-mode .pp-compose-box { border-color: #d1d5db; }
 }
 #ppTextarea {
   width: 100%;
-  min-height: 180px;
+  min-height: 58px;
+  height: 58px;
   background: transparent;
   border: none;
   outline: none;
   resize: none;
+  overflow-y: hidden;
   font-size: 16px;
   line-height: 1.6;
   color: #eff3f4;
@@ -2126,6 +2182,203 @@ body.light-mode #ppTextarea { color: #111827; }
 }
 .pp-word-counter.pp-warn   { color: #f59e0b; }
 .pp-word-counter.pp-danger { color: #ef4444; }
+.pp-media-carousel {
+  display: flex;
+  gap: 0;
+  width: calc(100% + 84px);
+  margin: 6px 0 0 -68px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+.pp-media-carousel::-webkit-scrollbar { display: none; }
+.pp-media-track {
+  display: flex;
+  gap: 8px;
+  min-width: 100%;
+  padding: 0 16px 4px;
+}
+.pp-media-item {
+  position: relative;
+  flex: 0 0 min(78vw, 330px);
+  height: min(58vw, 240px);
+  min-height: 170px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #111827;
+  scroll-snap-align: start;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.25);
+}
+.pp-media-item img,
+.pp-media-item video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.pp-media-item video { object-fit: contain; }
+.pp-media-item video[poster] { object-fit: cover; }
+.pp-media-item .pp-media-order {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  min-width: 23px;
+  height: 23px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.pp-media-item .pp-media-remove {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 27px;
+  height: 27px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.68);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  z-index: 2;
+}
+.pp-media-item .pp-media-move {
+  position: absolute;
+  bottom: 8px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  background: rgba(0,0,0,0.68);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+.pp-media-item .pp-media-move:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.pp-media-move-back { left: 8px; }
+.pp-media-move-forward { right: 8px; }
+.pp-media-crop-hint,
+.pp-media-trim-note {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.68);
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.pp-media-trim-note { bottom: 48px; color: #fcd34d; }
+.pp-expiry-menu {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 7px);
+  min-width: 152px;
+  padding: 5px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  background: #1f2937;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  z-index: 20;
+}
+.pp-expiry-menu.open { display: block; }
+.pp-expiry-menu button {
+  display: block;
+  width: 100%;
+  padding: 9px 11px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #eff3f4;
+  text-align: left;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.pp-expiry-menu button:hover { background: rgba(255,255,255,0.1); }
+body.light-mode .pp-expiry-menu {
+  background: #fff;
+  border-color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+}
+body.light-mode .pp-expiry-menu button { color: #111827; }
+body.light-mode .pp-expiry-menu button:hover { background: rgba(0,0,0,0.06); }
+.pp-expiry-wrap { position: relative; display: inline-flex; }
+.pp-expiry-menu,
+.pp-schedule-panel { font-family: inherit; }
+.pp-schedule-panel {
+  display: none;
+  width: 100%;
+  margin-top: 2px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+}
+.pp-schedule-panel.open { display: block; }
+body.light-mode .pp-schedule-panel {
+  border-color: #e5e7eb;
+  background: rgba(0,0,0,0.03);
+}
+.pp-schedule-panel label {
+  display: block;
+  margin-bottom: 6px;
+  color: #9ca3af;
+  font-size: 11px;
+}
+body.light-mode .pp-schedule-panel label { color: #6b7280; }
+.pp-schedule-panel input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 8px;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+}
+body.light-mode .pp-schedule-panel input { border-color: #d1d5db; color: #111827; }
+.pp-schedule-actions { display: flex; gap: 7px; margin-top: 8px; }
+.pp-schedule-actions button {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.pp-schedule-save { background: #008b8b; color: #fff; }
+.pp-schedule-cancel { background: rgba(255,255,255,0.1); color: inherit; }
+.pp-live-status {
+  display: none;
+  align-self: center;
+  color: #f59e0b;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pp-live-status.visible { display: inline; }
 /* Capsule row sticky under compose box */
 .pp-capsule-row {
   display: flex;
@@ -2182,6 +2435,42 @@ body.light-mode .pp-capsule-row { background: #ffffff; }
   flex-wrap: wrap;
 }
 body.light-mode .pp-footer { border-top-color: #e5e7eb; }
+.pp-upload-progress {
+  display: none;
+  padding: 10px 16px 2px;
+  flex-shrink: 0;
+}
+.pp-upload-progress.visible { display: block; }
+.pp-upload-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  color: #9ca3af;
+  font-size: 12px;
+}
+.pp-upload-progress-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: #0d9488;
+}
+.pp-upload-progress-track {
+  width: 100%;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(156,163,175,0.25);
+}
+.pp-upload-progress-bar {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: #008b8b;
+  transition: width 0.18s ease;
+}
+body.dark-mode .pp-upload-progress-value { color: #5eead4; }
+body.light-mode .pp-upload-progress-value { color: #008b8b; }
 .pp-media-capsule {
   display: inline-flex;
   align-items: center;
@@ -2197,6 +2486,14 @@ body.light-mode .pp-footer { border-top-color: #e5e7eb; }
 body.light-mode .pp-media-capsule { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.10); }
 .pp-media-capsule:hover { background: rgba(255,255,255,0.12); }
 .pp-media-capsule svg { width: 15px; height: 15px; flex-shrink: 0; color: #9ca3af; }
+.pp-media-picker-capsule {
+  width: 38px;
+  height: 32px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 999px;
+}
+.pp-media-picker-capsule svg { width: 17px; height: 17px; }
 .pp-capsule-label { font-size: 11px; color: #9ca3af; white-space: nowrap; }
 .pp-char-counter {
   margin-left: auto;
@@ -2283,6 +2580,22 @@ body.light-mode .post-success-toast { background: #ffffff; color: #111827; box-s
   object-fit: unset;
   background: #000;
 }
+.post-video-poster {
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--feed-video-ratio, 16 / 9);
+  min-height: 0;
+  display: block;
+  object-fit: cover;
+  background: #111;
+}
+.post-video-poster-fallback {
+  min-height: 220px;
+  aspect-ratio: auto;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(0,139,139,0.45), transparent 34%),
+    linear-gradient(135deg, #111827, #020617);
+}
 .post-video-wrap {
   aspect-ratio: unset;
 }
@@ -2306,6 +2619,10 @@ body.light-mode .post-success-toast { background: #ffffff; color: #111827; box-s
   flex-shrink: 0;
   object-fit: unset;
   display: block;
+}
+.post-video-wrap.photo-video .post-video-poster {
+  width: 100%;
+  flex-shrink: 0;
 }
 .post-video-play-btn {
   position: absolute;
@@ -3974,6 +4291,139 @@ body.dark-mode .notif-act-caption { color: #636366; }
 body.dark-mode .comment-btn { color: #9ca3af; }
 body.dark-mode .comment-btn:hover { background: rgba(255,255,255,0.08); }
 .comment-count-badge { font-size: 12px; color: #9ca3af; min-width: 14px; }
+.post-care-btn {
+  background: none; border: none; cursor: pointer; color: #6b7280;
+  padding: 5px 8px; border-radius: 8px; display: inline-flex;
+  align-items: center; gap: 4px; font-size: 13px; line-height: 1;
+  transition: background .15s, color .15s, transform .15s;
+}
+.post-care-btn:hover, .post-care-btn:active { background: rgba(0,139,139,.10); }
+.post-care-btn.is-cared { color: #008b8b; }
+.post-care-btn:active { transform: scale(.94); }
+body.dark-mode .post-care-btn { color: #9ca3af; }
+body.dark-mode .post-care-btn.is-cared { color: #5eead4; }
+.care-reaction-flight {
+  position: fixed; z-index: 10000; pointer-events: none;
+  font-size: 58px; line-height: 1; transform-origin: center;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.25));
+  animation: careReactionPop 420ms cubic-bezier(.2,.85,.25,1) forwards;
+}
+@keyframes careReactionPop {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.35) rotate(-12deg); }
+  22% { opacity: 1; transform: translate(-50%,-50%) scale(1.18) rotate(5deg); }
+  55% { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); }
+  100% { opacity: .98; transform: translate(var(--care-dx),var(--care-dy)) scale(.35) rotate(10deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .care-reaction-flight { animation-duration: 1ms; }
+}
+
+/* ── Share / quote composer ── */
+#shareQuoteBackdrop {
+  display: none; position: fixed; inset: 0; z-index: 9400;
+  background: rgba(0,0,0,.58); align-items: flex-end;
+}
+#shareQuoteBackdrop.open { display: flex; }
+#shareQuoteSheet {
+  width: 100%; max-height: min(78dvh, 640px); overflow-y: auto;
+  background: #fff; color: #111827; border-radius: 20px 20px 0 0;
+  padding: 10px 16px max(18px, env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 30px rgba(0,0,0,.28);
+  transform: translateY(100%); transition: transform .28s cubic-bezier(.32,.72,0,1);
+}
+#shareQuoteBackdrop.open #shareQuoteSheet { transform: translateY(0); }
+body.dark-mode #shareQuoteSheet { background: #15181c; color: #f9fafb; }
+.share-quote-handle { width: 42px; height: 4px; border-radius: 99px; background: #d1d5db; margin: 2px auto 14px; }
+.share-quote-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+.share-quote-title { font-size:17px; font-weight:800; }
+.share-quote-close { border:0; background:rgba(127,127,127,.14); border-radius:50%; width:32px; height:32px; font-size:20px; cursor:pointer; color:inherit; }
+#quoteTextInput {
+  width:100%; min-height:92px; resize:vertical; padding:12px;
+  border:1px solid #d1d5db; border-radius:12px; background:#f9fafb;
+  color:#111827; font:inherit; font-size:15px; outline:none;
+}
+body.dark-mode #quoteTextInput { background:#20242a; border-color:#374151; color:#f9fafb; }
+#quoteTextInput:focus { border-color:#008b8b; box-shadow:0 0 0 3px rgba(0,139,139,.12); }
+.quote-original-preview {
+  margin:12px 0 14px; padding:11px 12px; border:1px solid #d1d5db;
+  border-radius:13px; color:#4b5563; font-size:13px; line-height:1.45;
+  max-height:180px; overflow:hidden;
+}
+body.dark-mode .quote-original-preview { border-color:#4b5563; color:#d1d5db; }
+.quote-original-preview strong { display:block; color:#008b8b; margin-bottom:4px; }
+.quoted-post {
+  border:1px solid #d1d5db; border-radius:12px; padding:10px 11px;
+  margin-top:10px; color:#4b5563; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .18s ease, border-color .18s ease;
+}
+.quoted-post:hover { background:rgba(0,0,0,.025); border-color:#9ca3af; }
+.quoted-post-header { display:flex; align-items:center; gap:8px; min-width:0; }
+.quoted-post-avatar {
+  width:28px; height:28px; flex:0 0 28px; border-radius:50%;
+  overflow:hidden; background:#9ca3af; display:flex; align-items:center;
+  justify-content:center; color:#fff; font-size:11px; font-weight:700;
+}
+.quoted-post-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.quoted-post-author {
+  color:#111827; font-weight:800; font-size:12px; line-height:1.25;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.quoted-post-caption {
+  white-space:pre-wrap; word-break:break-word; margin-top:8px;
+  color:#111827; font-size:13px; line-height:1.45;
+}
+.quoted-post-media-carousel {
+  display:flex; gap:5px; overflow-x:auto; margin-top:8px; padding-bottom:2px;
+  border-radius:8px; scrollbar-width:none; scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+.quoted-post-media-carousel::-webkit-scrollbar { display:none; }
+.quoted-post-media-item {
+  position:relative; flex:0 0 clamp(82px, 24vw, 112px); aspect-ratio:1/1;
+  overflow:hidden; border-radius:8px; background:#111827; scroll-snap-align:start;
+}
+.quoted-post-media-item img {
+  display:block; width:100%; height:100%; object-fit:cover; background:#111;
+}
+.quoted-post-video-placeholder {
+  width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+  background:#111827; color:#d1d5db; font-size:12px;
+}
+.quoted-post-video-play {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.quoted-post-video-play span {
+  width:28px; height:28px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; background:rgba(0,0,0,.62); color:#fff;
+}
+.quoted-post-video-play svg { width:14px; height:14px; display:block; fill:currentColor; }
+body.dark-mode .quoted-post { border-color:#4b5563; color:#d1d5db; }
+body.dark-mode .quoted-post:hover { background:rgba(255,255,255,.045); border-color:#6b7280; }
+body.dark-mode .quoted-post-author,
+body.dark-mode .quoted-post-caption { color:#f9fafb; }
+.quoted-post:focus-visible { outline:2px solid #008b8b; outline-offset:2px; }
+.share-quote-submit { width:100%; border:0; border-radius:12px; padding:12px; background:#008b8b; color:#fff; font-weight:800; font-size:15px; cursor:pointer; }
+.share-external-label { margin:18px 0 9px; color:#6b7280; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+.share-external-row { display:flex; gap:10px; justify-content:flex-start; }
+.share-external-btn { width:44px; height:44px; border:0; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; font-weight:800; font-size:18px; }
+.share-external-btn.whatsapp { background:#25D366; }
+.share-external-btn.xshare { background:#111; }
+.share-external-btn.facebook { background:#1877F2; }
+.share-external-btn.copy { background:#6b7280; }
+.share-external-btn.native { background:#008b8b; }
+body.dark-mode .share-external-btn.xshare { background:#f9fafb; color:#111; }
+
+/* Care + Share controls at the top of the comment sheet */
+.comment-sheet-actions { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.comment-care-summary, .comment-share-btn {
+  border:0; background:none; color:inherit; display:inline-flex;
+  align-items:center; gap:5px; cursor:pointer; font-size:13px; font-weight:700;
+}
+.comment-care-summary { color:#008b8b; }
+.comment-share-btn { padding:7px; border-radius:50%; }
+.comment-share-btn:hover { background:rgba(127,127,127,.15); }
 
 /* ── Post video preview in post-creation modal ── */
 .post-video-preview-wrap { margin-top: 8px; position: relative; display: inline-block; }
@@ -4183,8 +4633,8 @@ body.light-mode #commentPageList .comment-item { border-color: #e5e7eb; }
   display: flex;
   gap: 8px;
   align-items: flex-end;
-  padding: 8px 12px;
-  padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+   padding: 8px 12px 14px;
+   padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
   background: transparent;
   flex-shrink: 0;
 }
@@ -4207,6 +4657,8 @@ body.light-mode #commentPageInputArea { background: transparent; }
   padding: 8px 8px 8px 14px;
   border: 1.5px solid rgba(255,255,255,0.20);
 }
+/* Keep the composer comfortably above the bottom edge in standalone PWAs. */
+#commentPageInputArea { margin-bottom: 8px; }
 body.light-mode    .cmt-input-wrap { background: transparent; border-color: #d1d5db; }
 body.lavender-mode .cmt-input-wrap { border-color: #c4b5fd; }
 body.pink-mode     .cmt-input-wrap { border-color: #f9a8d4; }
@@ -4360,7 +4812,15 @@ body.light-mode #commentInput { color: #111827; }
   padding: 0 16px;
   gap: 8px;
   overscroll-behavior-x: contain;
-  /* no touch-action override – parent pan-y handles direction routing */
+  /*
+   * Nested horizontal scroller: horizontal gestures stay inside the
+   * carousel instead of being interpreted as page-level navigation.
+   * Vertical gestures remain available for the parent feed.
+   */
+  touch-action: pan-x pan-y;
+  scroll-behavior: auto;
+  scroll-snap-stop: always;
+  will-change: scroll-position;
 }
 .post-carousel::-webkit-scrollbar { display: none; }
 .pc-item {
@@ -4379,6 +4839,12 @@ body.light-mode #commentInput { color: #111827; }
   height: 100%;
   object-fit: cover;
   display: block;
+}
+.pc-item .post-video-poster {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
 }
 .pc-item .post-video-play-btn { pointer-events: none; }
 /* Carousel dots indicator */
@@ -5470,6 +5936,7 @@ body.pink-mode #settingsPage { background: #fff0f5; }
 .settings-header {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 14px 16px 10px;
    background: rgba(247,248,250,0.96);
@@ -5506,6 +5973,9 @@ body.pink-mode .settings-header {
   font-weight: 600;
   font-family: 'Inter', Arial, sans-serif;
   padding: 6px 4px;
+  position: absolute;
+  left: 16px;
+  top: 10px;
 }
 .settings-back-btn svg { flex-shrink: 0; }
 body.dark-mode .settings-back-btn { color: #5eead4; }
@@ -5513,8 +5983,8 @@ body.lavender-mode .settings-back-btn { color: #7c3aed; }
 body.pink-mode .settings-back-btn { color: #e91e8c; }
 
 .settings-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 800;
   color: #111827;
   font-family: 'Inter', Arial, sans-serif;
 }
@@ -6242,6 +6712,7 @@ body.light-mode .pd-post-wrap { border-color: #e5e7eb; }
   padding-bottom: max(8px, env(safe-area-inset-bottom,0px));
   border-top: 0.5px solid #2f3336;
   background: #000000; flex-shrink: 0;
+   margin-bottom: 4px;
 }
 body.light-mode .pd-comment-input-area { background: #fff; border-color: #e5e7eb; }
 body.pink-mode .pd-comment-input-area { background: #fff0f5; border-color: #f9a8d4; }
@@ -7507,20 +7978,32 @@ body.light-mode .bottom-nav .nav-tab-indicator {
     border-bottom:0.5px solid rgba(0,0,0,0.06);flex-shrink:0;
     }
     body.dark-mode .market-header{background:#111;border-bottom-color:rgba(255,255,255,0.07);}
+     body.lavender-mode .market-header{background:#ede9fe;border-bottom-color:#c4b5fd;}
+     body.pink-mode .market-header{background:#fce7f3;border-bottom-color:#f9a8d4;}
     .market-header-title{font-size:20px;font-weight:800;color:#111827;}
     body.dark-mode .market-header-title{color:#f9fafb;}
+     body.lavender-mode .market-header-title,
+     body.pink-mode .market-header-title{color:#111827;}
     .market-header-right{display:flex;align-items:center;gap:8px;}
     .market-mychat-capsule{
     background:#000;color:#fff;font-size:11px;font-weight:700;
     padding:5px 11px;border-radius:999px;letter-spacing:0.3px;user-select:none;
     }
     body.dark-mode .market-mychat-capsule{background:#fff;color:#000;}
+     body.lavender-mode .market-mychat-capsule{background:#7c3aed;color:#fff;}
+     body.pink-mode .market-mychat-capsule{background:#e91e8c;color:#fff;}
     .market-icon-btn{
     background:none;border:none;cursor:pointer;padding:6px;border-radius:50%;
     color:#374151;display:flex;align-items:center;justify-content:center;
     -webkit-tap-highlight-color:transparent;transition:background 0.15s;
     }
     body.dark-mode .market-icon-btn{color:#d1d5db;}
+     body.lavender-mode .market-icon-btn{color:#6d28d9;}
+     body.pink-mode .market-icon-btn{color:#be185d;}
+     body.lavender-mode .market-icon-btn:hover,
+     body.lavender-mode .market-icon-btn:focus-visible{background:rgba(124,58,237,0.12);}
+     body.pink-mode .market-icon-btn:hover,
+     body.pink-mode .market-icon-btn:focus-visible{background:rgba(233,30,140,0.12);}
     .market-sell-fab{
     position:absolute;bottom:100px;right:16px;background:#008b8b;color:white;
     border:none;cursor:pointer;padding:12px 20px;border-radius:999px;
@@ -7528,21 +8011,31 @@ body.light-mode .bottom-nav .nav-tab-indicator {
     box-shadow:0 4px 20px rgba(0,139,139,0.4);z-index:10;
     -webkit-tap-highlight-color:transparent;transition:transform 0.12s,box-shadow 0.12s;
     }
+     body.lavender-mode .market-sell-fab{background:#7c3aed;box-shadow:0 4px 20px rgba(124,58,237,0.35);}
+     body.pink-mode .market-sell-fab{background:#e91e8c;box-shadow:0 4px 20px rgba(233,30,140,0.35);}
     .market-sell-fab:active{transform:scale(0.92);}
     .market-search-bar{padding:8px 12px;background:#fff;flex-shrink:0;}
     body.dark-mode .market-search-bar{background:#111;}
+     body.lavender-mode .market-search-bar{background:#ede9fe;}
+     body.pink-mode .market-search-bar{background:#fce7f3;}
     .market-search-wrap{
     display:flex;align-items:center;gap:8px;background:#f3f4f6;
     border-radius:20px;padding:8px 14px;
     }
     body.dark-mode .market-search-wrap{background:#1c1c1c;}
+     body.lavender-mode .market-search-wrap{background:#f5f3ff;border:1px solid #c4b5fd;}
+     body.pink-mode .market-search-wrap{background:#fff5f7;border:1px solid #f9a8d4;}
     .market-search-wrap input{
     flex:1;border:none;background:none;outline:none;
     font-size:14px;color:#111827;font-family:'Inter',sans-serif;
     }
     body.dark-mode .market-search-wrap input{color:#f3f4f6;}
+     body.lavender-mode .market-search-wrap input{color:#111827;}
+     body.pink-mode .market-search-wrap input{color:#111827;}
     .market-search-wrap input::placeholder{color:#9ca3af;}
     .market-search-icon{color:#9ca3af;flex-shrink:0;}
+     body.lavender-mode .market-search-icon{color:#7c3aed;}
+     body.pink-mode .market-search-icon{color:#e91e8c;}
     .market-search-clear{background:none;border:none;cursor:pointer;padding:0;color:#9ca3af;flex-shrink:0;display:none;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;}
     .market-search-clear.visible{display:flex;}
     .market-search-clear:hover{color:#6b7280;}
@@ -7558,7 +8051,11 @@ body.light-mode .bottom-nav .nav-tab-indicator {
     transition:background 0.15s,color 0.15s,border-color 0.15s;flex-shrink:0;
     }
     body.dark-mode .market-cat-pill{background:#1c1c1c;color:#d1d5db;border-color:#374151;}
+     body.lavender-mode .market-cat-pill{background:#f5f3ff;color:#5b21b6;border-color:#c4b5fd;}
+     body.pink-mode .market-cat-pill{background:#fff5f7;color:#9d174d;border-color:#f9a8d4;}
     .market-cat-pill.active{background:#008b8b;color:#fff;border-color:#008b8b;}
+     body.lavender-mode .market-cat-pill.active{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+     body.pink-mode .market-cat-pill.active{background:#e91e8c;color:#fff;border-color:#e91e8c;}
     .market-feed-scroll{
     flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
     padding:4px 8px 100px;
@@ -8395,10 +8892,16 @@ body.light-mode .bottom-nav .nav-tab-indicator {
         </div>
         <div class="input-area">
           <div class="media-actions">
-            <input type="file" id="photoInput" accept="image/*" multiple style="display:none">
-            <input type="file" id="videoInput" accept="video/*" style="display:none">
+            <input type="file" id="photoInput" accept="image/*,video/*" multiple style="display:none">
+            <input type="file" id="videoInput" accept="video/*" multiple style="display:none">
             <input type="file" id="fileInput" style="display:none">
-            <button class="media-plus-btn" id="mediaPlusBtn" title="Add Media">+</button>
+            <button class="media-plus-btn" id="mediaPlusBtn" title="Open photo library" aria-label="Open photo library">
+              <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                <circle cx="8.5" cy="9" r="1.5"></circle>
+                <path d="m3 16 4.5-4.5a2 2 0 0 1 2.8 0L15 16l2.2-2.2a2 2 0 0 1 2.8 0L21 15.8"></path>
+              </svg>
+            </button>
             <div class="media-popup" id="mediaPlusPopup">
               <div class="media-popup-item" id="popupPhotoItem"><span>📷</span><span>Photo</span></div>
               <div class="media-popup-item" id="popupVideoItem"><span>🎥</span><span>Video</span></div>
@@ -8463,14 +8966,15 @@ body.light-mode .bottom-nav .nav-tab-indicator {
         <h3>New Post</h3>
         <textarea id="postInput" placeholder="Share your thought" maxlength="2500" style="min-height:110px;"></textarea>
         <div style="font-size:12px;color:gray;margin-top:6px;">3–250 words</div>
-        <input type="file" id="postImgInput" accept="image/*" multiple style="display:none;" onchange="handlePostImageSelect(event)">
-        <input type="file" id="postVideoInput" accept="video/*" style="display:none;" onchange="handlePostVideoSelect(event)">
+        <input type="file" id="postMediaInput" accept="image/*,video/*" multiple style="display:none;" onchange="handlePostMediaSelect(event)">
         <div id="postImgPreviews" class="post-img-preview-wrap" style="display:none;"></div>
         <div id="postVideoPreview" style="display:none;"></div>
-        <!-- CHANGE 6: allow image + video side by side -->
+        <!-- Unified media picker opens the general photo/video library directly. -->
         <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
-          <button type="button" onclick="document.getElementById('postImgInput').click()" style="background:none;border:1px solid #d1d5db;border-radius:8px;padding:5px 12px;font-size:12px;color:#6b7280;cursor:pointer;">📷 Add Photos (max 5)</button>
-          <button type="button" id="postVideoPickBtn" onclick="document.getElementById('postVideoInput').click()" style="background:none;border:1px solid #d1d5db;border-radius:8px;padding:5px 12px;font-size:12px;color:#6b7280;cursor:pointer;">🎥 Add Videos (max 2, ≤30s each)</button>
+          <button type="button" onclick="document.getElementById('postMediaInput').click()" aria-label="Add photos or videos" title="Add photos or videos" style="background:none;border:1px solid #d1d5db;border-radius:999px;padding:8px 12px;font-size:12px;color:#6b7280;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m3 16 4.5-4.5a2 2 0 0 1 2.8 0L15 16l2.2-2.2a2 2 0 0 1 2.8 0L21 15.8"/><path d="M17 4v3m-1.5-1.5h3"/></svg>
+            <span>Media</span>
+          </button>
         </div>
         <div class="modal-buttons">
           <button class="save-edit" id="postSubmitBtn" onclick="submitPost()">Post</button>
@@ -8492,24 +8996,50 @@ body.light-mode .bottom-nav .nav-tab-indicator {
           <div class="pp-compose-col">
             <div class="pp-compose-box">
               <textarea id="ppTextarea" placeholder="Share your thoughts" oninput="ppOnInput()"></textarea>
-              <div id="ppImgPreviews" class="pp-img-previews"></div>
-              <div id="ppVideoPreview" class="pp-video-preview"></div>
+              <div id="ppMediaCarousel" class="pp-media-carousel" aria-label="Selected post media"></div>
               <div class="pp-word-counter" id="ppWordCounter">0 / 250 words</div>
             </div>
             <div class="pp-word-hint">3–250 words</div>
             <div class="pp-capsule-row">
-              <input type="file" id="ppImgInput" accept="image/*" multiple style="display:none;" onchange="ppHandleImageSelect(event)">
-              <input type="file" id="ppVideoInput" accept="video/*" style="display:none;" onchange="ppHandleVideoSelect(event)">
-              <button class="pp-media-capsule" onclick="document.getElementById('ppImgInput').click()" title="Add Photo">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
-                <span class="pp-capsule-label">Max 5</span>
+              <input type="file" id="ppMediaInput" accept="image/*,video/*" multiple style="display:none;" onchange="ppHandleMediaSelect(event)">
+              <button class="pp-media-capsule pp-media-picker-capsule" type="button" onclick="document.getElementById('ppMediaInput').click()" title="Add photos or videos" aria-label="Add photos or videos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m3 16 4.5-4.5a2 2 0 0 1 2.8 0L15 16l2.2-2.2a2 2 0 0 1 2.8 0L21 15.8"/><path d="M17 4v3m-1.5-1.5h3"/></svg>
               </button>
-              <button class="pp-media-capsule" onclick="document.getElementById('ppVideoInput').click()" title="Add Video">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                <span class="pp-capsule-label">Max 2, ≤30s</span>
+              <div class="pp-expiry-wrap">
+                <button class="pp-media-capsule" id="ppExpiryBtn" type="button" onclick="ppToggleExpiryMenu(event)" title="Post visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                  <span class="pp-capsule-label" id="ppExpiryLabel">Time</span>
+                </button>
+                <div class="pp-expiry-menu" id="ppExpiryMenu" role="menu">
+                  <button type="button" onclick="ppChooseExpiry('12h')">12hr</button>
+                  <button type="button" onclick="ppChooseExpiry('7d')">7d</button>
+                  <button type="button" onclick="ppChooseExpiry('schedule')">Schedule Post</button>
+                </div>
+              </div>
+              <button class="pp-media-capsule" id="ppLiveBtn" type="button" onclick="ppShowLiveComingSoon()" title="Live">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8.5 8.5a5 5 0 0 0 0 7M5.5 5.5a9.2 9.2 0 0 0 0 13M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9.2 9.2 0 0 1 0 13"/><circle cx="12" cy="12" r="2"/></svg>
+                <span class="pp-capsule-label">Live</span>
               </button>
+              <span class="pp-live-status" id="ppLiveStatus" aria-live="polite">Coming soon</span>
+            </div>
+            <div class="pp-schedule-panel" id="ppSchedulePanel">
+              <label for="ppScheduleAt">Choose a future date and time</label>
+              <input id="ppScheduleAt" type="datetime-local">
+              <div class="pp-schedule-actions">
+                <button class="pp-schedule-save" type="button" onclick="ppSaveSchedule()">Set schedule</button>
+                <button class="pp-schedule-cancel" type="button" onclick="ppCancelSchedule()">Cancel</button>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="pp-upload-progress" id="ppUploadProgress" role="status" aria-live="polite" aria-hidden="true">
+        <div class="pp-upload-progress-head">
+          <span id="ppUploadProgressLabel">Uploading media…</span>
+          <span class="pp-upload-progress-value" id="ppUploadProgressValue">0%</span>
+        </div>
+        <div class="pp-upload-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="ppUploadProgressTrack">
+          <div class="pp-upload-progress-bar" id="ppUploadProgressBar"></div>
         </div>
       </div>
       <div class="pp-footer" style="justify-content:flex-end;">
@@ -8526,7 +9056,7 @@ body.light-mode .bottom-nav .nav-tab-indicator {
     <!-- Chat media fullscreen video viewer -->
     <div id="chatVideoViewer" onclick="closeChatVideoViewer()">
       <span class="cvv-close">✕</span>
-      <video id="chatVideoViewerVid" controls playsinline></video>
+      <video id="chatVideoViewerVid" controls playsinline onclick="event.stopPropagation()"></video>
     </div>
 
     <!-- NEW CHAT SEARCH MODAL -->
@@ -9050,11 +9580,10 @@ body.light-mode .bottom-nav .nav-tab-indicator {
 ═══════════════════════════════════════ -->
 <div id="settingsPage">
   <div class="settings-header">
-    <button class="settings-back-btn" onclick="closeSettingsPage()">
+    <button class="settings-back-btn" onclick="closeSettingsPage()" aria-label="Back" title="Back">
       <svg width="10" height="17" viewBox="0 0 10 17" fill="none"><path d="M9 1L1.5 8.5L9 16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Back
     </button>
-    <span class="settings-title" style="margin-left:8px;">Settings</span>
+    <span class="settings-title">Settings</span>
   </div>
   <div class="settings-body">
 
@@ -9176,10 +9705,37 @@ body.light-mode .bottom-nav .nav-tab-indicator {
 const CLOUD_NAME = "dls1cjokj";
 const UPLOAD_PRESET = "Chatapp_upload";
 
-async function uploadToCloudinary(file, resourceType = "auto") {
+async function uploadToCloudinary(file, resourceType = "auto", onProgress = null) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", UPLOAD_PRESET);
+  /* Use XHR only for callers that request progress updates. Keeping fetch for
+     all existing callers avoids changing their upload behavior. */
+  if (typeof onProgress === "function") {
+    return await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`);
+      xhr.upload.onprogress = event => {
+        if (event.lengthComputable) onProgress(Math.max(0, Math.min(100, (event.loaded / event.total) * 100)));
+      };
+      xhr.onerror = () => reject(new Error("Photo upload failed: network error"));
+      xhr.ontimeout = () => reject(new Error("Upload timed out. Check your connection and try again."));
+      xhr.onload = () => {
+        let data = {};
+        try { data = JSON.parse(xhr.responseText || "{}"); } catch (_) {}
+        if (!data.secure_url) {
+          const reason = (data && data.error && data.error.message) || `HTTP ${xhr.status}`;
+          reject(new Error("Photo upload failed: " + reason));
+          return;
+        }
+        onProgress(100);
+        resolve(data.secure_url);
+      };
+      const sizeMb = (file && file.size) ? file.size / (1024 * 1024) : 0;
+      xhr.timeout = Math.min(180000, 45000 + sizeMb * 20000);
+      xhr.send(formData);
+    });
+  }
   const controller = new AbortController();
   /* Scale the abort timeout with file size instead of a flat 20s — a fixed
      short timeout was aborting perfectly-healthy uploads of larger photos
@@ -9427,10 +9983,11 @@ window.openSupportEmail     = openSupportEmail;
 
 /* ── Chat Wallpaper ── */
 function _applyWallpaper(dataUrl) {
-  /* Wallpaper applied as background-image directly on .chat-scroll-area
-     (the scroll CONTAINER, not its content), so the picture never scrolls
-     with messages and never bleeds into the input bar below. */
-  const scrollArea = document.querySelector(".chat-scroll-area");
+  /* The current chat markup uses .chat-box as the message scroll container.
+     Keep .chat-scroll-area as a compatibility target for older markup, but
+     always fall back to .chat-box so wallpaper remains functional. */
+  const scrollArea = document.querySelector(".chat-scroll-area") ||
+                     document.querySelector(".chat-box");
   const chatBox    = document.querySelector(".chat-box");
   if (dataUrl) {
     if (scrollArea) {
@@ -9593,6 +10150,7 @@ let editPictureFile    = null;
 let intervalsStarted   = false;
 let attachedMedia      = null;
 let _chatImagesQueue   = []; /* multi-image chat sends */
+let _chatMediaQueue    = []; /* ordered mixed-media selection for the composer */
 let chatUIBound        = false;
 let activeMessageUnsub  = null;
 let activeConvUnsub     = null;
@@ -9600,6 +10158,7 @@ let currentChatMessages = [];
 let convUnsub          = null;
 let groupConvUnsub      = null;
 let postsUnsub         = null;
+let _postLifecycleTimer = null;
 let profileListeners   = {};
 let typingTimeout      = null;
 
@@ -9621,6 +10180,16 @@ let fyVisibleCount = 0;
 let fyKnownPostIds = new Set();
 let lastScrollY = 0;
 let navHidden = false;
+const FY_POST_PAGE_SIZE = 10;
+let _fyPostCursor = null;
+let _fyHasMorePosts = false;
+let _fyPostsLoading = false;
+let _fyPreserveVisibleCount = null;
+let _lastSentMessageStamp = null;
+let _feedVideoObserver = null;
+const _careCounts = {};
+let _lastCareTapAt = 0;
+let _lastCareTapPostId = "";
 
 /* ════════════════════════════════════════
    UTILITIES
@@ -9718,7 +10287,7 @@ function _refreshVisibleUI() {
 }
 
 function renderAvatarHTML(u) {
-  const p = ensureProfile(u);
+  const p = profileCache[normalizeName(u)] || {};
   return makeAvatarInner(u, p.picture);
 }
 
@@ -10491,17 +11060,116 @@ function listenToGroupConversations() {
   });
 }
 
+function _postMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === "function") return value.toMillis();
+  const millis = Number(value);
+  return Number.isFinite(millis) ? millis : 0;
+}
+function _postExpiryDuration(mode) {
+  return mode === "12h"
+    ? 12 * 60 * 60 * 1000
+    : mode === "7d"
+      ? 7 * 24 * 60 * 60 * 1000
+      : 0;
+}
+function _postPublicationAt(post) {
+  return _postMillis(post.publishedAt)
+    || _postMillis(post.publicationAt)
+    || _postMillis(post.scheduledAt)
+    || _postMillis(post.createdAt)
+    || _postMillis(post.stamp);
+}
+function _isPostCurrentlyVisible(post, now = nowStamp()) {
+  const scheduledAt = _postMillis(post.scheduledAt);
+  if (post.status === "scheduled" && !scheduledAt) return false;
+  if (scheduledAt && scheduledAt > now) return false;
+  const expiresAt = _postMillis(post.expiresAt);
+  if (expiresAt && expiresAt <= now) return false;
+  return true;
+}
+function _schedulePostLifecycleRefresh(nextAt) {
+  if (_postLifecycleTimer) {
+    clearTimeout(_postLifecycleTimer);
+    _postLifecycleTimer = null;
+  }
+  if (!nextAt || nextAt === Infinity) return;
+  const delay = Math.max(250, Math.min(nextAt - nowStamp() + 50, 2147483000));
+  _postLifecycleTimer = setTimeout(() => {
+    _postLifecycleTimer = null;
+    _reconcilePostLifecycle(posts);
+    const fy = document.getElementById("forYouPage");
+    if (fy && fy.style.display !== "none") {
+      renderPostFeed(document.getElementById("fySearch")?.value || "");
+    }
+  }, delay);
+}
+function _reconcilePostLifecycle(allPosts) {
+  const now = nowStamp();
+  let nextAt = Infinity;
+  const duePosts = [];
+  const expiredPosts = [];
+  allPosts.forEach(post => {
+    const scheduledAt = _postMillis(post.scheduledAt);
+    const expiresAt = _postMillis(post.expiresAt);
+    if (scheduledAt && scheduledAt > now) nextAt = Math.min(nextAt, scheduledAt);
+    if (expiresAt && expiresAt <= now) {
+      expiredPosts.push(post);
+      return;
+    }
+    if (expiresAt && expiresAt > now) nextAt = Math.min(nextAt, expiresAt);
+    if (scheduledAt && scheduledAt <= now &&
+        (post.status === "scheduled" || !post.publishedAt)) {
+      duePosts.push(post);
+    }
+  });
+
+  duePosts.forEach(post => {
+    const publicationAt = _postMillis(post.scheduledAt) || now;
+    const updates = {
+      status: "published",
+      publishedAt: publicationAt,
+      publicationAt,
+      stamp: publicationAt
+    };
+    const duration = _postExpiryDuration(post.expiryMode);
+    if (duration && !_postMillis(post.expiresAt)) {
+      updates.expiresAt = publicationAt + duration;
+      nextAt = Math.min(nextAt, updates.expiresAt);
+    }
+    updateDoc(doc(db, "posts", post.id), updates).catch(() => {});
+  });
+  expiredPosts.forEach(post => {
+    if (post.id) deleteDoc(doc(db, "posts", post.id)).catch(() => {});
+  });
+  _schedulePostLifecycleRefresh(nextAt);
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible" || !posts.length) return;
+  _reconcilePostLifecycle(posts);
+  const fy = document.getElementById("forYouPage");
+  if (fy && fy.style.display !== "none") {
+    renderPostFeed(document.getElementById("fySearch")?.value || "");
+  }
+});
+
 function listenToPosts() {
   if (postsUnsub) postsUnsub();
-  const q = query(collection(db, "posts"), orderBy("stamp", "desc"));
+  _fyPostCursor = null;
+  _fyHasMorePosts = false;
+  _fyPostsLoading = false;
+  const q = query(collection(db, "posts"), orderBy("stamp", "desc"), limit(FY_POST_PAGE_SIZE));
   postsUnsub = onSnapshot(q, (snapshot) => {
-    const newAllPosts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const firstPagePosts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    _fyPostCursor = snapshot.docs.length ? snapshot.docs[snapshot.docs.length - 1] : null;
+    _fyHasMorePosts = snapshot.docs.length === FY_POST_PAGE_SIZE;
+    _reconcilePostLifecycle(firstPagePosts);
     const fy   = document.getElementById("forYouPage");
     const feed = document.getElementById("postFeed");
     const feedHasContent = feed && feed.children.length > 0 && fyFeedPosts.length > 0;
     if (fy && fy.style.display !== "none" && feedHasContent) {
-      const trulyNew = newAllPosts.filter(p => !fyKnownPostIds.has(p.id));
-      posts = newAllPosts;
+      const trulyNew = firstPagePosts.filter(p => !fyKnownPostIds.has(p.id));
+      posts = [...firstPagePosts, ...posts.filter(old => !firstPagePosts.some(p => p.id === old.id))];
       if (trulyNew.length > 0) {
         trulyNew.forEach(p => {
           fyKnownPostIds.add(p.id);
@@ -10509,7 +11177,7 @@ function listenToPosts() {
         });
       }
     } else {
-      posts = newAllPosts;
+      posts = firstPagePosts;
       if (fy && fy.style.display !== "none") {
         renderPostFeed(document.getElementById("fySearch")?.value || "");
       }
@@ -10620,6 +11288,7 @@ async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = 
     msgData.height = Number(mediaMeta.height);
   }
   if (replyTo) msgData.replyTo = replyTo;
+  _lastSentMessageStamp = stamp;
   await addDoc(collection(db, "conversations", tid, "messages"), msgData);
   const lastText = mediaUrl ? (isVid ? "🎥 Video" : isFile ? `📎 ${fileName || "File"}` : "📷 Photo") : (text || "");
   const unreadKey = `unread_${normalizeName(partner)}`;
@@ -10659,6 +11328,7 @@ async function addMsgImages(partner, imageUrls, text, replyTo, imageDimensions =
     ...(imageDimensions.length ? { imageDimensions: imageDimensions.slice(0, safeImageUrls.length) } : {})
   };
   if (replyTo) msgData.replyTo = replyTo;
+  _lastSentMessageStamp = stamp;
   await addDoc(collection(db, "conversations", tid, "messages"), msgData);
   const lastText = `📷 ${safeImageUrls.length} Photos`;
   const unreadKey = `unread_${normalizeName(partner)}`;
@@ -10751,7 +11421,26 @@ function _renderMessages(partner, messages) {
   const partnerProfile = ensureProfile(partnerNorm);
   const partnerLastRead = (partnerProfile.lastRead || {})[tid] || 0;
 
-  box.innerHTML = "";
+  const existingMessageWraps = box.dataset.threadId === tid
+    ? Array.from(box.querySelectorAll("[data-msgid]"))
+    : [];
+  const existingIdsMatch = existingMessageWraps.every((wrap, index) =>
+    wrap.dataset.msgid === messages[index]?.id
+  );
+  const appendOnly = existingMessageWraps.length > 0 &&
+    messages.length > existingMessageWraps.length && existingIdsMatch;
+  const unchanged = messages.length > 0 &&
+    messages.length === existingMessageWraps.length && existingIdsMatch;
+  if (unchanged) {
+    /* Firestore can emit the same snapshot when conversation metadata changes.
+       Keep the existing DOM and media nodes completely untouched. */
+    updateBlockButton();
+    syncComposerState();
+    return;
+  }
+  const renderStartIndex = appendOnly ? existingMessageWraps.length : 0;
+  box.dataset.threadId = tid;
+  if (!appendOnly) box.innerHTML = "";
 
   /* Self-chat "Library" — show a placeholder before the first message,
      same idea as an empty-state, not a real stored message. */
@@ -10763,8 +11452,14 @@ function _renderMessages(partner, messages) {
     return;
   }
 
-  let lastDateLabel = "";
-  messages.forEach((msg, idx) => {
+   const existingDividers = appendOnly
+     ? Array.from(box.querySelectorAll(".chat-day-divider"))
+     : [];
+   let lastDateLabel = existingDividers.length
+     ? existingDividers[existingDividers.length - 1].textContent
+     : "";
+   messages.slice(renderStartIndex).forEach((msg, offset) => {
+     const idx = renderStartIndex + offset;
     const isMine = normalizeName(msg.sender) === me;
     const dateLabel = formatDateFromStamp(msg.stamp);
 
@@ -10779,6 +11474,7 @@ function _renderMessages(partner, messages) {
     const wrap = document.createElement("div");
     wrap.style.cssText = `display:flex;flex-direction:column;align-items:${isMine ? "flex-end" : "flex-start"};margin-bottom:2px;`;
     if (msg.id) wrap.dataset.msgid = msg.id;
+    const shouldAnimate = isMine && Number(msg.stamp) === Number(_lastSentMessageStamp);
 
     if (msg.kind === "call") {
       const side     = isMine ? "me" : "other";
@@ -10895,12 +11591,7 @@ function _renderMessages(partner, messages) {
           if (v.readyState >= 1 && v.currentTime === 0) v.currentTime = 0.5;
         };
         _applyChatImageSizing(vWrap, v, null);
-        v.onclick = () => {
-          const viewer = document.getElementById("chatVideoViewer");
-          const vid = document.getElementById("chatVideoViewerVid");
-          if (vid) { vid.src = msg.img; vid.play(); }
-          if (viewer) viewer.classList.add("open");
-        };
+        v.onclick = () => _openFullscreenVideoFromUrl(msg.img);
         const playOverlay = document.createElement("div");
         playOverlay.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;";
         playOverlay.innerHTML = `<div style="width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" fill="white" width="22" height="22"><polygon points="8,5 19,12 8,19"/></svg></div>`;
@@ -11120,7 +11811,20 @@ function _renderMessages(partner, messages) {
     });
 
     box.appendChild(wrap);
+    if (shouldAnimate) {
+      wrap.classList.add("msg-send-animate");
+      const composer = document.getElementById("inputContainer") || document.getElementById("messageInput");
+      const composerRect = composer?.getBoundingClientRect();
+      const messageRect = wrap.getBoundingClientRect();
+      if (composerRect && messageRect) {
+        wrap.style.setProperty(
+          "--msg-send-from-y",
+          `${Math.max(34, composerRect.top - messageRect.top)}px`
+        );
+      }
+    }
   });
+  if (_lastSentMessageStamp !== null) _lastSentMessageStamp = null;
 
   if (shouldScrollToBottom) {
     if (area) {
@@ -11167,7 +11871,7 @@ function handlePostImageSelect(e) {
   e.target.value = "";
   if (!files.length) return;
   const totalUsed = postImgFiles.length;
-  const toProcess = files.slice(0, Math.max(0, 5 - totalUsed)); /* max 5 images */
+  const toProcess = files.slice(0, Math.max(0, 6 - totalUsed)); /* max 6 images */
   if (!toProcess.length) return;
   _postCropQueue = [...toProcess];
   _processNextPostCrop();
@@ -11176,7 +11880,7 @@ window.handlePostImageSelect = handlePostImageSelect;
 
 function _processNextPostCrop() {
   if (!_postCropQueue.length) { renderPostImgPreviews(); return; }
-  if (postImgFiles.length >= 5) { _postCropQueue = []; renderPostImgPreviews(); return; } /* max 5 images */
+  if (postImgFiles.length >= 6) { _postCropQueue = []; renderPostImgPreviews(); return; } /* max 6 images */
   const f = _postCropQueue.shift();
   const reader = new FileReader();
   reader.onload = () => {
@@ -11222,7 +11926,7 @@ window.closePostImgViewer = closePostImgViewer;
 
 function closeChatVideoViewer() {
   const v = document.getElementById("chatVideoViewerVid");
-  if (v) { v.pause(); v.src = ""; }
+  if (v) { v.pause(); v.removeAttribute("src"); v.removeAttribute("poster"); v.load(); }
   document.getElementById("chatVideoViewer")?.classList.remove("open");
 }
 window.closeChatVideoViewer = closeChatVideoViewer;
@@ -11554,56 +12258,104 @@ window.submitPost = async function () {
   const wordCount = text.split(/\s+/).filter(Boolean).length;
   if (wordCount < 3)    { alert("Post must be at least 3 words."); return; }
   if (wordCount > 250)  { alert("Post must be 250 words or fewer."); return; }
+  if (_ppExpiryMode === "schedule" && !_ppScheduledAt) {
+    alert("Set a schedule time before posting."); return;
+  }
 
-  let images   = [];
+  let images = [];
   let videoUrl = null;
-
-  /* Derive final image files from staged (cropped preferred, else raw) */
-  if (_ppStagedFiles && _ppStagedFiles.length) {
-    postImgFiles = _ppStagedFiles.map(x => x.cropped || x.raw);
-  }
-
-  const _uploadedVideoUrls = [];
-  if (_postVideoFiles.length) {
-    const _ppBtn = document.getElementById("ppPostBtn");
-    if (_ppBtn) { _ppBtn.disabled = true; _ppBtn.textContent = "Uploading…"; }
+  const uploadedMedia = [];
+  const mediaItems = _ppMediaItems.slice();
+  const setPostUploadProgress = (percent, label) => {
+    const wrap = document.getElementById("ppUploadProgress");
+    const bar = document.getElementById("ppUploadProgressBar");
+    const value = document.getElementById("ppUploadProgressValue");
+    const textEl = document.getElementById("ppUploadProgressLabel");
+    const track = document.getElementById("ppUploadProgressTrack");
+    const safePercent = Math.max(0, Math.min(100, Math.round(percent)));
+    if (wrap) {
+      wrap.classList.add("visible");
+      wrap.setAttribute("aria-hidden", "false");
+    }
+    if (bar) bar.style.width = safePercent + "%";
+    if (value) value.textContent = safePercent + "%";
+    if (textEl && label) textEl.textContent = label;
+    if (track) track.setAttribute("aria-valuenow", String(safePercent));
+  };
+  const resetPostUploadProgress = () => {
+    const wrap = document.getElementById("ppUploadProgress");
+    const bar = document.getElementById("ppUploadProgressBar");
+    const value = document.getElementById("ppUploadProgressValue");
+    const track = document.getElementById("ppUploadProgressTrack");
+    if (wrap) {
+      wrap.classList.remove("visible");
+      wrap.setAttribute("aria-hidden", "true");
+    }
+    if (bar) bar.style.width = "0%";
+    if (value) value.textContent = "0%";
+    if (track) track.setAttribute("aria-valuenow", "0");
+  };
+  setPostUploadProgress(0, mediaItems.length ? "Uploading media…" : "Publishing post…");
+  if (mediaItems.length) {
+    const uploadBtn = document.getElementById("ppPostBtn");
+    if (uploadBtn) { uploadBtn.disabled = true; uploadBtn.textContent = "Uploading…"; }
     try {
-      for (const vf of _postVideoFiles) {
-        const rawUrl = await uploadToCloudinary(vf, "video");
-        _uploadedVideoUrls.push(rawUrl.replace("/upload/", "/upload/du_30/"));
+      for (let itemIndex = 0; itemIndex < mediaItems.length; itemIndex++) {
+        const item = mediaItems[itemIndex];
+        const file = item.type === "image" ? (item.cropped || item.raw) : item.raw;
+        const fileLabel = file && file.type === "image/gif" ? "GIF" : item.type === "video" ? "video" : "image";
+        const rawUrl = await uploadToCloudinary(file, "image" === item.type ? "image" : "video", uploadPercent => {
+          const overall = ((itemIndex + uploadPercent / 100) / mediaItems.length) * 100;
+          setPostUploadProgress(overall, `Uploading ${fileLabel} ${itemIndex + 1} of ${mediaItems.length}…`);
+        });
+        const url = item.type === "video"
+          ? rawUrl.replace("/upload/", "/upload/du_59/")
+          : rawUrl;
+        uploadedMedia.push({ type: item.type, url });
       }
-      videoUrl = _uploadedVideoUrls[0] || null;
+      images = uploadedMedia.filter(item => item.type === "image").map(item => item.url);
+      const videoUrls = uploadedMedia.filter(item => item.type === "video").map(item => item.url);
+      videoUrl = videoUrls[0] || null;
     } catch {
-      if (_ppBtn) { _ppBtn.disabled = false; _ppBtn.textContent = "Post"; }
-      alert("Video upload failed. Please try again.");
+      resetPostUploadProgress();
+      if (uploadBtn) { uploadBtn.disabled = false; uploadBtn.textContent = "Post"; }
+      alert("Media upload failed. Please try again.");
       return;
     }
   }
 
-  /* Images can coexist with video */
-  if (postImgFiles.length) {
-    const _ppBtn2 = document.getElementById("ppPostBtn");
-    if (_ppBtn2) { _ppBtn2.disabled = true; _ppBtn2.textContent = "Uploading…"; }
-    try {
-      images = await Promise.all(postImgFiles.map(f => uploadToCloudinary(f, "image")));
-    } catch {
-      if (_ppBtn2) { _ppBtn2.disabled = false; _ppBtn2.textContent = "Post"; }
-      alert("Image upload failed. Please try again.");
-      return;
-    }
-  }
+  const now = Date.now();
+  const scheduledAt = _ppExpiryMode === "schedule" ? _ppScheduledAt : null;
+  const isScheduled = !!scheduledAt && scheduledAt > now;
+  const publicationAt = isScheduled ? scheduledAt : now;
+  const expiryDuration = _postExpiryDuration(_ppExpiryMode);
+  /* Expiry is anchored to publication, never to the moment the draft is created. */
+  const expiresAt = expiryDuration && !isScheduled
+    ? publicationAt + expiryDuration
+    : null;
 
   const _ppBtnFinal = document.getElementById("ppPostBtn");
   if (_ppBtnFinal) { _ppBtnFinal.disabled = true; _ppBtnFinal.textContent = "Posting…"; }
+  if (mediaItems.length) setPostUploadProgress(100, "Finishing post…");
 
   try {
     const _newPostRef = await addDoc(collection(db, "posts"), {
       author: normalizeName(currentUser),
       text,
+      createdAt: now,
+      publicationAt,
+      publishedAt: isScheduled ? null : publicationAt,
+      status: isScheduled ? "scheduled" : "published",
       stamp: nowStamp(),
+      ...(uploadedMedia.length ? { media: uploadedMedia } : {}),
       ...(images.length ? { images } : {}),
       ...(videoUrl               ? { videoUrl }                : {}),
-      ...(_uploadedVideoUrls.length > 1 ? { videos: _uploadedVideoUrls } : {})
+      ...(uploadedMedia.filter(item => item.type === "video").length > 1
+        ? { videos: uploadedMedia.filter(item => item.type === "video").map(item => item.url) }
+        : {}),
+      ...(_ppExpiryMode !== "none" && _ppExpiryMode !== "schedule" ? { expiryMode: _ppExpiryMode } : {}),
+      ...(expiresAt ? { expiresAt } : {}),
+      ...(scheduledAt ? { scheduledAt } : {})
     });
     _lastPostedId = _newPostRef.id;
     const _wasOnForYou = isOnForYou;
@@ -11611,6 +12363,7 @@ window.submitPost = async function () {
     if (!_wasOnForYou) showForYou();
     _showPostSuccessToast(_newPostRef.id);
   } catch {
+    resetPostUploadProgress();
     alert("Failed to post. Please try again.");
   } finally {
     const btn = document.getElementById("ppPostBtn");
@@ -11809,72 +12562,417 @@ function renderChatList() {
 /* ════════════════════════════════════════
    RENDER: POST FEED
 ═══════════════════════════════════════ */
+function _videoPosterUrl(url, suppliedPoster = "") {
+  if (suppliedPoster) return String(suppliedPoster);
+  const raw = String(url || "");
+  /* Cloudinary can return a still frame without downloading the video.
+     Keep this derived URL as the fallback for older posts that did not store
+     an explicit thumbnail. */
+  if (raw.includes("/upload/")) {
+    return raw
+      .replace("/upload/", "/upload/so_1,f_jpg/")
+      .replace(/\.(mp4|webm|mov|m4v)(?=($|[?#]))/i, ".jpg");
+  }
+  return "";
+}
+
+function _postCareCount(post) {
+  if (!post) return 0;
+  if (_careCounts[post.id] !== undefined) return _careCounts[post.id];
+  const stored = Number(post.careCount ?? post.cares ?? 0);
+  return Number.isFinite(stored) && stored > 0 ? stored : 0;
+}
+
+function _updateCareUI(postId, count, cared = false) {
+  if (!postId) return;
+  _careCounts[postId] = Math.max(0, Number(count) || 0);
+  document.querySelectorAll(`[data-care-id="${CSS.escape(postId)}"]`).forEach(el => {
+    const countEl = el.querySelector(".care-count-value");
+    if (countEl) countEl.textContent = _careCounts[postId] > 0 ? String(_careCounts[postId]) : "";
+    el.classList.toggle("is-cared", cared || el.dataset.cared === "true");
+    if (el.classList.contains("comment-care-summary")) {
+      el.setAttribute("aria-label", `Care ${_careCounts[postId]}`);
+    }
+  });
+}
+
+function _postHasCared(post) {
+  const me = normalizeName(currentUser);
+  return !!(me && Array.isArray(post?.caredBy) && post.caredBy.map(normalizeName).includes(me));
+}
+
+function _careTargetForPost(postId, card) {
+  if (_commentPostId === postId && document.getElementById("commentCareBtn")) {
+    return document.getElementById("commentCareBtn");
+  }
+  return card?.querySelector(`.post-care-btn[data-care-id="${CSS.escape(postId)}"]`) || null;
+}
+
+function _animateCareReaction(card, postId) {
+  const rect = card?.getBoundingClientRect();
+  if (!rect) return;
+  const target = _careTargetForPost(postId, card);
+  const startX = rect.left + rect.width / 2;
+  const startY = rect.top + Math.min(rect.height * .42, 260);
+  const targetRect = target?.getBoundingClientRect();
+  const dx = targetRect ? targetRect.left + targetRect.width / 2 - startX : 0;
+  const dy = targetRect ? targetRect.top + targetRect.height / 2 - startY : -20;
+  const reaction = document.createElement("div");
+  reaction.className = "care-reaction-flight";
+  reaction.textContent = "🫶";
+  reaction.style.left = `${startX}px`;
+  reaction.style.top = `${startY}px`;
+  reaction.style.setProperty("--care-dx", `${dx}px`);
+  reaction.style.setProperty("--care-dy", `${dy}px`);
+  document.body.appendChild(reaction);
+  reaction.addEventListener("animationend", () => reaction.remove(), { once: true });
+}
+
+async function _carePost(post, card) {
+  if (!post?.id || !currentUser) return;
+  const me = normalizeName(currentUser);
+  const alreadyCared = _postHasCared(post);
+  const nextCount = _postCareCount(post) + (alreadyCared ? 0 : 1);
+  if (alreadyCared) {
+    _updateCareUI(post.id, nextCount, true);
+    return;
+  }
+  post.careCount = nextCount;
+  post.caredBy = [...(Array.isArray(post.caredBy) ? post.caredBy : []), me];
+  _updateCareUI(post.id, nextCount, true);
+  _animateCareReaction(card, post.id);
+  try {
+    await updateDoc(doc(db, "posts", post.id), {
+      careCount: increment(1),
+      caredBy: arrayUnion(me)
+    });
+  } catch (_) {
+    post.careCount = Math.max(0, nextCount - 1);
+    post.caredBy = (post.caredBy || []).filter(name => normalizeName(name) !== me);
+    _updateCareUI(post.id, post.careCount, false);
+  }
+}
+
+async function _carePostById(postId, event) {
+  event?.stopPropagation();
+  let post = posts.find(item => item.id === postId);
+  if (!post) {
+    try {
+      const snap = await getDoc(doc(db, "posts", postId));
+      if (snap.exists()) post = { id: snap.id, ...snap.data() };
+    } catch (_) {}
+  }
+  const card = document.querySelector(`[data-post-id="${CSS.escape(postId)}"]`);
+  if (post) await _carePost(post, card);
+}
+window._carePostById = _carePostById;
+
+function _attachPostDoubleTap(card, post) {
+  if (!post?.id) return;
+  card.addEventListener("pointerup", event => {
+    if (event.pointerType !== "touch") return;
+    if (event.target?.closest?.("button, a, input, textarea, select")) return;
+    const stamp = nowStamp();
+    if (_lastCareTapPostId === post.id && stamp - _lastCareTapAt < 420) {
+      event.preventDefault();
+      event.stopPropagation();
+      _lastCareTapAt = stamp;
+      _carePost(post, card);
+    } else {
+      _lastCareTapPostId = post.id;
+      _lastCareTapAt = stamp;
+    }
+  });
+  card.addEventListener("dblclick", event => {
+    if (event.target?.closest?.("button, a, input, textarea, select")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const stamp = nowStamp();
+    if (_lastCareTapPostId === post.id && stamp - _lastCareTapAt < 550) return;
+    _lastCareTapPostId = post.id;
+    _lastCareTapAt = stamp;
+    _carePost(post, card);
+  });
+}
+
+function _setFeedVideoLayout(video) {
+  if (!video) return;
+  const wrap = video.closest(".post-video-wrap, .pc-item");
+  if (!wrap || !video.videoWidth || !video.videoHeight) return;
+  if (wrap.classList.contains("pc-item")) return;
+  wrap.style.setProperty("--feed-video-ratio", `${video.videoWidth / video.videoHeight}`);
+}
+
+const _quotedPostRegistry = new Map();
+let _quotedPostRenderSeq = 0;
+let _quotedPostFallbackSeq = 0;
+const _quotedPostFallbacks = new Map();
+
+function _postMediaItems(post) {
+  if (!post) return [];
+  if (Array.isArray(post.media) && post.media.length) {
+    return post.media.filter(item => item && item.url &&
+      (item.type === "image" || item.type === "video"));
+  }
+  return [
+    ...(Array.isArray(post.images) ? post.images.filter(Boolean).map(url => ({ type:"image", url })) : []),
+    ...(Array.isArray(post.videos) ? post.videos.filter(Boolean).map(url => ({ type:"video", url })) : []),
+    ...(post.videoUrl ? [{ type:"video", url:post.videoUrl }] : [])
+  ];
+}
+
+function _quotedPostId(quote) {
+  return String(quote?.id || quote?.postId || quote?.postID || "").trim();
+}
+
+function _renderQuotedCaption(text) {
+  const raw = String(text || "");
+  const words = [...raw.matchAll(/\S+/g)];
+  if (words.length <= 50) return renderTextWithHashtags(raw);
+  const end = words[49].index + words[49][0].length;
+  const shortened = raw.slice(0, end).replace(/\s+$/, "");
+  return `<span class="ptb-short">${renderTextWithHashtags(shortened)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${renderTextWithHashtags(raw)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button>`;
+}
+
+function _quoteSourceSnapshot(post, seen = new Set()) {
+  if (!post) return null;
+  const id = _quotedPostId(post);
+  if (id && seen.has(id)) return null;
+  const nextSeen = new Set(seen);
+  if (id) nextSeen.add(id);
+  const snapshot = {
+    id,
+    author: post.author || "",
+    text: post.text || "",
+    media: _postMediaItems(post).map(item => ({ ...item }))
+  };
+  const nested = post.quoteOf || post.quotedPost || null;
+  if (nested) {
+    const nestedSnapshot = _quoteSourceSnapshot(nested, nextSeen);
+    if (nestedSnapshot) snapshot.quoteOf = nestedSnapshot;
+  }
+  return snapshot;
+}
+
+function _renderQuotedPostHTML(quote) {
+  if (!quote) return "";
+  const author = normalizeName(quote.author || "user");
+  ensureProfile(author);
+  const registryKey = `quoted-${++_quotedPostRenderSeq}`;
+  _quotedPostRegistry.set(registryKey, quote);
+  const quoteMedia = _postMediaItems(quote);
+  const media = quoteMedia.map(item => {
+    if (item.type === "video") {
+      const poster = _videoPosterUrl(item.url, item.thumbnail || item.poster || item.cover || item.thumb || "");
+      return `<div class="quoted-post-media-item" data-quoted-video-src="${escapeHtml(item.url)}" data-quoted-video-poster="${escapeHtml(poster)}" onclick="_openQuotedVideo(this,event)">
+        ${poster
+          ? `<img src="${escapeHtml(poster)}" alt="Quoted video thumbnail">`
+          : `<div class="quoted-post-video-placeholder">Video</div>`}
+        <div class="quoted-post-video-play"><span aria-hidden="true"><svg viewBox="0 0 24 24" role="img" aria-label="Play video"><polygon points="8,5 19,12 8,19"></polygon></svg></span></div>
+      </div>`;
+    }
+    return `<div class="quoted-post-media-item"><img src="${escapeHtml(item.url)}" alt="Quoted post media"></div>`;
+  }).join("");
+  const nested = quote.quoteOf || quote.quotedPost || null;
+  return `<article class="quoted-post" tabindex="0" role="button" aria-label="Open post by @${escapeHtml(author)}" onclick="_openQuotedPostByKey('${registryKey}',event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();_openQuotedPostByKey('${registryKey}',event)}">
+    <div class="quoted-post-header">
+      <div class="quoted-post-avatar" onclick="event.stopPropagation();viewUserProfile('${escapeHtml(author)}',event)">${renderAvatarHTML(author)}</div>
+      <div class="quoted-post-author">@${escapeHtml(author)}</div>
+    </div>
+    ${media ? `<div class="quoted-post-media-carousel">${media}</div>` : ""}
+    ${quote.text ? `<div class="quoted-post-caption">${_renderQuotedCaption(quote.text)}</div>` : ""}
+    ${nested ? _renderQuotedPostHTML(nested) : ""}
+  </article>`;
+}
+
+function _openQuotedVideo(el, event) {
+  event?.stopPropagation();
+  if (!el) return;
+  _openFullscreenVideoFromUrl(el.dataset.quotedVideoSrc, el.dataset.quotedVideoPoster || "");
+}
+
+function _openQuotedPostByKey(key, event) {
+  event?.stopPropagation();
+  const quote = _quotedPostRegistry.get(key);
+  if (!quote) return;
+  _openQuotedPost(quote);
+}
+
+function _openQuotedPost(quote) {
+  if (!quote) return;
+  const id = _quotedPostId(quote);
+  if (id) {
+    openPostDetailPage(id);
+    return;
+  }
+  const fallbackId = `quoted-inline-${++_quotedPostFallbackSeq}`;
+  const snapshot = _quoteSourceSnapshot(quote) || { ...quote, id: fallbackId };
+  snapshot.id = fallbackId;
+  _quotedPostFallbacks.set(fallbackId, snapshot);
+  openPostDetailPage(fallbackId, null, snapshot);
+}
+
+function _openFullscreenVideoFromUrl(url, poster = "") {
+  if (!url) return;
+  const viewer = document.getElementById("chatVideoViewer");
+  const video = document.getElementById("chatVideoViewerVid");
+  if (!viewer || !video) return;
+  video.pause();
+  video.removeAttribute("src");
+  video.removeAttribute("poster");
+  video.preload = "metadata";
+  video.src = url;
+  if (poster) video.poster = poster;
+  video.controls = true;
+  video.playsInline = true;
+  video.muted = false;
+  viewer.classList.add("open");
+  video.load();
+  requestAnimationFrame(() => {
+    const playPromise = video.play();
+    if (playPromise?.catch) playPromise.catch(() => {});
+  });
+}
+window._openFullscreenVideoFromUrl = _openFullscreenVideoFromUrl;
+
+function _toggleFeedVideo(wrap) {
+  if (!wrap) return;
+  _openFullscreenVideoFromUrl(wrap.dataset.videoSrc, wrap.dataset.posterUrl || "");
+}
+window._toggleFeedVideo = _toggleFeedVideo;
+
+function _observeFeedVideos(root) {
+  if (!root || !window.IntersectionObserver) return;
+  if (_feedVideoObserver) _feedVideoObserver.disconnect();
+  _feedVideoObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const wrap = entry.target;
+      if (!entry.isIntersecting) {
+        const video = wrap.querySelector("video");
+        if (video) {
+          video.pause();
+          wrap.classList.remove("playing");
+          video.removeAttribute("src");
+          video.load();
+          const posterUrl = wrap.dataset.posterUrl;
+          if (posterUrl) {
+            const poster = document.createElement("img");
+            poster.className = "post-video-poster";
+            poster.src = posterUrl;
+            poster.alt = "Video thumbnail";
+            wrap.insertBefore(poster, wrap.querySelector(".post-video-play-btn") || null);
+          } else {
+            const fallback = document.createElement("div");
+            fallback.className = "post-video-poster post-video-poster-fallback";
+            fallback.setAttribute("aria-label", "Video thumbnail");
+            wrap.insertBefore(fallback, wrap.querySelector(".post-video-play-btn") || null);
+          }
+          video.remove();
+        }
+      }
+    });
+  }, { root, rootMargin: "120px 0px" });
+  root.querySelectorAll("[data-video-src]").forEach(wrap => _feedVideoObserver.observe(wrap));
+}
+
 function _buildPostCard(post) {
-  const profile   = ensureProfile(post.author);
+  /* Do not fetch every author profile while the feed is being built. The
+     profile is fetched by the profile-opening path when the user taps it. */
+  const profile   = profileCache[normalizeName(post.author)] || {};
   const age       = profile.age || "";
   const isOwn     = normalizeName(post.author) === normalizeName(currentUser);
   const following = isFollowing(post.author);
   const card      = document.createElement("div");
   card.className  = "post-card";
   if (post.id) card.dataset.postId = post.id;
-  /* Normalize video URLs (support both legacy videoUrl and new videos array) */
-  const _videoUrls = post.videos?.length ? post.videos : (post.videoUrl ? [post.videoUrl] : []);
-  const hasMedia = (post.images && post.images.length) || _videoUrls.length;
-
-  let mediaHtml = "";
-  /* Images first, then video */
-  const _videoToggle = `(function(w){w.classList.toggle('playing');var v=w.querySelector('video');if(w.classList.contains('playing')){v.controls=true;v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){w.classList.remove('playing');v.controls=false;});}else{v.pause();v.muted=true;v.controls=false;}})(this)`;
+  /* Keep the established feed layouts. Only larger posts use the existing
+     slideshow; the two-picture and picture-plus-video layouts stay intact. */
+  const images = Array.isArray(post.images) ? post.images.filter(Boolean) : [];
+  const legacyVideoUrls = Array.isArray(post.videos) && post.videos.length
+    ? post.videos.filter(Boolean)
+    : (post.videoUrl ? [post.videoUrl] : []);
+  const orderedMedia = Array.isArray(post.media) && post.media.length
+    ? post.media.filter(item => item && item.url && (item.type === "image" || item.type === "video"))
+    : [
+        ...images.map(url => ({ type: "image", url })),
+        ...legacyVideoUrls.map(url => ({ type: "video", url }))
+      ];
+  const mediaImages = orderedMedia.filter(item => item.type === "image");
+  const mediaVideos = orderedMedia.filter(item => item.type === "video");
+  const hasMedia = orderedMedia.length > 0;
+  let mediaHtml  = "";
   const _playIcon = `<div class="post-video-play-btn"><svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="12" fill="rgba(0,0,0,0.55)"/><polygon points="9.5,7 18,12 9.5,17" fill="white"/></svg></div>`;
+   const renderFeedVideo = (url, className, mediaItem = null) => {
+     const poster = _videoPosterUrl(url, mediaItem?.thumbnail || mediaItem?.poster || mediaItem?.cover || mediaItem?.thumb || "");
+     const ratio = Number(mediaItem?.width) > 0 && Number(mediaItem?.height) > 0
+       ? Number(mediaItem.width) / Number(mediaItem.height)
+       : Number(mediaItem?.aspectRatio) > 0 ? Number(mediaItem.aspectRatio) : 0;
+     const ratioStyle = ratio > 0 && Number.isFinite(ratio)
+       ? ` style="--feed-video-ratio:${ratio}"`
+       : "";
+     const posterHtml = poster
+       ? `<img class="post-video-poster"${ratioStyle} src="${escapeHtml(poster)}" alt="Video thumbnail">`
+       : `<div class="post-video-poster post-video-poster-fallback" aria-label="Video thumbnail"></div>`;
+     return `
+       <div class="post-video-wrap ${className}"${ratioStyle} data-video-src="${escapeHtml(url)}" data-poster-url="${escapeHtml(poster)}" onclick="_toggleFeedVideo(this)">
+         ${posterHtml}
+         ${_playIcon}
+       </div>`;
+   };
 
-  /* ≥3 images OR ≥2 images + any video OR ≥2 videos → Threads-style carousel */
-  const _isCarousel = (post.images && post.images.length >= 3) ||
-                      (post.images && post.images.length >= 2 && _videoUrls.length >= 1) ||
-                      (_videoUrls.length >= 2);
-  if (_isCarousel) {
-    const _citems = [
-      ...(post.images || []).map(u => ({ type: 'image', url: escapeHtml(u) })),
-      ..._videoUrls.map(u => ({ type: 'video', url: escapeHtml(u) }))
-    ];
-    const _total = _citems.length;
-    const _carHtml = _citems.map(it => {
-      if (it.type === 'video') return `<div class="pc-item" onclick="${_videoToggle}"><video src="${it.url}" playsinline muted preload="metadata" onloadedmetadata="if(!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>${_playIcon}</div>`;
-      return `<div class="pc-item" onclick="openPostImgViewer('${it.url}')"><img src="${it.url}" alt="post image"></div>`;
-    }).join('');
-    const _dotsHtml = _total > 1 ? `<div class="pc-dots">${_citems.map((_, i) => `<span class="pc-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>` : '';
-    mediaHtml += `<div class="post-carousel">${_carHtml}</div>${_dotsHtml}`;
-  } else {
-    if (post.images && post.images.length) {
-      const hasVid = _videoUrls.length > 0;
-      if (post.images.length === 1) {
-        const cls = hasVid ? "with-video" : "single";
-        mediaHtml += `<div class="post-images ${cls}"><img src="${escapeHtml(post.images[0])}" alt="post image" onclick="openPostImgViewer('${escapeHtml(post.images[0])}')"></div>`;
-      } else {
-        mediaHtml += `<div class="post-images pair">${post.images.map(url => `<img src="${escapeHtml(url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(url)}')">`).join("")}</div>`;
+  if (orderedMedia.length > 2 || mediaVideos.length > 1) {
+    const carouselItems = orderedMedia.map(item => {
+      if (item.type === "video") {
+         const poster = _videoPosterUrl(item.url, item.thumbnail || item.poster || item.cover || item.thumb || "");
+         const ratio = Number(item.width) > 0 && Number(item.height) > 0
+           ? Number(item.width) / Number(item.height)
+           : Number(item.aspectRatio) > 0 ? Number(item.aspectRatio) : 0;
+         const ratioStyle = ratio > 0 && Number.isFinite(ratio) ? ` style="--feed-video-ratio:${ratio}"` : "";
+         const posterHtml = poster
+           ? `<img class="post-video-poster"${ratioStyle} src="${escapeHtml(poster)}" alt="Video thumbnail">`
+           : `<div class="post-video-poster post-video-poster-fallback" aria-label="Video thumbnail"></div>`;
+         return `<div class="pc-item"${ratioStyle} data-video-src="${escapeHtml(item.url)}" data-poster-url="${escapeHtml(poster)}" onclick="_toggleFeedVideo(this)">${posterHtml}${_playIcon}</div>`;
       }
-    }
-    if (_videoUrls.length) {
-      const _hasImgs = post.images && post.images.length;
-      const _vClass = _hasImgs ? "post-video-wrap photo-video" : "post-video-wrap single-video";
-      mediaHtml += `
-        <div class="${_vClass}" onclick="${_videoToggle}">
-          <video class="post-video" src="${escapeHtml(_videoUrls[0])}" playsinline muted preload="metadata" onloadedmetadata="if(this.readyState>=1&&!this.classList.contains('_pst')){this.classList.add('_pst');this.currentTime=1;}" onseeked="this.pause()"></video>
-          ${_playIcon}
-        </div>`;
-    }
+      return `<div class="pc-item" onclick="openPostImgViewer('${escapeHtml(item.url)}')"><img src="${escapeHtml(item.url)}" alt="post image"></div>`;
+    }).join("");
+    const dots = orderedMedia.map((_, i) =>
+      `<span class="pc-dot${i === 0 ? " active" : ""}"></span>`
+    ).join("");
+    mediaHtml += `<div class="post-carousel">${carouselItems}</div><div class="pc-dots">${dots}</div>`;
+  } else if (mediaImages.length === 2 && mediaVideos.length === 0) {
+    mediaHtml += `<div class="post-images pair">${mediaImages.map(item =>
+      `<img src="${escapeHtml(item.url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(item.url)}')">`
+    ).join("")}</div>`;
+  } else if (mediaImages.length === 1 && mediaVideos.length === 1) {
+    mediaHtml += `<div class="post-images with-video"><img src="${escapeHtml(mediaImages[0].url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(mediaImages[0].url)}')"></div>`;
+     mediaHtml += renderFeedVideo(mediaVideos[0].url, "photo-video", mediaVideos[0]);
+  } else if (mediaImages.length === 1 && mediaVideos.length === 0) {
+    mediaHtml += `<div class="post-images single"><img src="${escapeHtml(mediaImages[0].url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(mediaImages[0].url)}')"></div>`;
+  } else if (mediaImages.length === 0 && mediaVideos.length === 1) {
+     mediaHtml += renderFeedVideo(mediaVideos[0].url, "single-video", mediaVideos[0]);
+  } else if (images.length) {
+    let imageClass = "post-images";
+    mediaHtml += `<div class="${imageClass}">${images.map(url =>
+      `<img src="${escapeHtml(url)}" alt="post image" onclick="openPostImgViewer('${escapeHtml(url)}')">`
+    ).join("")}</div>`;
   }
 
+  const quoteSource = post.quoteOf || post.quotedPost || null;
+  const quoteHtml = quoteSource ? _renderQuotedPostHTML(quoteSource) : "";
   card.innerHTML = `
     <div class="post-header">
       <div class="post-avatar" onclick="viewUserProfile('${escapeHtml(post.author)}',event)">${renderAvatarHTML(post.author)}</div>
       <div class="post-user-meta"><div class="post-username">${escapeHtml(post.author)}</div></div>
       ${age ? `<div class="post-age-tag">${escapeHtml(String(age))}yr</div>` : ""}
     </div>
-    ${mediaHtml}
+    ${quoteSource ? "" : mediaHtml}
     ${(()=>{ const _w=post.text.split(/\s+/).filter(Boolean); const _ln=post.text.split('\n'); const _cls=hasMedia?"post-text-compact":"post-text"; const _needsMore=_w.length>25||_ln.length>7; if(!_needsMore){ return `<div class="${_cls}">${renderTextWithHashtags(post.text)}</div>`; } const _sh=(_ln.length>7&&_w.length<=25)?_ln.slice(0,7).join('\n'):_w.slice(0,25).join(" "); return `<div class="${_cls}"><span class="ptb-short">${renderTextWithHashtags(_sh)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${renderTextWithHashtags(post.text)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button></div>`; })()}
+    ${quoteHtml}
     <div class="post-footer">
       <div class="post-footer-row">
         <div style="display:flex;align-items:center;gap:6px;">
           <button class="comment-btn" onclick="openCommentModal('${escapeHtml(post.id || "")}')"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.253 2 11.5c0 2.674 1.133 5.086 2.96 6.824L4 22l4.183-1.805A10.7 10.7 0 0 0 12 21c5.523 0 10-4.253 10-9.5S17.523 2 12 2z"/></svg>${post.id ? `<span class="comment-count-badge" data-cc-id="${escapeHtml(post.id)}">${(_commentCounts[post.id]||0) > 0 ? String(_commentCounts[post.id]) : ""}</span>` : ""}</button>
+          ${post.id ? `<button class="post-care-btn${_postHasCared(post) ? " is-cared" : ""}" data-care-id="${escapeHtml(post.id)}" onclick="_carePostById('${escapeHtml(post.id)}',event)" aria-label="Care"><span aria-hidden="true">🫶</span><span class="care-count-value">${_postCareCount(post) > 0 ? String(_postCareCount(post)) : ""}</span></button>` : ""}
           ${isOwn ? `<span style="font-size:12px;color:#9ca3af;">Your post</span>` : ""}
         </div>
         <div class="post-timestamp">${formatPostTimestamp(post.stamp)}</div>
@@ -11883,21 +12981,31 @@ function _buildPostCard(post) {
     <hr class="post-sep">`;
 
   if (isOwn && post.id) addLongPress(card, () => _showPostActionMenu(post, card));
-  if (post.id) setTimeout(() => _fetchCommentCount(post.id), 0);
-  /* Wire carousel dots indicator */
-  if (_isCarousel) {
-    setTimeout(() => {
-      const car = card.querySelector('.post-carousel');
-      const dotsEl = card.querySelector('.pc-dots');
-      if (car && dotsEl) {
-        const dots = dotsEl.querySelectorAll('.pc-dot');
-        car.addEventListener('scroll', () => {
-          const idx = Math.round(car.scrollLeft / car.offsetWidth);
-          dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-        }, { passive: true });
+  _attachPostDoubleTap(card, post);
+  card.querySelectorAll(".post-video-poster").forEach(poster => {
+    const syncRatio = () => {
+      if (poster.naturalWidth > 0 && poster.naturalHeight > 0) {
+        poster.parentElement?.style.setProperty("--feed-video-ratio", `${poster.naturalWidth / poster.naturalHeight}`);
       }
+    };
+    poster.addEventListener("load", syncRatio, { once: true });
+    if (poster.complete) syncRatio();
+  });
+  /* Comment counts are fetched only after the user opens this post's
+     comment section, not once per card during initial feed rendering. */
+  if (orderedMedia.length > 2 || mediaVideos.length > 1) {
+    setTimeout(() => {
+      const carousel = card.querySelector(".post-carousel");
+      const dotsEl = card.querySelector(".pc-dots");
+      if (!carousel || !dotsEl) return;
+      const dots = dotsEl.querySelectorAll(".pc-dot");
+      carousel.addEventListener("scroll", () => {
+        const index = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+        dots.forEach((dot, i) => dot.classList.toggle("active", i === index));
+      }, { passive: true });
     }, 80);
   }
+  requestAnimationFrame(() => _observeFeedVideos(_fyActiveScroll()));
   return card;
 }
 
@@ -11928,6 +13036,7 @@ function _buildFeedOrder(allPosts, q) {
   const now = nowStamp();
   /* Filter out posts from blocked users and users who blocked me */
   const filtered = allPosts.filter(p => {
+    if (!_isPostCurrentlyVisible(p, now)) return false;
     const author = normalizeName(p.author);
     if (author === normalizeName(currentUser)) return true;
     if (isBlocked(author)) return false;
@@ -11941,8 +13050,8 @@ function _buildFeedOrder(allPosts, q) {
   }
 
   /* Split into recent (<72h) and old (≥72h) */
-  const recent = filtered.filter(p => (now - (p.stamp || 0)) < THREE_DAYS_MS);
-  const old    = filtered.filter(p => (now - (p.stamp || 0)) >= THREE_DAYS_MS);
+  const recent = filtered.filter(p => (now - _postPublicationAt(p)) < THREE_DAYS_MS);
+  const old    = filtered.filter(p => (now - _postPublicationAt(p)) >= THREE_DAYS_MS);
 
   /* For recent posts: boost following 1:2 ratio */
   const recFollowed = recent.filter(p => followingList.includes(normalizeName(p.author)));
@@ -11955,7 +13064,7 @@ function _buildFeedOrder(allPosts, q) {
   }
 
   /* For old posts: just sort by recency (newest first), no following boost */
-  const sortedOld = [...old].sort((a, b) => (b.stamp || 0) - (a.stamp || 0));
+  const sortedOld = [...old].sort((a, b) => _postPublicationAt(b) - _postPublicationAt(a));
 
   const merged  = [...mergedRecent, ...sortedOld];
   const deduped = _avoidConsecutiveAuthors(merged);
@@ -11977,6 +13086,8 @@ function _fyActiveFeed() {
 
 function _appendNewPostToFeed(post) {
   if (followingModeActive) return; /* new posts only go into For You */
+  const appendNow = nowStamp();
+  if (!_isPostCurrentlyVisible(post, appendNow)) return;
   const feed = document.getElementById("postFeed");
   if (!feed) return;
   const q = String(document.getElementById("fySearch")?.value ?? "").trim().toLowerCase();
@@ -11996,7 +13107,7 @@ function _appendNewPostToFeed(post) {
     const pid = existingCard.dataset && existingCard.dataset.postId;
     if (!pid) continue;
     const existingPost = fyFeedPosts.find(p => p !== post && p.id === pid);
-    if (existingPost && (now - (existingPost.stamp || 0)) >= THREE_DAYS_MS) {
+    if (existingPost && (now - _postPublicationAt(existingPost)) >= THREE_DAYS_MS) {
       feed.insertBefore(card, existingCard);
       inserted = true;
       break;
@@ -12005,13 +13116,44 @@ function _appendNewPostToFeed(post) {
   if (!inserted) feed.appendChild(card);
 }
 
-function _loadMorePosts() {
-  if (fyVisibleCount >= fyFeedPosts.length) return;
+async function _loadMorePosts() {
+  if (_fyPostsLoading) return;
   const feed = _fyActiveFeed();
   if (!feed) return;
+  if (fyVisibleCount >= fyFeedPosts.length && _fyHasMorePosts && _fyPostCursor) {
+    _fyPostsLoading = true;
+    try {
+      const nextQuery = query(
+        collection(db, "posts"),
+        orderBy("stamp", "desc"),
+        startAfter(_fyPostCursor),
+        limit(FY_POST_PAGE_SIZE)
+      );
+      const snapshot = await getDocs(nextQuery);
+      const nextPosts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      _fyPostCursor = snapshot.docs.length ? snapshot.docs[snapshot.docs.length - 1] : _fyPostCursor;
+      _fyHasMorePosts = snapshot.docs.length === FY_POST_PAGE_SIZE;
+      const existingIds = new Set(posts.map(p => p.id));
+      posts = [...posts, ...nextPosts.filter(p => !existingIds.has(p.id))];
+      _reconcilePostLifecycle(posts);
+       /* The fetched page is the next visible batch. Preserve the existing
+          cards and reveal exactly ten more instead of resetting to page one. */
+       _fyPreserveVisibleCount = Math.min(
+         fyVisibleCount + FY_POST_PAGE_SIZE,
+         _buildFeedOrder(posts, document.getElementById("fySearch")?.value || "").length
+       );
+      renderPostFeed(document.getElementById("fySearch")?.value || "");
+    } catch (_) {
+      /* Keep the current page usable; a later scroll can retry. */
+    } finally {
+      _fyPostsLoading = false;
+    }
+    return;
+  }
+  if (fyVisibleCount >= fyFeedPosts.length) return;
   document.getElementById("fyEndCard")?.remove();
   const prevEnd = fyVisibleCount;
-  fyVisibleCount = Math.min(fyVisibleCount + 15, fyFeedPosts.length);
+  fyVisibleCount = Math.min(fyVisibleCount + FY_POST_PAGE_SIZE, fyFeedPosts.length);
   fyFeedPosts.slice(prevEnd, fyVisibleCount).forEach(post => feed.appendChild(_buildPostCard(post)));
   if (followingModeActive && fyVisibleCount >= fyFeedPosts.length) feed.appendChild(_buildEndOfFollowingCard());
 }
@@ -12028,7 +13170,12 @@ function renderPostFeed(filterText) {
     fyVisibleCount = 0;
     return;
   }
-  fyVisibleCount = Math.min(15, fyFeedPosts.length);
+  const preservedCount = _fyPreserveVisibleCount;
+  _fyPreserveVisibleCount = null;
+   fyVisibleCount = Math.min(
+     preservedCount == null ? Math.max(FY_POST_PAGE_SIZE, fyVisibleCount || 0) : Math.max(FY_POST_PAGE_SIZE, preservedCount),
+    fyFeedPosts.length
+  );
   const scrollEl = _fyActiveScroll();
   const savedScroll = (scrollEl && feed.children.length > 0) ? scrollEl.scrollTop : 0;
   feed.innerHTML = "";
@@ -12039,6 +13186,7 @@ function renderPostFeed(filterText) {
   if (savedScroll > 0 && scrollEl) {
     requestAnimationFrame(() => { scrollEl.scrollTop = savedScroll; });
   }
+  requestAnimationFrame(() => _observeFeedVideos(scrollEl));
 }
 
 /* ════════════════════════════════════════
@@ -13687,7 +14835,11 @@ function showMediaPreview() {
   const wrap  = document.getElementById("previewArea");
   const thumb = document.getElementById("thumbnailContainer");
   if (!wrap || !thumb) return;
-  thumb.innerHTML = "";
+   thumb.innerHTML = "";
+   if (_chatMediaQueue.length > 1) {
+     _renderChatMediaCarousel();
+     return;
+   }
   if (!attachedMedia) {
     wrap.style.display = "none";
     updateSendButtonState();
@@ -13725,7 +14877,10 @@ function showMediaPreview() {
     const vid = document.createElement("video");
     vid.src = attachedMedia.dataUrl;
     vid.className = "preview-thumbnail";
-    vid.muted = true; vid.playsInline = true; vid.loop = true;
+     vid.muted = true; vid.playsInline = true; vid.loop = true;
+     vid.controls = true;
+     vid.autoplay = true;
+     vid.addEventListener("loadeddata", () => vid.play().catch(() => {}), { once: true });
     thumb.appendChild(vid);
   } else if (attachedMedia.type === "file") {
     const label = document.createElement("div");
@@ -13759,9 +14914,46 @@ function _showChatImagesPreview() {
   wrap.style.display = "block";
   updateSendButtonState();
 }
+function _renderChatMediaCarousel() {
+  const wrap = document.getElementById("previewArea");
+  const thumb = document.getElementById("thumbnailContainer");
+  if (!wrap || !thumb) return;
+  thumb.innerHTML = "";
+  const track = document.createElement("div");
+  track.className = "chat-media-preview-track";
+  _chatMediaQueue.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "chat-media-preview-card";
+    if (item.type === "video") {
+      const video = document.createElement("video");
+      video.src = item.dataUrl;
+      video.muted = true;
+      video.autoplay = true;
+      video.loop = true;
+      video.controls = true;
+      video.playsInline = true;
+      video.addEventListener("loadeddata", () => video.play().catch(() => {}), { once: true });
+      card.appendChild(video);
+    } else {
+      const img = document.createElement("img");
+      img.src = item.dataUrl;
+      img.alt = "Selected media";
+      card.appendChild(img);
+    }
+    track.appendChild(card);
+  });
+  thumb.appendChild(track);
+  const label = document.createElement("div");
+  label.className = "chat-media-preview-count";
+  label.textContent = `${_chatMediaQueue.length} media items selected`;
+  thumb.appendChild(label);
+  wrap.style.display = "block";
+  updateSendButtonState();
+}
 function clearMediaQueue() {
   attachedMedia = null;
   _chatImagesQueue = [];
+   _chatMediaQueue = [];
   const wrap  = document.getElementById("previewArea");
   const thumb = document.getElementById("thumbnailContainer");
   if (wrap)  wrap.style.display = "none";
@@ -13778,7 +14970,8 @@ function openImageDirect(file) {
   reader.onload = () => {
     const dataUrl = String(reader.result || "");
     /* Show preview immediately — user taps the image to crop */
-    attachedMedia = { type: "image", dataUrl, file, _originalFile: file, _needsCrop: true };
+     attachedMedia = { type: "image", dataUrl, file, _originalFile: file, _needsCrop: true };
+     _chatMediaQueue = [attachedMedia];
     showMediaPreview();
   };
   reader.readAsDataURL(file);
@@ -13805,6 +14998,7 @@ async function openVideoDirect(file) {
     const reader = new FileReader();
     reader.onload = () => {
       attachedMedia = { type: "video", dataUrl: String(reader.result || ""), file: finalFile, isVid: true };
+      _chatMediaQueue = [attachedMedia];
       showMediaPreview();
     };
     reader.readAsDataURL(finalFile);
@@ -13931,7 +15125,39 @@ async function sendText() {
   /* Keep keyboard open — refocus immediately, not deferred */
   try { input.focus(); } catch(_) {}
   window.__justSentMessage = true;
-  if (_chatImagesQueue.length > 0) {
+  if (_chatMediaQueue.length > 1) {
+    const _mediaItems = [..._chatMediaQueue];
+    const _multiText = text;
+    const _rtMulti = _replyToMsg; _cancelReply();
+    clearMediaQueue();
+    try { input.blur(); } catch(_) {}
+    const chatBox = document.getElementById("chatBox");
+    const sendEl = document.createElement("div");
+    sendEl.className = "chat-sending-indicator";
+    sendEl.textContent = `Sending ${_mediaItems.length} media items…`;
+    if (chatBox) { chatBox.appendChild(sendEl); chatBox.scrollTop = chatBox.scrollHeight; }
+    try {
+      const imageItems = _mediaItems.filter(item => item.type === "image");
+      if (imageItems.length) {
+        const imageUrls = await Promise.all(imageItems.map(async item => {
+          const blob = await fetch(item.dataUrl).then(r => r.blob());
+          return window.uploadToCloudinary(new File([blob], "photo.jpg", { type: blob.type }), "image");
+        }));
+        const dims = await Promise.all(imageItems.map(item => _getImageDimensions(item.dataUrl)));
+        await addMsgImages(currentChatName, imageUrls, _multiText, _rtMulti, dims);
+      }
+      for (const item of _mediaItems.filter(item => item.type === "video")) {
+        const blob = await fetch(item.dataUrl).then(r => r.blob());
+        const url = await window.uploadToCloudinary(new File([blob], "video.mp4", { type: blob.type }), "video");
+        await addMsg(currentChatName, _multiText || "🎥 Video", url, true, false, false, "", _rtMulti);
+      }
+    } catch(err) {
+      alert("Failed to send selected media. Please try again.");
+    } finally {
+      sendEl.remove();
+    }
+    setTimeout(_scrollChatToBottom, 50);
+  } else if (_chatImagesQueue.length > 0) {
     const _imgs = [..._chatImagesQueue];
     const _multiText = text;
     const _rtMulti = _replyToMsg; _cancelReply();
@@ -14032,10 +15258,11 @@ function setupChatUI() {
   }
   /* Chat header stickiness is handled by _adjustChatForKeyboard via _chatKbBound below */
   if (sendBtn) sendBtn.addEventListener("click", sendText);
-  if (plusBtn && popup) {
+  if (plusBtn) {
     plusBtn.addEventListener("click", (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      popup.classList.toggle("open");
+      photoInput?.click();
     });
   }
   const closePopup = () => { if (popup) popup.classList.remove("open"); };
@@ -14043,30 +15270,59 @@ function setupChatUI() {
   document.getElementById("popupPhotoItem")?.addEventListener("click", () => { closePopup(); photoInput?.click(); });
   document.getElementById("popupVideoItem")?.addEventListener("click", () => { closePopup(); videoInput?.click(); });
   document.getElementById("popupFileItem")?.addEventListener("click",  () => { closePopup(); fileInput?.click(); });
-  if (photoInput) photoInput.addEventListener("change", e => {
+   if (photoInput) photoInput.addEventListener("change", e => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     e.target.value = "";
     if (files.length === 1) { openImageDirect(files[0]); return; }
     clearMediaQueue();
-    _chatImagesQueue = [];
+     _chatMediaQueue = [];
     let _loaded = 0;
-    const _batch = files.slice(0, 9);
+     const _batch = files.filter(file => file.type.startsWith("image/") || file.type.startsWith("video/")).slice(0, 9);
     _batch.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
-        _chatImagesQueue.push({ file, dataUrl: String(reader.result || "") });
+         _chatMediaQueue.push({
+           file,
+           dataUrl: String(reader.result || ""),
+           type: file.type.startsWith("video/") ? "video" : "image",
+           isVid: file.type.startsWith("video/")
+         });
         _loaded++;
-        if (_loaded === _batch.length) _showChatImagesPreview();
+         if (_loaded === _batch.length) {
+           attachedMedia = _chatMediaQueue[0] || null;
+           _chatImagesQueue = _chatMediaQueue.filter(item => item.type === "image");
+           _renderChatMediaCarousel();
+         }
       };
       reader.readAsDataURL(file);
     });
   });
-  if (videoInput) videoInput.addEventListener("change", e => { const f = e.target.files?.[0]; if (f) openVideoDirect(f); });
+   if (videoInput) videoInput.addEventListener("change", e => {
+     const files = Array.from(e.target.files || []).filter(file => file.type.startsWith("video/"));
+     e.target.value = "";
+     if (!files.length) return;
+     if (files.length === 1) { openVideoDirect(files[0]); return; }
+     clearMediaQueue();
+     let loaded = 0;
+     files.slice(0, 9).forEach(file => {
+       const reader = new FileReader();
+       reader.onload = () => {
+         _chatMediaQueue.push({ file, dataUrl: String(reader.result || ""), type: "video", isVid: true });
+         loaded++;
+         if (loaded === Math.min(files.length, 9)) {
+           attachedMedia = _chatMediaQueue[0] || null;
+           _renderChatMediaCarousel();
+         }
+       };
+       reader.readAsDataURL(file);
+     });
+   });
   if (fileInput)  fileInput.addEventListener("change",  e => {
     const f = e.target.files?.[0];
     if (!f) return;
-    attachedMedia = { type: "file", dataUrl: null, file: f, fileName: f.name };
+     attachedMedia = { type: "file", dataUrl: null, file: f, fileName: f.name };
+     _chatMediaQueue = [attachedMedia];
     showMediaPreview();
   });
   if (removeBtn) removeBtn.addEventListener("click", clearMediaQueue);
@@ -14811,9 +16067,29 @@ function _renderGroupMessages(messages) {
   window.__justSentMessage = false;
   window.__chatIsOpening   = false;
 
-  box.innerHTML = "";
-  let lastDateLabel = "";
-  messages.forEach(msg => {
+  const groupThreadId = String(currentGroupId || "");
+  const existingMessageWraps = box.dataset.threadId === groupThreadId
+    ? Array.from(box.querySelectorAll("[data-msgid]"))
+    : [];
+  const existingIdsMatch = existingMessageWraps.every((wrap, index) =>
+    wrap.dataset.msgid === messages[index]?.id
+  );
+  const appendOnly = existingMessageWraps.length > 0 &&
+    messages.length > existingMessageWraps.length && existingIdsMatch;
+  const unchanged = messages.length > 0 &&
+    messages.length === existingMessageWraps.length && existingIdsMatch;
+  if (unchanged) return;
+  const renderStartIndex = appendOnly ? existingMessageWraps.length : 0;
+  box.dataset.threadId = groupThreadId;
+  if (!appendOnly) box.innerHTML = "";
+  const existingDividers = appendOnly
+    ? Array.from(box.querySelectorAll(".chat-day-divider"))
+    : [];
+  let lastDateLabel = existingDividers.length
+    ? existingDividers[existingDividers.length - 1].textContent
+    : "";
+  messages.slice(renderStartIndex).forEach((msg, offset) => {
+    const idx = renderStartIndex + offset;
     const isMine = normalizeName(msg.sender) === me;
     const dateLabel = formatDateFromStamp(msg.stamp);
     if (dateLabel !== lastDateLabel) {
@@ -14828,6 +16104,8 @@ function _renderGroupMessages(messages) {
     /* Keep the normal one-to-one bubble flow. Incoming group messages add
        only the identifying avatar beside the bubble. */
     wrap.style.cssText = `display:flex;flex-direction:${isMine ? "column" : "row"};align-items:${isMine ? "flex-end" : "flex-start"};justify-content:${isMine ? "flex-end" : "flex-start"};gap:${isMine ? "0" : "6px"};margin-bottom:2px;max-width:100%;`;
+     if (msg.id) wrap.dataset.msgid = msg.id;
+    const shouldAnimate = isMine && Number(msg.stamp) === Number(_lastSentMessageStamp);
 
     if (!isMine) {
       ensureProfile(msg.sender);
@@ -15021,7 +16299,20 @@ function _renderGroupMessages(messages) {
     }
 
     box.appendChild(wrap);
+    if (shouldAnimate) {
+      wrap.classList.add("msg-send-animate");
+      const composer = document.getElementById("inputContainer") || document.getElementById("messageInput");
+      const composerRect = composer?.getBoundingClientRect();
+      const messageRect = wrap.getBoundingClientRect();
+      if (composerRect && messageRect) {
+        wrap.style.setProperty(
+          "--msg-send-from-y",
+          `${Math.max(34, composerRect.top - messageRect.top)}px`
+        );
+      }
+    }
   });
+  if (_lastSentMessageStamp !== null) _lastSentMessageStamp = null;
 
   if (shouldScrollToBottom) setTimeout(_scrollChatToBottom, 30);
 }
@@ -15061,6 +16352,7 @@ async function sendGroupImages() {
     const stamp = nowStamp();
     const gid = currentGroupId;
     const members = (currentGroupData && currentGroupData.members) || [];
+    _lastSentMessageStamp = stamp;
     await addDoc(collection(db, "conversations", gid, "messages"), {
       sender: me,
       text,
@@ -15129,6 +16421,7 @@ async function sendGroupText() {
   const gid    = currentGroupId;
   const members = (currentGroupData && currentGroupData.members) || [];
   try {
+    _lastSentMessageStamp = stamp;
     await addDoc(collection(db, "conversations", gid, "messages"), {
       sender: me, text, time: formatTimeFromStamp(stamp), stamp,
       ...(replyTo ? { replyTo } : {})
@@ -15841,13 +17134,34 @@ function openPostPage() {
   /* Reset state */
   postImgFiles    = [];
   _ppStagedFiles  = [];
+  _ppMediaItems   = [];
   _postVideoFiles = [];
+  _ppExpiryMode   = "none";
+  _ppScheduledAt  = null;
   /* Clear UI */
   const ta = document.getElementById("ppTextarea");
-  if (ta) { ta.value = ""; }
-  document.getElementById("ppImgPreviews").innerHTML = "";
-  const vp = document.getElementById("ppVideoPreview");
-  if (vp) { vp.innerHTML = ""; vp.style.display = "none"; }
+  if (ta) { ta.value = ""; ta.style.height = "58px"; }
+  const mediaCarousel = document.getElementById("ppMediaCarousel");
+  if (mediaCarousel) mediaCarousel.innerHTML = "";
+  const uploadProgress = document.getElementById("ppUploadProgress");
+  const uploadProgressBar = document.getElementById("ppUploadProgressBar");
+  const uploadProgressValue = document.getElementById("ppUploadProgressValue");
+  const uploadProgressTrack = document.getElementById("ppUploadProgressTrack");
+  if (uploadProgress) {
+    uploadProgress.classList.remove("visible");
+    uploadProgress.setAttribute("aria-hidden", "true");
+  }
+  if (uploadProgressBar) uploadProgressBar.style.width = "0%";
+  if (uploadProgressValue) uploadProgressValue.textContent = "0%";
+  if (uploadProgressTrack) uploadProgressTrack.setAttribute("aria-valuenow", "0");
+  const expiryMenu = document.getElementById("ppExpiryMenu");
+  if (expiryMenu) expiryMenu.classList.remove("open");
+  const schedulePanel = document.getElementById("ppSchedulePanel");
+  if (schedulePanel) schedulePanel.classList.remove("open");
+  const expiryLabel = document.getElementById("ppExpiryLabel");
+  if (expiryLabel) expiryLabel.textContent = "Time";
+  const liveStatus = document.getElementById("ppLiveStatus");
+  if (liveStatus) liveStatus.classList.remove("visible");
   const wc = document.getElementById("ppWordCounter");
   if (wc) { wc.textContent = "0 / 250 words"; wc.className = "pp-word-counter"; }
   const btn = document.getElementById("ppPostBtn");
@@ -15863,10 +17177,19 @@ function openPostPage() {
 function closePostPage() {
   postImgFiles    = [];
   _ppStagedFiles  = [];
+  _ppMediaItems   = [];
   _postVideoFiles = [];
-  const vp = document.getElementById("ppVideoPreview");
-  if (vp) { vp.innerHTML = ""; vp.style.display = "none"; }
-  document.getElementById("ppImgPreviews").innerHTML = "";
+  _ppExpiryMode   = "none";
+  _ppScheduledAt  = null;
+  const mediaCarousel = document.getElementById("ppMediaCarousel");
+  if (mediaCarousel) mediaCarousel.innerHTML = "";
+  const uploadProgress = document.getElementById("ppUploadProgress");
+  if (uploadProgress) {
+    uploadProgress.classList.remove("visible");
+    uploadProgress.setAttribute("aria-hidden", "true");
+  }
+  document.getElementById("ppExpiryMenu")?.classList.remove("open");
+  document.getElementById("ppSchedulePanel")?.classList.remove("open");
   const page = document.getElementById("postPage");
   if (page) page.style.display = "none";
 }
@@ -15884,6 +17207,8 @@ window.ppOnInput = function() {
   const wc      = document.getElementById("ppWordCounter");
   const btn     = document.getElementById("ppPostBtn");
   if (!ta) return;
+  ta.style.height = "auto";
+  ta.style.height = `${Math.max(58, ta.scrollHeight)}px`;
   const words = ta.value.trim().split(/\s+/).filter(Boolean).length;
   if (wc) {
     wc.textContent = `${words} / 250 words`;
@@ -15959,8 +17284,11 @@ window.ppHandleVideoSelect = function(e) {
   thumbVid.controls = true;
   thumbVid.playsInline = true;
   thumbVid.preload  = "metadata";
+  thumbVid.autoplay = true;
+  thumbVid.loop = true;
   thumbVid.style.cssText = "max-width:100%;max-height:140px;border-radius:8px;background:#000;display:block;";
   thumbVid.onloadedmetadata = () => { thumbVid.currentTime = 1; };
+  thumbVid.addEventListener("loadeddata", () => thumbVid.play().catch(() => {}), { once: true });
   const rmBtn = document.createElement("button");
   rmBtn.style.cssText = "margin-top:4px;background:none;border:1px solid #4b5563;border-radius:6px;color:#9ca3af;font-size:11px;padding:3px 8px;cursor:pointer;";
   rmBtn.textContent = "✕ Remove video";
@@ -15988,15 +17316,15 @@ window.ppHandleVideoSelect = function(e) {
   probe.src      = probeUrl;
   probe.onloadedmetadata = async () => {
     URL.revokeObjectURL(probeUrl);
-    if ((probe.duration || 0) > 30.5) {
+    if ((probe.duration || 0) > 59.5) {
       try {
-        const trimmed = await _trimVideoTo30s(file);
+        const trimmed = await _trimVideoTo59s(file);
         _postVideoFiles[vidIdx] = trimmed;
         URL.revokeObjectURL(immediateUrl);
         thumbVid.src = URL.createObjectURL(trimmed);
         const note = document.createElement("div");
         note.style.cssText = "font-size:11px;color:#9ca3af;margin-top:2px;";
-        note.textContent = "✂️ Trimmed to first 30 seconds";
+        note.textContent = "Trimmed to first 59 seconds";
         wrap.appendChild(note);
       } catch(_) {}
     }
@@ -16004,17 +17332,295 @@ window.ppHandleVideoSelect = function(e) {
   probe.onerror = () => URL.revokeObjectURL(probeUrl);
 };
 
+/* Unified ordered media composer overrides the legacy split previews above. */
+let _ppMediaItems = [];
+let _ppExpiryMode = "none";
+let _ppScheduledAt = null;
+function _syncPostMediaAliases() {
+  _ppStagedFiles = _ppMediaItems.filter(item => item.type === "image");
+  _postVideoFiles = _ppMediaItems.filter(item => item.type === "video").map(item => item.raw);
+}
+function _createVideoPreviewPoster(url) {
+  return new Promise(resolve => {
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.src = url;
+    let finished = false;
+    const finish = poster => {
+      if (finished) return;
+      finished = true;
+      video.remove();
+      resolve(poster || "");
+    };
+    video.onerror = () => finish("");
+    video.onloadedmetadata = () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return finish("");
+      video.currentTime = Math.min(1, Math.max(0, video.duration / 4));
+    };
+    video.onseeked = () => {
+      if (!video.videoWidth || !video.videoHeight) return finish("");
+      const maxWidth = 640;
+      const scale = Math.min(1, maxWidth / video.videoWidth);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+      canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return finish("");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      finish(canvas.toDataURL("image/jpeg", 0.84));
+    };
+    video.load();
+    setTimeout(() => finish(""), 5000);
+  });
+}
+function _ensureVideoPreview(item) {
+  if (!item || item.type !== "video" || item.posterPromise) return;
+  item.posterPromise = _createVideoPreviewPoster(item.url).then(poster => {
+    if (poster && _ppMediaItems.includes(item)) {
+      item.posterUrl = poster;
+      _renderPpMediaCarousel();
+    }
+    return poster;
+  });
+}
+function _renderPpMediaCarousel() {
+  const wrap = document.getElementById("ppMediaCarousel");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  if (!_ppMediaItems.length) return;
+  const track = document.createElement("div");
+  track.className = "pp-media-track";
+  _ppMediaItems.forEach((item, i) => {
+    const card = document.createElement("div");
+    card.className = "pp-media-item";
+    card.dataset.index = String(i);
+    const media = item.type === "video" ? document.createElement("video") : document.createElement("img");
+    media.src = item.previewUrl || item.url;
+    if (item.type === "video") {
+      /* Restore native playback controls while keeping previews inline. */
+      media.controls = true;
+      media.disablePictureInPicture = true;
+      media.setAttribute("controlslist", "nofullscreen");
+      media.muted = true;
+      media.playsInline = true;
+      media.preload = "auto";
+      media.autoplay = true;
+      media.loop = true;
+      media.setAttribute("muted", "");
+      media.setAttribute("autoplay", "");
+      media.setAttribute("playsinline", "");
+      media.setAttribute("webkit-playsinline", "");
+      if (item.posterUrl) media.poster = item.posterUrl;
+      media.addEventListener("loadedmetadata", () => {
+        if (media.duration > 1) media.currentTime = Math.min(1, media.duration / 4);
+        media.play().catch(() => {});
+      }, { once: true });
+      media.addEventListener("loadeddata", () => media.play().catch(() => {}), { once: true });
+      media.addEventListener("canplay", () => media.play().catch(() => {}), { once: true });
+    } else {
+      media.alt = "Selected post image";
+      media.onclick = () => window._ppTapImg(i);
+    }
+    card.appendChild(media);
+    if (item.type === "video") {
+      /* Keep autoplay attempts independent for each carousel slot. A
+         rejected play() leaves the native poster/cover visible instead of
+         exposing a black preview. */
+      media.play().catch(() => {
+        if (item.posterUrl) media.poster = item.posterUrl;
+      });
+    }
+    if (item.type === "video") _ensureVideoPreview(item);
+    const order = document.createElement("span");
+    order.className = "pp-media-order"; order.textContent = String(i + 1); card.appendChild(order);
+    const remove = document.createElement("button");
+    remove.className = "pp-media-remove"; remove.type = "button"; remove.title = "Remove media"; remove.textContent = "×";
+    remove.onclick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      window._ppRemoveMedia(i);
+    }; card.appendChild(remove);
+    const back = document.createElement("button");
+    back.className = "pp-media-move pp-media-move-back"; back.type = "button"; back.title = "Move backward"; back.textContent = "‹";
+    back.disabled = i === 0; back.onclick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      window._ppMoveMedia(i, -1);
+    }; card.appendChild(back);
+    const forward = document.createElement("button");
+    forward.className = "pp-media-move pp-media-move-forward"; forward.type = "button"; forward.title = "Move forward"; forward.textContent = "›";
+    forward.disabled = i === _ppMediaItems.length - 1; forward.onclick = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      window._ppMoveMedia(i, 1);
+    }; card.appendChild(forward);
+    if (item.type === "image" && !item.cropped) {
+      const hint = document.createElement("span");
+      hint.className = "pp-media-crop-hint"; hint.textContent = "Tap to crop"; card.appendChild(hint);
+    }
+    if (item.trimNote) {
+      const note = document.createElement("span");
+      note.className = "pp-media-trim-note"; note.textContent = item.trimNote; card.appendChild(note);
+    }
+    track.appendChild(card);
+  });
+  wrap.appendChild(track);
+}
+window.ppHandleImageSelect = function(e) {
+  const files = Array.from(e.target.files || []).filter(f => f.type.startsWith("image/"));
+  e.target.value = "";
+  const used = _ppMediaItems.filter(item => item.type === "image").length;
+  files.slice(0, Math.max(0, 6 - used)).forEach(file => _ppMediaItems.push({
+    type: "image", raw: file, url: URL.createObjectURL(file), cropped: null
+  }));
+  _syncPostMediaAliases(); _renderPpMediaCarousel();
+};
+window.ppHandleMediaSelect = function(e) {
+  const files = Array.from(e.target.files || []);
+  e.target.value = "";
+  let imageSlots = Math.max(0, 6 - _ppMediaItems.filter(item => item.type === "image").length);
+  let videoSlots = Math.max(0, 3 - _ppMediaItems.filter(item => item.type === "video").length);
+  const videosToProbe = [];
+  files.forEach(file => {
+    if (file.type.startsWith("image/") && imageSlots > 0) {
+      _ppMediaItems.push({
+        type: "image", raw: file, url: URL.createObjectURL(file), cropped: null
+      });
+      imageSlots--;
+    } else if (file.type.startsWith("video/") && videoSlots > 0) {
+      const item = {
+        type: "video", raw: file, url: URL.createObjectURL(file),
+        trimNote: "", posterUrl: "", posterPromise: null
+      };
+      _ppMediaItems.push(item);
+      videosToProbe.push(item);
+      videoSlots--;
+    }
+  });
+  _syncPostMediaAliases();
+  _renderPpMediaCarousel();
+  videosToProbe.forEach(_probeAndTrimPostVideo);
+};
+window.handlePostMediaSelect = window.ppHandleMediaSelect;
+window._ppTapImg = function(i) {
+  const item = _ppMediaItems[i];
+  if (!item || item.type !== "image") return;
+  openCropModal(item.url, croppedFile => {
+    if (croppedFile) {
+      item.cropped = croppedFile;
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+      item.previewUrl = URL.createObjectURL(croppedFile);
+    }
+    _renderPpMediaCarousel();
+  }, { circle: false });
+};
+window._ppRemoveMedia = function(i) {
+  const item = _ppMediaItems[i];
+  if (!item) return;
+  URL.revokeObjectURL(item.url);
+  if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+  _ppMediaItems.splice(i, 1); _syncPostMediaAliases(); _renderPpMediaCarousel();
+};
+window._ppMoveMedia = function(i, direction) {
+  const next = i + direction;
+  if (next < 0 || next >= _ppMediaItems.length) return;
+  [_ppMediaItems[i], _ppMediaItems[next]] = [_ppMediaItems[next], _ppMediaItems[i]];
+  _syncPostMediaAliases(); _renderPpMediaCarousel();
+  document.querySelector(`#ppMediaCarousel .pp-media-item[data-index="${next}"]`)?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+};
+window.ppHandleVideoSelect = function(e) {
+  const files = Array.from(e.target.files || []).filter(f => f.type.startsWith("video/"));
+  e.target.value = "";
+  const used = _ppMediaItems.filter(item => item.type === "video").length;
+  files.slice(0, Math.max(0, 3 - used)).forEach(file => {
+    const item = { type: "video", raw: file, url: URL.createObjectURL(file), trimNote: "" };
+    _ppMediaItems.push(item); _probeAndTrimPostVideo(item);
+  });
+  _syncPostMediaAliases(); _renderPpMediaCarousel();
+};
+async function _probeAndTrimPostVideo(item) {
+  const probeUrl = URL.createObjectURL(item.raw);
+  const probe = document.createElement("video");
+  probe.preload = "metadata"; probe.src = probeUrl;
+  probe.onloadedmetadata = async () => {
+    URL.revokeObjectURL(probeUrl);
+    if ((probe.duration || 0) <= 59.5) return;
+    try {
+      const trimmed = await _trimVideoTo59s(item.raw);
+      item.raw = trimmed; item.trimNote = "Trimmed to first 59 seconds";
+      URL.revokeObjectURL(item.url);
+      item.url = URL.createObjectURL(trimmed);
+      item.posterUrl = "";
+      item.posterPromise = null;
+      _syncPostMediaAliases(); _renderPpMediaCarousel();
+    } catch (_) {}
+  };
+  probe.onerror = () => URL.revokeObjectURL(probeUrl);
+}
+window.ppToggleExpiryMenu = function(event) {
+  event?.stopPropagation(); document.getElementById("ppExpiryMenu")?.classList.toggle("open");
+};
+window.ppChooseExpiry = function(mode) {
+  _ppExpiryMode = mode;
+  document.getElementById("ppExpiryMenu")?.classList.remove("open");
+  const label = document.getElementById("ppExpiryLabel");
+  const panel = document.getElementById("ppSchedulePanel");
+  if (mode === "schedule") {
+    if (label) label.textContent = "Schedule";
+    const input = document.getElementById("ppScheduleAt");
+    const now = Date.now();
+    const toLocalValue = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    if (input) {
+      input.min = toLocalValue(new Date(now + 60000));
+      if (!input.value) input.value = toLocalValue(new Date(now + 60 * 60 * 1000));
+    }
+    panel?.classList.add("open");
+  } else {
+    _ppScheduledAt = null;
+    if (label) label.textContent = mode === "12h" ? "12hr" : "7d";
+    panel?.classList.remove("open");
+  }
+};
+window.ppSaveSchedule = function() {
+  const value = new Date(document.getElementById("ppScheduleAt")?.value || "").getTime();
+  const now = Date.now();
+  if (!Number.isFinite(value) || value <= now) {
+    alert("Choose a future date and time."); return;
+  }
+  _ppExpiryMode = "schedule"; _ppScheduledAt = value;
+  const label = document.getElementById("ppExpiryLabel");
+  if (label) label.textContent = "Scheduled";
+  document.getElementById("ppSchedulePanel")?.classList.remove("open");
+};
+window.ppCancelSchedule = function() {
+  _ppExpiryMode = "none"; _ppScheduledAt = null;
+  const label = document.getElementById("ppExpiryLabel");
+  if (label) label.textContent = "Time";
+  document.getElementById("ppSchedulePanel")?.classList.remove("open");
+};
+window.ppShowLiveComingSoon = function() {
+  const status = document.getElementById("ppLiveStatus");
+  if (!status) return;
+  status.classList.add("visible"); clearTimeout(window._ppLiveStatusTimer);
+  window._ppLiveStatusTimer = setTimeout(() => status.classList.remove("visible"), 2600);
+};
+document.addEventListener("click", event => {
+  if (!event.target.closest(".pp-expiry-wrap")) document.getElementById("ppExpiryMenu")?.classList.remove("open");
+});
+
 /* ════════════════════════════════════════
-   POST VIDEO — For You (≤ 30 seconds)
+   POST VIDEO — For You (≤ 59 seconds)
    CHANGE 6: does NOT clear images when video selected
 ═══════════════════════════════════════ */
-let _postVideoFiles = []; /* up to 2 video files */
+let _postVideoFiles = []; /* up to 3 video files */
 
 function handlePostVideoSelect(e) {
   const file = e.target.files[0];
   e.target.value = "";
   if (!file || !file.type.startsWith("video/")) return;
-  if (_postVideoFiles.length >= 2) return; /* max 2 videos */
+  if (_postVideoFiles.length >= 3) return; /* max 3 videos */
   const preview = document.getElementById("postVideoPreview");
   if (!preview) return;
   const vidIdx = _postVideoFiles.length;
@@ -16033,10 +17639,10 @@ function handlePostVideoSelect(e) {
     const dur = probe.duration || 0;
     let finalFile = file;
     let wasTrimmed = false;
-    if (dur > 30.5) {
-      indicator.textContent = "Trimming to 30 s…";
+    if (dur > 59.5) {
+      indicator.textContent = "Trimming to 59 s…";
       wasTrimmed = true;
-      try { finalFile = await _trimVideoTo30s(file); } catch (_) { finalFile = file; }
+      try { finalFile = await _trimVideoTo59s(file); } catch (_) { finalFile = file; }
     }
     _postVideoFiles[vidIdx] = finalFile;
     const objUrl   = URL.createObjectURL(finalFile);
@@ -16046,8 +17652,11 @@ function handlePostVideoSelect(e) {
     thumbVid.playsInline = true;
     thumbVid.preload = "metadata";
     thumbVid.controls = true;
+    thumbVid.autoplay = true;
+    thumbVid.loop = true;
     thumbVid.style.cssText = "max-width:100%;max-height:150px;border-radius:8px;background:#000;display:block;";
     thumbVid.onloadedmetadata = () => { thumbVid.currentTime = 1; };
+    thumbVid.addEventListener("loadeddata", () => thumbVid.play().catch(() => {}), { once: true });
     const previewWrap = document.createElement("div");
     previewWrap.className = "post-video-preview-wrap";
     previewWrap.dataset.vidIdx = String(vidIdx);
@@ -16070,7 +17679,7 @@ function handlePostVideoSelect(e) {
     if (wasTrimmed) {
       const note = document.createElement("div");
       note.style.cssText = "font-size:11px;color:#9ca3af;margin-top:4px;";
-      note.textContent = "✂️ Trimmed to first 30 seconds";
+      note.textContent = "Trimmed to first 59 seconds";
       preview.appendChild(note);
     }
     preview.style.display = "block";
@@ -16126,7 +17735,7 @@ function clearPostVideo() {
 }
 window.clearPostVideo = clearPostVideo;
 
-function _trimVideoTo30s(file) {
+function _trimVideoTo59s(file) {
   return new Promise((resolve) => {
     try {
       const video = document.createElement("video");
@@ -16155,9 +17764,9 @@ function _trimVideoTo30s(file) {
         video.currentTime = 0;
         video.play().catch(() => {});
         recorder.start(100);
-        let stopTimer = setTimeout(() => { try { recorder.stop(); video.pause(); } catch(_){} }, 30000);
+         let stopTimer = setTimeout(() => { try { recorder.stop(); video.pause(); } catch(_){} }, 59000);
         video.addEventListener("timeupdate", () => {
-          if (video.currentTime >= 30) {
+           if (video.currentTime >= 59) {
             clearTimeout(stopTimer);
             try { recorder.stop(); video.pause(); } catch(_) {}
           }
@@ -16176,6 +17785,120 @@ function _trimVideoTo30s(file) {
 let _commentPostId = null;
 let _commentUnsub  = null;
 const _commentCounts = {}; /* postId → count cache */
+let _sharePostId = null;
+
+function _postShareUrl(postId) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("post", postId);
+  return url.toString();
+}
+
+function _quoteSourceForPost(post) {
+  return _quoteSourceSnapshot(post);
+}
+
+async function _openShareQuoteSheet() {
+  const postId = _commentPostId;
+  let post = posts.find(item => item.id === postId);
+  if (!post) {
+    try {
+      const snap = await getDoc(doc(db, "posts", postId));
+      if (snap.exists()) post = { id: snap.id, ...snap.data() };
+    } catch (_) {}
+  }
+  if (!post) return;
+  _sharePostId = postId;
+  const preview = document.getElementById("quoteOriginalPreview");
+  if (preview) preview.innerHTML = _renderQuotedPostHTML(_quoteSourceForPost(post));
+  const input = document.getElementById("quoteTextInput");
+  if (input) input.value = "";
+  closeCommentPage();
+  const backdrop = document.getElementById("shareQuoteBackdrop");
+  if (!backdrop) return;
+  backdrop.classList.add("open");
+  setTimeout(() => input?.focus(), 280);
+}
+window._openShareQuoteSheet = _openShareQuoteSheet;
+
+function _closeShareQuoteSheet() {
+  const backdrop = document.getElementById("shareQuoteBackdrop");
+  if (backdrop) backdrop.classList.remove("open");
+  _sharePostId = null;
+}
+window._closeShareQuoteSheet = _closeShareQuoteSheet;
+
+async function _sharePostExternally(channel) {
+  const postId = _sharePostId;
+  if (!postId) return;
+  const post = posts.find(item => item.id === postId);
+  const shareUrl = _postShareUrl(postId);
+  const shareText = post?.text ? `@${post.author}: ${post.text}` : `Check out this post from @${post?.author || "MyChat"}`;
+  const encodedText = encodeURIComponent(shareText);
+  const encodedUrl = encodeURIComponent(shareUrl);
+  if (channel === "whatsapp") {
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`, "_blank", "noopener");
+  } else if (channel === "x") {
+    window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`, "_blank", "noopener");
+  } else if (channel === "facebook") {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, "_blank", "noopener");
+  } else if (channel === "copy") {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      _matchToast("Post link copied");
+    } catch (_) {
+      window.prompt("Copy this post link:", shareUrl);
+    }
+  } else if (channel === "native" && navigator.share) {
+    try { await navigator.share({ title: "MyChat post", text: shareText, url: shareUrl }); } catch (_) {}
+  } else if (channel === "native") {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      _matchToast("Post link copied");
+    } catch (_) {}
+  }
+}
+window._sharePostExternally = _sharePostExternally;
+
+async function _submitQuotePost() {
+  const postId = _sharePostId;
+  const post = posts.find(item => item.id === postId);
+  const input = document.getElementById("quoteTextInput");
+  const submit = document.getElementById("quoteSubmitBtn");
+  const text = (input?.value || "").trim();
+  if (!post || !currentUser || !text) {
+    if (input) input.focus();
+    return;
+  }
+  if (text.split(/\s+/).filter(Boolean).length > 250) {
+    alert("Quote text must be 250 words or fewer.");
+    return;
+  }
+  if (submit) { submit.disabled = true; submit.textContent = "Posting…"; }
+  const now = nowStamp();
+  const quoteOf = _quoteSourceForPost(post);
+  try {
+    const ref = await addDoc(collection(db, "posts"), {
+      author: normalizeName(currentUser),
+      text,
+      createdAt: now,
+      publicationAt: now,
+      publishedAt: now,
+      status: "published",
+      stamp: now,
+      quoteOf
+    });
+    const newPost = { id: ref.id, author: normalizeName(currentUser), text, createdAt: now, publicationAt: now, publishedAt: now, status: "published", stamp: now, quoteOf };
+    posts = [newPost, ...posts.filter(item => item.id !== ref.id)];
+    _closeShareQuoteSheet();
+    renderPostFeed(document.getElementById("fySearch")?.value || "");
+    _matchToast("Quote posted");
+  } catch (_) {
+    alert("Could not create quote post. Please try again.");
+  } finally {
+    if (submit) { submit.disabled = false; submit.textContent = "Quote post"; }
+  }
+}
+window._submitQuotePost = _submitQuotePost;
 
 /* Update all on-screen comment count spans for a postId */
 function _updateCommentCountSpan(postId, count) {
@@ -16251,7 +17974,6 @@ function openCommentModal(postId, scrollToCommentId) {
   /* Show current user's avatar beside input */
   const uav = document.getElementById("commentUserAvatar");
   if (uav) uav.innerHTML = renderAvatarHTML(currentUser);
-
   /* Item 12: Disable comment input if the post author has turned off comments */
   const _thePost = (typeof posts !== "undefined" ? posts : []).find(p => p.id === postId);
   if (_thePost) {
@@ -16263,6 +17985,13 @@ function openCommentModal(postId, scrollToCommentId) {
       inp.placeholder = _commentsOff ? "Comments are turned off" : "What do you think";
     }
     if (csb) csb.style.display = _commentsOff ? "none" : "";
+  }
+  const careBtn = document.getElementById("commentCareBtn");
+  if (careBtn) {
+    careBtn.dataset.careId = postId;
+    careBtn.classList.toggle("is-cared", _postHasCared(_thePost));
+    const careCountEl = careBtn.querySelector(".care-count-value");
+    if (careCountEl) careCountEl.textContent = _postCareCount(_thePost) > 0 ? String(_postCareCount(_thePost)) : "";
   }
 
   _loadComments(postId, scrollToCommentId || null);
@@ -16987,8 +18716,8 @@ function showUserPosts(u) {
   /* Post cards — use same _buildPostCard as For You feed */
   if (_upCards) {
     _upCards.innerHTML = "";
-    const userPosts = posts.filter(p => normalizeName(p.author) === u)
-                           .sort((a, b) => b.stamp - a.stamp);
+    const userPosts = posts.filter(p => normalizeName(p.author) === u && _isPostCurrentlyVisible(p))
+                           .sort((a, b) => _postPublicationAt(b) - _postPublicationAt(a));
     if (!userPosts.length) {
       _upCards.innerHTML = `<div style="padding:30px;text-align:center;color:gray;font-family:'Inter',sans-serif;">No posts yet.</div>`;
     } else {
@@ -21145,14 +22874,34 @@ function _setupProfilePostsSwipe() {
   const up = document.getElementById("userPostsPage");
   if (!up || up._postSwipeBound) return;
   up._postSwipeBound = true;
+
   let sx = 0, sy = 0, tracking = false;
+  let carouselGesture = false;
+
+  /* .post-carousel is a nested horizontal scroller. If a touch starts
+     anywhere inside it (including an image/video child), the page-level
+     right-swipe/back handler must ignore that gesture completely. */
+  const startedInCarousel = e => {
+    const target = e.target;
+    return !!(target && target.closest && target.closest(".post-carousel"));
+  };
+
   up.addEventListener("touchstart", e => {
-    sx       = e.touches[0].clientX;
-    sy       = e.touches[0].clientY;
+    if (e.touches.length !== 1) return;
+    carouselGesture = startedInCarousel(e);
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
     tracking = false;
+    if (carouselGesture) {
+      up.style.transition = "";
+      up.style.transform = "";
+      return;
+    }
     up.style.transition = "";
   }, { passive: true });
+
   up.addEventListener("touchmove", e => {
+    if (carouselGesture) return;
     const dx = e.touches[0].clientX - sx;
     const dy = e.touches[0].clientY - sy;
     if (!tracking) {
@@ -21161,12 +22910,6 @@ function _setupProfilePostsSwipe() {
       tracking = true;
       const activeTab = document.querySelector(".tab.active");
       const t = activeTab ? activeTab.innerText.toLowerCase() : "profile";
-      /* Prefer the precise _upCameFromMatch flag over the active-tab label —
-         it's the same signal closeUserPosts() uses, and it correctly covers
-         Fantasy/Explore/Ngl even when the tab label lags behind. Without
-         this, swiping back from a profile opened out of Fantasy revealed
-         profilePage (wrong + left stranded/visible) instead of matchPage,
-         which was already mounted underneath and just needs to be shown. */
       const dest = _upCameFromMatch ? "matchPage"
                  : t.includes("for you") ? "forYouPage"
                  : t.includes("chats") ? "chatPage" : "profilePage";
@@ -21176,7 +22919,6 @@ function _setupProfilePostsSwipe() {
           if (destEl.style.display === "none") destEl.style.display = "flex";
           if (typeof _updateMatchFabVisibility === "function") _updateMatchFabVisibility();
         } else if (dest === "forYouPage") {
-          /* Restore scroll BEFORE reveal so background never flashes at top */
           const _swFyS = document.getElementById("fyForYouScroll");
           if (_swFyS) _swFyS.scrollTop = fyScrollPos;
           const _swFolS = document.getElementById("fyFollowingScroll");
@@ -21187,27 +22929,36 @@ function _setupProfilePostsSwipe() {
         }
       }
     }
-    if (tracking && dx > 0) { up.style.transform = "translateX(" + dx + "px)"; }
+    if (tracking && dx > 0) up.style.transform = "translateX(" + dx + "px)";
   }, { passive: true });
+
   up.addEventListener("touchend", e => {
+    if (carouselGesture) { carouselGesture = false; tracking = false; return; }
     if (!tracking) return;
     tracking = false;
     const dx = e.changedTouches[0].clientX - sx;
     const vw = window.innerWidth;
     if (dx > vw * 0.35) {
       up.style.transition = "transform 0.22s ease";
-      up.style.transform  = "translateX(" + vw + "px)";
+      up.style.transform = "translateX(" + vw + "px)";
       setTimeout(() => {
         up.style.transition = "";
-        up.style.transform  = "";
-        up.style.display    = "none";
+        up.style.transform = "";
+        up.style.display = "none";
         closeUserPosts();
       }, 225);
     } else {
       up.style.transition = "transform 0.22s ease";
-      up.style.transform  = "translateX(0)";
+      up.style.transform = "translateX(0)";
       setTimeout(() => { up.style.transition = ""; }, 225);
     }
+  }, { passive: true });
+
+  up.addEventListener("touchcancel", () => {
+    carouselGesture = false;
+    tracking = false;
+    up.style.transition = "";
+    up.style.transform = "";
   }, { passive: true });
 }
 
@@ -22028,7 +23779,7 @@ window.closeAvatarZoom = closeAvatarZoom;
 ════════════════════════════════════════ */
 let _pdPostId = null;
 
-async function openPostDetailPage(postId, scrollToCommentId) {
+async function openPostDetailPage(postId, scrollToCommentId, postOverride = null) {
   if (!postId) return;
   _pdPostId = postId;
   const page = document.getElementById("postDetailPage");
@@ -22040,9 +23791,9 @@ async function openPostDetailPage(postId, scrollToCommentId) {
   if (contentEl) contentEl.innerHTML = '<div style="padding:32px;text-align:center;color:#6b7280;">Loading…</div>';
 
   try {
-    let postData = null;
+    let postData = postOverride || _quotedPostFallbacks.get(postId) || null;
     if (typeof posts !== "undefined") {
-      postData = posts.find(p => (p.id || p.postId) === postId) || null;
+      postData = postData || posts.find(p => (p.id || p.postId) === postId) || null;
     }
     if (!postData) {
       const snap = await getDoc(doc(db, "posts", postId));
@@ -22063,7 +23814,8 @@ async function openPostDetailPage(postId, scrollToCommentId) {
 
     /* Ensure author profile is cached so avatar renders immediately */
     const author = postData.author || "unknown";
-    if (!profileCache[normalizeName(author)]) await fetchProfile(author);
+    const authorProfile = profileCache[normalizeName(author)];
+    if (!authorProfile?.picture) await fetchProfile(author);
 
     /* Render using the exact same card builder as the For You feed */
     contentEl.innerHTML = "";
@@ -24134,6 +25886,14 @@ window._checkUsernameAvail = _checkUsernameAvail;
   <div id="commentPageHeader">
     <button id="commentPageBack" onclick="closeCommentPage()" aria-label="Back"><svg width="9" height="16" viewBox="0 0 9 16" fill="none"><path d="M8 1L1.5 8L8 15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <span id="commentPageTitle">Comments</span>
+    <div class="comment-sheet-actions">
+      <button class="comment-care-summary" id="commentCareBtn" data-care-id="" onclick="_carePostById(this.dataset.careId,event)" aria-label="Care">
+        <span aria-hidden="true">🫶</span><span class="care-count-value"></span>
+      </button>
+      <button class="comment-share-btn" onclick="_openShareQuoteSheet()" aria-label="Share or quote">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 3.9M15.4 6.6 8.6 10.5"/></svg>
+      </button>
+    </div>
   </div>
   <div id="commentPageScroll">
     <div id="commentPagePostWrap"></div>
@@ -24151,6 +25911,27 @@ window._checkUsernameAvail = _checkUsernameAvail;
       <button id="commentSendBtn" onclick="submitComment()">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
+    </div>
+  </div>
+</div>
+
+<div id="shareQuoteBackdrop" onclick="_closeShareQuoteSheet()">
+  <div id="shareQuoteSheet" onclick="event.stopPropagation()">
+    <div class="share-quote-handle"></div>
+    <div class="share-quote-head">
+      <div class="share-quote-title">Share post</div>
+      <button class="share-quote-close" onclick="_closeShareQuoteSheet()" aria-label="Close">×</button>
+    </div>
+    <textarea id="quoteTextInput" maxlength="1000" placeholder="Add your thoughts…"></textarea>
+    <div class="quote-original-preview" id="quoteOriginalPreview"></div>
+    <button class="share-quote-submit" id="quoteSubmitBtn" onclick="_submitQuotePost()">Quote post</button>
+    <div class="share-external-label">Share externally</div>
+    <div class="share-external-row">
+      <button class="share-external-btn whatsapp" onclick="_sharePostExternally('whatsapp')" aria-label="Share on WhatsApp">✆</button>
+      <button class="share-external-btn xshare" onclick="_sharePostExternally('x')" aria-label="Share on X">𝕏</button>
+      <button class="share-external-btn facebook" onclick="_sharePostExternally('facebook')" aria-label="Share on Facebook">f</button>
+      <button class="share-external-btn copy" onclick="_sharePostExternally('copy')" aria-label="Copy post link">↗</button>
+      <button class="share-external-btn native" onclick="_sharePostExternally('native')" aria-label="More sharing options">⋯</button>
     </div>
   </div>
 </div>
