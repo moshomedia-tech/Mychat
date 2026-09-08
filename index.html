@@ -1053,6 +1053,35 @@ body.in-group-chat .chat-header-avatar img { border-radius: 8px; }
   text-decoration: underline;
   -webkit-tap-highlight-color: transparent;
 }
+.chat-failed-media-preview {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  max-width: 220px;
+  overflow: hidden;
+}
+.chat-failed-media-thumb {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.24);
+  color: rgba(255,255,255,0.85);
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2px;
+}
+.chat-failed-media-thumb img,
+.chat-failed-media-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 body.light-mode .msg-not-sent { color: #dc2626; }
 body.light-mode .msg-retry-btn { color: #0f766e; }
 .msg.media-only.me { border-color: rgba(0,139,139,0.5); }
@@ -1460,6 +1489,182 @@ body.light-mode .chat-bottom-safe { background-color: transparent; }
   color: #9ca3af;
   font-size: 11px;
   text-align: center;
+}
+.chat-media-preview-card { cursor: pointer; }
+.chat-media-preview-card:focus-visible,
+.preview-thumbnail:focus-visible {
+  outline: 2px solid #22c7c7;
+  outline-offset: 2px;
+}
+.chat-media-editor {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  flex-direction: column;
+  background: #050708;
+  color: #f8fafc;
+}
+.chat-media-editor.open { display: flex; }
+.chat-editor-topbar {
+  height: 58px;
+  flex: 0 0 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  box-sizing: border-box;
+  background: rgba(8, 12, 16, .94);
+  border-bottom: 1px solid rgba(255,255,255,.09);
+}
+.chat-editor-topbar strong {
+  font-size: 15px;
+  letter-spacing: .01em;
+}
+.chat-editor-topbar button {
+  border: 0;
+  border-radius: 999px;
+  min-width: 42px;
+  height: 36px;
+  padding: 0 14px;
+  color: #fff;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.chat-editor-topbar .chat-editor-save {
+  color: #071313;
+  background: #46d6d1;
+}
+.chat-editor-topbar button:disabled {
+  opacity: .42;
+  cursor: default;
+}
+.chat-editor-body {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+}
+.chat-editor-tools {
+  width: 82px;
+  flex: 0 0 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 7px;
+  box-sizing: border-box;
+  background: rgba(14, 19, 24, .96);
+  border-right: 1px solid rgba(255,255,255,.09);
+}
+.chat-editor-tool {
+  width: 68px;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: rgba(255,255,255,.72);
+  background: transparent;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.1;
+  cursor: pointer;
+}
+.chat-editor-tool span:first-child { font-size: 23px; line-height: 1; }
+.chat-editor-tool:hover,
+.chat-editor-tool.active {
+  color: #fff;
+  background: rgba(70,214,209,.16);
+  border-color: rgba(70,214,209,.7);
+}
+.chat-editor-tool:disabled {
+  opacity: .35;
+  cursor: default;
+}
+.chat-editor-stage {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(54,78,88,.2), transparent 48%),
+    #050708;
+}
+.chat-editor-canvas-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 14px 44px rgba(0,0,0,.42);
+  touch-action: none;
+}
+#chatEditorCanvas {
+  display: block;
+  max-width: min(100%, 760px);
+  max-height: calc(100vh - 166px);
+  width: auto;
+  height: auto;
+  background: #111;
+  touch-action: none;
+}
+.chat-editor-subtools {
+  min-height: 58px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 12px 12px;
+  box-sizing: border-box;
+  background: rgba(8, 12, 16, .96);
+  border-top: 1px solid rgba(255,255,255,.09);
+}
+.chat-editor-subtools:empty { display: none; }
+.chat-editor-subtools button {
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  padding: 7px 12px;
+  color: #e5e7eb;
+  background: rgba(255,255,255,.08);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.chat-editor-subtools button.active {
+  color: #071313;
+  background: #46d6d1;
+  border-color: #46d6d1;
+}
+.chat-editor-subtools .chat-editor-color {
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.6);
+}
+.chat-editor-subtools .chat-editor-color.active { outline: 2px solid #46d6d1; outline-offset: 2px; }
+body.light-mode .chat-media-editor .chat-editor-topbar,
+body.light-mode .chat-media-editor .chat-editor-subtools { background: rgba(20,25,28,.97); }
+@media (max-width: 420px) {
+  .chat-editor-tools { width: 72px; flex-basis: 72px; padding-left: 4px; padding-right: 4px; }
+  .chat-editor-tool { width: 62px; }
+  .chat-editor-stage { padding: 10px 7px; }
 }
 .preview-wrapper {
   position: relative;
@@ -4798,6 +5003,12 @@ body.light-mode #commentInput { color: #111827; }
 .chat-collage.collage-3 .ci:first-child { grid-column:1 / -1; aspect-ratio:16/9; }
 .chat-collage.collage-4 { grid-template-columns:1fr 1fr; }
 .chat-collage.collage-many { grid-template-columns:1fr 1fr; }
+/* Odd collages (5, 7, and 9 items) use the final image as a full-width
+   tile instead of leaving a half-width orphan row underneath the grid. */
+.chat-collage.collage-many.collage-odd .ci:last-child {
+  grid-column: 1 / -1;
+  aspect-ratio: 2 / 1;
+}
 .ci-more { position:absolute; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; color:#fff; cursor:pointer; }
 .chat-see-more-btn { background:none; border:none; padding:0; color:inherit; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; text-decoration:underline; }
 /* ── Threads-style full-width swipeable carousel ── */
@@ -7422,6 +7633,78 @@ body.light-mode .chat-dots-item { color: #111827; }
 body.light-mode .chat-dots-item:active { background: rgba(0,0,0,0.05); }
 body.light-mode .chat-dots-item.danger { color: #dc2626; }
 
+/* Chat safety/settings actions: keep Block visually prominent without making
+   the menu feel heavy. The nested picker stays attached to the same action. */
+.chat-dots-menu { min-width: 224px; padding: 8px; border-radius: 14px; }
+.chat-dots-item {
+  border-radius: 999px;
+  min-height: 42px;
+  padding: 10px 14px;
+}
+.chat-dots-item.danger {
+  margin-bottom: 5px;
+  background: linear-gradient(100deg, rgba(239,68,68,0.16), rgba(190,24,93,0.12));
+  border: 1px solid rgba(248,113,113,0.46);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 5px 14px rgba(127,29,29,0.18);
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+.chat-dots-item.danger:hover { background: linear-gradient(100deg, rgba(239,68,68,0.27), rgba(190,24,93,0.2)); }
+.chat-dots-item.danger svg { flex-shrink: 0; }
+.chat-dots-item.settings-action {
+  color: #dbeafe;
+  background: rgba(255,255,255,0.045);
+}
+body.light-mode .chat-dots-item.settings-action { color: #1f2937; background: #f8fafc; }
+.chat-disappearing-options {
+  display: none;
+  padding: 3px 0 2px 12px;
+  margin: 0 0 2px 12px;
+  border-left: 1px solid rgba(148,163,184,0.35);
+}
+.chat-disappearing-options.open { display: grid; gap: 2px; }
+.chat-disappearing-option {
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #cbd5e1;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  padding: 8px 10px;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+.chat-disappearing-option:hover,
+.chat-disappearing-option:focus-visible { background: rgba(45,212,191,0.13); color: #5eead4; outline: none; }
+.chat-disappearing-option.danger {
+  margin-top: 4px;
+  border-top: 1px solid rgba(148,163,184,0.22);
+  color: #f87171;
+}
+.chat-disappearing-option.danger:hover,
+.chat-disappearing-option.danger:focus-visible { color: #fca5a5; background: rgba(239,68,68,0.12); }
+body.light-mode .chat-disappearing-option { color: #475569; }
+body.light-mode .chat-disappearing-option.danger { color: #dc2626; border-top-color: #e5e7eb; }
+body.light-mode .chat-disappearing-option.danger:hover,
+body.light-mode .chat-disappearing-option.danger:focus-visible { color: #b91c1c; background: #fee2e2; }
+body.light-mode .chat-disappearing-option:hover,
+body.light-mode .chat-disappearing-option:focus-visible { color: #0f766e; background: #ccfbf1; }
+.disappearing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 14px;
+  color: #99f6e4;
+  background: rgba(13,148,136,0.18);
+  border-bottom: 1px solid rgba(45,212,191,0.22);
+  font-size: 12px;
+  font-weight: 650;
+}
+.disappearing-indicator.hidden { display: none; }
+body.light-mode .disappearing-indicator { color: #0f766e; background: #ccfbf1; border-bottom-color: #99f6e4; }
+
 /* ── Pink/Lavender header action overrides ── */
 body.lavender-mode .chat-call-btn { color: #7c3aed; border-color: rgba(124,58,237,0.4); background: rgba(124,58,237,0.1); }
 body.lavender-mode .call-option-menu, body.lavender-mode .chat-dots-menu { background: #ede9fe; border-color: #c4b5fd; }
@@ -8822,6 +9105,18 @@ body.light-mode .bottom-nav .nav-tab-indicator {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
                 <span id="blockMenuLabel">Block</span>
               </button>
+              <button class="chat-dots-item settings-action" id="disappearingMenuBtn" onclick="_toggleDisappearingMenu(event)" aria-expanded="false">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.64 5.64l2.12 2.12M16.24 16.24l2.12 2.12M18.36 5.64l-2.12 2.12M7.76 16.24l-2.12 2.12"/><circle cx="12" cy="12" r="3.5"/></svg>
+                <span>Disappearing Messages</span>
+              </button>
+              <div class="chat-disappearing-options" id="disappearingOptions" role="menu" aria-label="Disappearing message duration">
+                <button class="chat-disappearing-option" onclick="_chooseDisappearingDuration('5m', '5 min', 300000)">5 min</button>
+                <button class="chat-disappearing-option" onclick="_chooseDisappearingDuration('1h', '1 hr', 3600000)">1 hr</button>
+                <button class="chat-disappearing-option" onclick="_chooseDisappearingDuration('24h', '24 hr', 86400000)">24 hr</button>
+                <button class="chat-disappearing-option" onclick="_chooseDisappearingDuration('7d', '7 days', 604800000)">7 days</button>
+                <button class="chat-disappearing-option" onclick="_chooseDisappearingDuration('30d', '30 days', 2592000000)">30 days</button>
+                <button class="chat-disappearing-option danger" id="disableDisappearingBtn" onclick="_disableDisappearingMessages()">Turn off</button>
+              </div>
             </div>
           </div>
         </div>
@@ -8829,6 +9124,10 @@ body.light-mode .bottom-nav .nav-tab-indicator {
 
       <div class="blocked-note hidden" id="blockedNote" style="background: #200b0b; color: #ff8585; padding: 10px 15px; font-size: 13px; border-bottom: 1px solid #4a1515;">
         You blocked this user.
+      </div>
+      <div class="disappearing-indicator hidden" id="disappearingIndicator" role="status" aria-live="polite">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.64 5.64l2.12 2.12M16.24 16.24l2.12 2.12M18.36 5.64l-2.12 2.12M7.76 16.24l-2.12 2.12"/><circle cx="12" cy="12" r="3.5"/></svg>
+        <span id="disappearingIndicatorText"></span>
       </div>
 
       <!-- Group bio pill — sits above the conversation, below the header -->
@@ -8966,7 +9265,7 @@ body.light-mode .bottom-nav .nav-tab-indicator {
         <h3>New Post</h3>
         <textarea id="postInput" placeholder="Share your thought" maxlength="2500" style="min-height:110px;"></textarea>
         <div style="font-size:12px;color:gray;margin-top:6px;">3–250 words</div>
-        <input type="file" id="postMediaInput" accept="image/*,video/*" multiple style="display:none;" onchange="handlePostMediaSelect(event)">
+            <input type="file" id="postMediaInput" accept="image/gif,image/*,video/*" multiple style="display:none;" onchange="handlePostMediaSelect(event)">
         <div id="postImgPreviews" class="post-img-preview-wrap" style="display:none;"></div>
         <div id="postVideoPreview" style="display:none;"></div>
         <!-- Unified media picker opens the general photo/video library directly. -->
@@ -9001,7 +9300,7 @@ body.light-mode .bottom-nav .nav-tab-indicator {
             </div>
             <div class="pp-word-hint">3–250 words</div>
             <div class="pp-capsule-row">
-              <input type="file" id="ppMediaInput" accept="image/*,video/*" multiple style="display:none;" onchange="ppHandleMediaSelect(event)">
+              <input type="file" id="ppMediaInput" accept="image/gif,image/*,video/*" multiple style="display:none;" onchange="ppHandleMediaSelect(event)">
               <button class="pp-media-capsule pp-media-picker-capsule" type="button" onclick="document.getElementById('ppMediaInput').click()" title="Add photos or videos" aria-label="Add photos or videos">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m3 16 4.5-4.5a2 2 0 0 1 2.8 0L15 16l2.2-2.2a2 2 0 0 1 2.8 0L21 15.8"/><path d="M17 4v3m-1.5-1.5h3"/></svg>
               </button>
@@ -9706,8 +10005,24 @@ const CLOUD_NAME = "dls1cjokj";
 const UPLOAD_PRESET = "Chatapp_upload";
 
 async function uploadToCloudinary(file, resourceType = "auto", onProgress = null) {
+  if (!file || typeof file.size !== "number" || file.size <= 0) {
+    throw new Error("The selected file is empty or unavailable.");
+  }
+  /*
+   * Some iOS file pickers report GIFs as application/octet-stream (or leave
+   * the MIME type blank). Cloudinary then treats the payload inconsistently.
+   * Always send GIF bytes with a real .gif filename and image/gif MIME type.
+   */
+  const fileName = String(file.name || "").toLowerCase();
+  const isGif = fileName.endsWith(".gif") || String(file.type || "").toLowerCase() === "image/gif";
+  const uploadPayload = isGif
+    ? new File([file], fileName.endsWith(".gif") ? file.name : "animation.gif", {
+        type: "image/gif",
+        lastModified: file.lastModified || Date.now()
+      })
+    : file;
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", uploadPayload, uploadPayload.name || "upload");
   formData.append("upload_preset", UPLOAD_PRESET);
   /* Use XHR only for callers that request progress updates. Keeping fetch for
      all existing callers avoids changing their upload behavior. */
@@ -9731,7 +10046,7 @@ async function uploadToCloudinary(file, resourceType = "auto", onProgress = null
         onProgress(100);
         resolve(data.secure_url);
       };
-      const sizeMb = (file && file.size) ? file.size / (1024 * 1024) : 0;
+       const sizeMb = (uploadPayload && uploadPayload.size) ? uploadPayload.size / (1024 * 1024) : 0;
       xhr.timeout = Math.min(180000, 45000 + sizeMb * 20000);
       xhr.send(formData);
     });
@@ -9741,7 +10056,7 @@ async function uploadToCloudinary(file, resourceType = "auto", onProgress = null
      short timeout was aborting perfectly-healthy uploads of larger photos
      (phone camera photos are often several MB) before they could finish on
      slower connections. Floor of 45s, +20s per MB, capped at 3 minutes. */
-  const sizeMb = (file && file.size) ? file.size / (1024 * 1024) : 0;
+   const sizeMb = (uploadPayload && uploadPayload.size) ? uploadPayload.size / (1024 * 1024) : 0;
   const timeoutMs = Math.min(180000, 45000 + sizeMb * 20000);
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -10096,6 +10411,7 @@ import {
   where,
   orderBy,
   getDocs,
+  getCountFromServer,
   limit,
   onSnapshot,
   serverTimestamp,
@@ -10151,6 +10467,12 @@ let intervalsStarted   = false;
 let attachedMedia      = null;
 let _chatImagesQueue   = []; /* multi-image chat sends */
 let _chatMediaQueue    = []; /* ordered mixed-media selection for the composer */
+const CHAT_MEDIA_MAX   = 9;
+/* Failed sends keep their original File/data URL references here. The retry
+   card and this map intentionally outlive the composer so clearing the
+   composer can never discard media that is waiting to be sent. */
+const _pendingChatRetries = new Map();
+let _chatRetrySequence = 0;
 let chatUIBound        = false;
 let activeMessageUnsub  = null;
 let activeConvUnsub     = null;
@@ -10181,12 +10503,31 @@ let fyKnownPostIds = new Set();
 let lastScrollY = 0;
 let navHidden = false;
 const FY_POST_PAGE_SIZE = 10;
+const FY_POST_PREFETCH_DISTANCE = 1800;
 let _fyPostCursor = null;
 let _fyHasMorePosts = false;
 let _fyPostsLoading = false;
+let _fyFirstPageReady = false;
+let _fyRetryTimer = null;
+let _fyRetryAttempt = 0;
+let _fyRetryPending = false;
 let _fyPreserveVisibleCount = null;
 let _lastSentMessageStamp = null;
 let _feedVideoObserver = null;
+let activeConversationData = {};
+let _chatExpiryTimer = null;
+const UP_POST_PAGE_SIZE = 10;
+const UP_POST_PREFETCH_DISTANCE = 1200;
+let _upPostsUser = "";
+let _upPosts = [];
+let _upPostCursor = null;
+let _upHasMorePosts = false;
+let _upPostsLoading = false;
+let _upPostsRetryTimer = null;
+let _upPostsRetryAttempt = 0;
+let _upPostsRetryPending = false;
+let _upPostsRequestToken = 0;
+let _upPostsFallbackOrder = false;
 const _careCounts = {};
 let _lastCareTapAt = 0;
 let _lastCareTapPostId = "";
@@ -10380,6 +10721,13 @@ async function toggleBlockUser() {
   await updateDoc(doc(db, "users", currentUser), { blockedUsers: updated }).catch(() => {});
   updateBlockButton();
   renderChatList();
+  /* Apply the privacy decision to every already-open feed surface instead of
+     waiting for the next Firestore snapshot. */
+  const fyPage = document.getElementById("forYouPage");
+  if (fyPage && fyPage.style.display !== "none") {
+    _fyPreserveVisibleCount = Math.max(FY_POST_PAGE_SIZE, fyVisibleCount);
+    renderPostFeed(document.getElementById("fySearch")?.value || "");
+  }
   const tid = threadId(currentUser, target);
   _renderMessagesFromCache(tid, target);
 }
@@ -11088,6 +11436,138 @@ function _isPostCurrentlyVisible(post, now = nowStamp()) {
   if (expiresAt && expiresAt <= now) return false;
   return true;
 }
+
+const CHAT_DISAPPEARING_OPTIONS = {
+  "5m":  { label: "5 min",  ms: 5 * 60 * 1000 },
+  "1h":  { label: "1 hr",   ms: 60 * 60 * 1000 },
+  "24h": { label: "24 hr",  ms: 24 * 60 * 60 * 1000 },
+  "7d":  { label: "7 days", ms: 7 * 24 * 60 * 60 * 1000 },
+  "30d": { label: "30 days", ms: 30 * 24 * 60 * 60 * 1000 }
+};
+
+function _chatDisappearingConfig(data = activeConversationData) {
+  const value = String(data?.disappearingDuration || "");
+  const option = CHAT_DISAPPEARING_OPTIONS[value];
+  const ms = Number(data?.disappearingDurationMs || option?.ms || 0);
+  return ms > 0 ? {
+    value,
+    label: String(data?.disappearingDurationLabel || option?.label || "enabled"),
+    ms
+  } : null;
+}
+
+function _updateDisappearingIndicator() {
+  const indicator = document.getElementById("disappearingIndicator");
+  const text = document.getElementById("disappearingIndicatorText");
+  const config = currentChatType === "dm" ? _chatDisappearingConfig() : null;
+  if (!indicator) return;
+  indicator.classList.toggle("hidden", !config);
+  if (text && config) text.textContent = `Disappearing messages are on · ${config.label}`;
+  const action = document.getElementById("disappearingMenuBtn");
+  if (action) action.setAttribute("aria-label", config
+    ? `Disappearing Messages, currently ${config.label}`
+    : "Disappearing Messages");
+}
+
+function _scheduleChatExpiry(messages, tid, partner) {
+  if (_chatExpiryTimer) {
+    clearTimeout(_chatExpiryTimer);
+    _chatExpiryTimer = null;
+  }
+  const now = nowStamp();
+  const expired = messages.filter(msg => _postMillis(msg.expiresAt) > 0 && _postMillis(msg.expiresAt) <= now);
+  /* Best-effort cleanup keeps Firestore small. Visibility is enforced locally
+     even when the other participant cannot delete the document. */
+  expired.forEach(msg => {
+    if (msg.id) deleteDoc(doc(db, "conversations", tid, "messages", msg.id)).catch(() => {});
+  });
+  const nextAt = messages
+    .map(msg => _postMillis(msg.expiresAt))
+    .filter(stamp => stamp > now)
+    .sort((a, b) => a - b)[0];
+  if (!nextAt) return;
+  _chatExpiryTimer = setTimeout(() => {
+    _chatExpiryTimer = null;
+    if (currentChatType === "dm" && normalizeName(currentChatName) === normalizeName(partner)) {
+      _renderMessages(partner, currentChatMessages);
+    }
+  }, Math.max(50, Math.min(2147483000, nextAt - now + 25)));
+}
+
+function _visibleChatMessages(messages) {
+  const now = nowStamp();
+  return (Array.isArray(messages) ? messages : [])
+    .filter(msg => {
+      const expiresAt = _postMillis(msg.expiresAt);
+      return !expiresAt || expiresAt > now;
+    });
+}
+
+async function _chooseDisappearingDuration(value, fallbackLabel, fallbackMs) {
+  if (currentChatType !== "dm" || !currentChatName) return;
+  const option = CHAT_DISAPPEARING_OPTIONS[value];
+  const label = option?.label || fallbackLabel;
+  const ms = option?.ms || fallbackMs;
+  if (!ms) return;
+  const tid = threadId(currentUser, currentChatName);
+  const menu = document.getElementById("chatDotsMenu");
+  const options = document.getElementById("disappearingOptions");
+  if (menu) menu.classList.remove("open");
+  if (options) options.classList.remove("open");
+  const action = document.getElementById("disappearingMenuBtn");
+  if (action) action.disabled = true;
+  try {
+    await ensureConversation(currentUser, currentChatName);
+    const update = {
+      disappearingDuration: value,
+      disappearingDurationMs: ms,
+      disappearingDurationLabel: label,
+      disappearingUpdatedAt: nowStamp()
+    };
+    await updateDoc(doc(db, "conversations", tid), update);
+    activeConversationData = { ...(activeConversationData || {}), ...update };
+    conversations[tid] = { ...(conversations[tid] || {}), ...update };
+    _updateDisappearingIndicator();
+    _showToastMsg(`Disappearing messages enabled · ${label}`);
+  } catch (_) {
+    _showToastMsg("Could not update disappearing messages. Try again.");
+  } finally {
+    if (action) action.disabled = false;
+  }
+}
+window._chooseDisappearingDuration = _chooseDisappearingDuration;
+
+async function _disableDisappearingMessages() {
+  if (currentChatType !== "dm" || !currentChatName) return;
+  const tid = threadId(currentUser, currentChatName);
+  const menu = document.getElementById("chatDotsMenu");
+  const options = document.getElementById("disappearingOptions");
+  const action = document.getElementById("disableDisappearingBtn");
+  if (menu) menu.classList.remove("open");
+  if (options) options.classList.remove("open");
+  document.getElementById("disappearingMenuBtn")?.setAttribute("aria-expanded", "false");
+  if (action) action.disabled = true;
+  try {
+    await ensureConversation(currentUser, currentChatName);
+    const update = {
+      disappearingDuration: null,
+      disappearingDurationMs: 0,
+      disappearingDurationLabel: "",
+      disappearingUpdatedAt: nowStamp()
+    };
+    await updateDoc(doc(db, "conversations", tid), update);
+    activeConversationData = { ...(activeConversationData || {}), ...update };
+    conversations[tid] = { ...(conversations[tid] || {}), ...update };
+    _updateDisappearingIndicator();
+    _showToastMsg("Disappearing messages turned off");
+  } catch (_) {
+    _showToastMsg("Could not turn off disappearing messages. Try again.");
+  } finally {
+    if (action) action.disabled = false;
+  }
+}
+window._disableDisappearingMessages = _disableDisappearingMessages;
+
 function _schedulePostLifecycleRefresh(nextAt) {
   if (_postLifecycleTimer) {
     clearTimeout(_postLifecycleTimer);
@@ -11158,11 +11638,28 @@ function listenToPosts() {
   _fyPostCursor = null;
   _fyHasMorePosts = false;
   _fyPostsLoading = false;
+  _fyFirstPageReady = false;
   const q = query(collection(db, "posts"), orderBy("stamp", "desc"), limit(FY_POST_PAGE_SIZE));
   postsUnsub = onSnapshot(q, (snapshot) => {
     const firstPagePosts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    _fyPostCursor = snapshot.docs.length ? snapshot.docs[snapshot.docs.length - 1] : null;
-    _fyHasMorePosts = snapshot.docs.length === FY_POST_PAGE_SIZE;
+    if (!_fyPostsLoading) {
+      _fyRetryPending = false;
+      _fyRetryAttempt = 0;
+    }
+    /*
+     * onSnapshot re-emits this first page for every new post. Resetting the
+     * cursor here made the next load-more query fetch the same batch again,
+     * which caused the boundary stall/jump. Initialise it only once per feed
+     * session and keep it tied to the already loaded pages.
+     */
+    if (!_fyFirstPageReady) {
+      _fyPostCursor = snapshot.docs.length ? snapshot.docs[snapshot.docs.length - 1] : null;
+      _fyHasMorePosts = snapshot.docs.length === FY_POST_PAGE_SIZE;
+      _fyFirstPageReady = true;
+    } else if (!_fyPostCursor && snapshot.docs.length) {
+      _fyPostCursor = snapshot.docs[snapshot.docs.length - 1];
+      _fyHasMorePosts = snapshot.docs.length === FY_POST_PAGE_SIZE;
+    }
     _reconcilePostLifecycle(firstPagePosts);
     const fy   = document.getElementById("forYouPage");
     const feed = document.getElementById("postFeed");
@@ -11182,6 +11679,18 @@ function listenToPosts() {
         renderPostFeed(document.getElementById("fySearch")?.value || "");
       }
     }
+  }, error => {
+    /*
+     * The live first-page listener can fail while offline or on a flaky
+     * connection. Keep it pending and recreate the listener later instead of
+     * leaving the feed permanently pinned to whatever it had loaded before.
+     */
+    console.warn("For You initial page listener interrupted; will retry:", error);
+    _fyFirstPageReady = false;
+    _fyPostCursor = null;
+    _fyHasMorePosts = false;
+    _fyRetryPending = true;
+    _scheduleForYouRetry();
   });
 }
 
@@ -11208,6 +11717,9 @@ function listenToConvDoc(partner) {
   activeConvUnsub = onSnapshot(doc(db, "conversations", tid), (snap) => {
     if (!snap.exists()) return;
     const data        = snap.data();
+    activeConversationData = { id: tid, ...data };
+    conversations[tid] = { ...(conversations[tid] || {}), id: tid, ...data };
+    if (currentChatName === partner) _updateDisappearingIndicator();
     const partnerKey  = `typing_${partner}`;
     const isTyping    = (data[partnerKey] || 0) > (nowStamp() - 4000);
     /* Keep header indicator always hidden */
@@ -11241,7 +11753,7 @@ async function ensureConversation(a, b) {
   if (a === b) { await ensureSelfChat(); return threadId(a, b); }
   const tid = threadId(a, b);
   if (!conversations[tid]) {
-    await setDoc(doc(db, "conversations", tid), {
+    const initialConversation = {
       participants: [a, b],
       lastStamp:    0,
       lastText:     "",
@@ -11250,7 +11762,9 @@ async function ensureConversation(a, b) {
       lastIsVid:    false,
       [`unread_${a}`]: 0,
       [`unread_${b}`]: 0
-    }, { merge: true });
+    };
+    await setDoc(doc(db, "conversations", tid), initialConversation, { merge: true });
+    conversations[tid] = { id: tid, ...initialConversation };
   }
   return tid;
 }
@@ -11267,13 +11781,15 @@ async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = 
   const tid   = await ensureConversation(currentUser, partner);
   const stamp = nowStamp();
   const time  = formatTimeFromStamp(stamp);
+  const disappearing = _chatDisappearingConfig(conversations[tid] || activeConversationData);
   const msgData = {
     sender: normalizeName(currentUser),
     text:   text || "",
     img:    mediaUrl || null,
     isVid:  !!isVid,
     time,
-    stamp
+    stamp,
+    ...(disappearing ? { expiresAt: stamp + disappearing.ms } : {})
   };
   if (isFile && mediaUrl) {
     msgData.isFile   = true;
@@ -11322,10 +11838,12 @@ async function addMsgImages(partner, imageUrls, text, replyTo, imageDimensions =
   const tid   = await ensureConversation(currentUser, partner);
   const stamp = nowStamp();
   const time  = formatTimeFromStamp(stamp);
+  const disappearing = _chatDisappearingConfig(conversations[tid] || activeConversationData);
   const msgData = {
     sender: normalizeName(currentUser), text: text || "",
     images: safeImageUrls, img: safeImageUrls[0] || null, isVid: false, time, stamp,
-    ...(imageDimensions.length ? { imageDimensions: imageDimensions.slice(0, safeImageUrls.length) } : {})
+    ...(imageDimensions.length ? { imageDimensions: imageDimensions.slice(0, safeImageUrls.length) } : {}),
+    ...(disappearing ? { expiresAt: stamp + disappearing.ms } : {})
   };
   if (replyTo) msgData.replyTo = replyTo;
   _lastSentMessageStamp = stamp;
@@ -11408,6 +11926,11 @@ function _renderMessages(partner, messages) {
   if (!box) return;
   const me = normalizeName(currentUser);
   if (!me) return;
+  const partnerNorm = normalizeName(partner);
+  const tid         = threadId(me, partnerNorm);
+  const rawMessages = Array.isArray(messages) ? messages : [];
+  messages = _visibleChatMessages(rawMessages);
+  _scheduleChatExpiry(rawMessages, tid, partnerNorm);
   currentChatMessages = messages;
   /* Update call button gating whenever messages change */
   if (typeof _updateCallButtonState === "function") _updateCallButtonState();
@@ -11416,8 +11939,6 @@ function _renderMessages(partner, messages) {
   const shouldScrollToBottom = atBottom || !!window.__justSentMessage || !!window.__chatIsOpening;
   window.__justSentMessage = false;
   window.__chatIsOpening   = false;
-  const partnerNorm = normalizeName(partner);
-  const tid         = threadId(me, partnerNorm);
   const partnerProfile = ensureProfile(partnerNorm);
   const partnerLastRead = (partnerProfile.lastRead || {})[tid] || 0;
 
@@ -11427,6 +11948,33 @@ function _renderMessages(partner, messages) {
   const existingIdsMatch = existingMessageWraps.every((wrap, index) =>
     wrap.dataset.msgid === messages[index]?.id
   );
+  const currentMessageIds = new Set(messages.map(msg => msg.id).filter(Boolean));
+  const isDeletionOnlyUpdate = existingMessageWraps.length > messages.length &&
+    existingMessageWraps.every(wrap => currentMessageIds.has(wrap.dataset.msgid) ||
+      !rawMessages.some(msg => msg.id === wrap.dataset.msgid));
+  if (isDeletionOnlyUpdate && box.dataset.threadId === tid) {
+    /*
+     * Delete only the removed wrappers. Reusing the existing DOM is important:
+     * replacing chatBox.innerHTML would recreate every <video>, which resets
+     * playback and causes the remaining videos to blink.
+     */
+    existingMessageWraps
+      .filter(wrap => !currentMessageIds.has(wrap.dataset.msgid))
+      .forEach(wrap => wrap.remove());
+    Array.from(box.querySelectorAll(".chat-day-divider")).forEach(divider => {
+      let next = divider.nextElementSibling;
+      let hasMessage = false;
+      while (next && !next.classList.contains("chat-day-divider")) {
+        if (next.matches?.("[data-msgid]")) { hasMessage = true; break; }
+        next = next.nextElementSibling;
+      }
+      if (!hasMessage) divider.remove();
+    });
+     _renderPendingChatRetries(`dm:${tid}`, box);
+    updateBlockButton();
+    syncComposerState();
+    return;
+  }
   const appendOnly = existingMessageWraps.length > 0 &&
     messages.length > existingMessageWraps.length && existingIdsMatch;
   const unchanged = messages.length > 0 &&
@@ -11434,11 +11982,15 @@ function _renderMessages(partner, messages) {
   if (unchanged) {
     /* Firestore can emit the same snapshot when conversation metadata changes.
        Keep the existing DOM and media nodes completely untouched. */
+     _renderPendingChatRetries(`dm:${tid}`, box);
     updateBlockButton();
     syncComposerState();
     return;
   }
   const renderStartIndex = appendOnly ? existingMessageWraps.length : 0;
+  const hasSendAnimation = shouldScrollToBottom && messages.slice(renderStartIndex).some(msg =>
+    normalizeName(msg.sender) === me && Number(msg.stamp) === Number(_lastSentMessageStamp)
+  );
   box.dataset.threadId = tid;
   if (!appendOnly) box.innerHTML = "";
 
@@ -11626,7 +12178,7 @@ function _renderMessages(partner, messages) {
            individually tappable. */
         const _imgs = msg.images;
         const _cnt  = _imgs.length;
-        const _cls  = _cnt === 2 ? "collage-2" : _cnt === 3 ? "collage-3" : _cnt === 4 ? "collage-4" : "collage-many";
+         const _cls  = _cnt === 2 ? "collage-2" : _cnt === 3 ? "collage-3" : _cnt === 4 ? "collage-4" : `collage-many${_cnt % 2 ? " collage-odd" : ""}`;
         const collage = document.createElement("div");
         collage.className = `chat-collage ${_cls}`;
          _imgs.slice(0, 9).forEach((url, i) => {
@@ -11828,11 +12380,16 @@ function _renderMessages(partner, messages) {
 
   if (shouldScrollToBottom) {
     if (area) {
-      area.scrollTop = area.scrollHeight;
-      setTimeout(() => { area.scrollTop = area.scrollHeight; }, 120);
-      setTimeout(() => { area.scrollTop = area.scrollHeight; }, 400);
+      /* Let the new bubble animate from the composer without repeatedly
+         moving the existing message list underneath it. */
+      if (hasSendAnimation) {
+        setTimeout(() => { area.scrollTop = area.scrollHeight; }, 380);
+      } else {
+        area.scrollTop = area.scrollHeight;
+      }
     }
   }
+  _renderPendingChatRetries(`dm:${tid}`, box);
   updateBlockButton();
   syncComposerState();
 }
@@ -12303,23 +12860,65 @@ window.submitPost = async function () {
       for (let itemIndex = 0; itemIndex < mediaItems.length; itemIndex++) {
         const item = mediaItems[itemIndex];
         const file = item.type === "image" ? (item.cropped || item.raw) : item.raw;
-        const fileLabel = file && file.type === "image/gif" ? "GIF" : item.type === "video" ? "video" : "image";
-        const rawUrl = await uploadToCloudinary(file, "image" === item.type ? "image" : "video", uploadPercent => {
-          const overall = ((itemIndex + uploadPercent / 100) / mediaItems.length) * 100;
-          setPostUploadProgress(overall, `Uploading ${fileLabel} ${itemIndex + 1} of ${mediaItems.length}…`);
-        });
+        /*
+         * Mobile pickers can return an empty MIME type for GIFs. Re-wrap the
+         * original, uncropped bytes with an explicit GIF filename/type so
+         * Cloudinary's image endpoint preserves the animation.
+         */
+        const uploadFile = item.type === "image" && item.isGif && file
+          ? new File(
+              [file],
+              String(file.name || "animation.gif").toLowerCase().endsWith(".gif")
+                ? String(file.name || "animation.gif")
+                : "animation.gif",
+              { type: "image/gif", lastModified: file.lastModified || Date.now() }
+            )
+          : file;
+        const fileLabel = item.isGif || file?.type === "image/gif"
+          ? "GIF"
+          : item.type === "video" ? "video" : "image";
+        let rawUrl;
+        try {
+          rawUrl = await uploadToCloudinary(
+            uploadFile,
+            item.type === "image" ? "image" : "video",
+            uploadPercent => {
+              const overall = ((itemIndex + uploadPercent / 100) / mediaItems.length) * 100;
+              setPostUploadProgress(overall, `Uploading ${fileLabel} ${itemIndex + 1} of ${mediaItems.length}…`);
+            }
+          );
+        } catch (uploadError) {
+          /*
+           * A few Cloudinary presets reject an explicitly selected image
+           * resource type for animated GIFs. Retry GIFs through auto-detect;
+           * the normalized .gif payload above keeps the animation intact.
+           */
+          if (item.type === "image" && item.isGif) {
+            rawUrl = await uploadToCloudinary(uploadFile, "auto", uploadPercent => {
+              const overall = ((itemIndex + uploadPercent / 100) / mediaItems.length) * 100;
+              setPostUploadProgress(overall, `Uploading ${fileLabel} ${itemIndex + 1} of ${mediaItems.length}…`);
+            });
+          } else {
+            throw uploadError;
+          }
+        }
         const url = item.type === "video"
           ? rawUrl.replace("/upload/", "/upload/du_59/")
           : rawUrl;
-        uploadedMedia.push({ type: item.type, url });
+        uploadedMedia.push({
+          type: item.type,
+          url,
+          ...(item.isGif ? { isGif: true, format: "gif" } : {})
+        });
       }
       images = uploadedMedia.filter(item => item.type === "image").map(item => item.url);
       const videoUrls = uploadedMedia.filter(item => item.type === "video").map(item => item.url);
       videoUrl = videoUrls[0] || null;
-    } catch {
+    } catch (uploadError) {
       resetPostUploadProgress();
       if (uploadBtn) { uploadBtn.disabled = false; uploadBtn.textContent = "Post"; }
-      alert("Media upload failed. Please try again.");
+      console.error("Post media upload failed:", uploadError);
+      alert(uploadError?.message || "Media upload failed. Please try again.");
       return;
     }
   }
@@ -12413,6 +13012,9 @@ function renderChatList() {
     })
     .map(conv => {
       const partner = (conv.participants || []).find(p => normalizeName(p) !== me) || "";
+       /* A block removes the relationship from the normal chat surface too.
+          The direct open/send guards remain as a second line of defence. */
+       if (!partner || isBlocked(partner) || isTargetBlockingMe(partner)) return null;
       const lastText = conv.lastText || "";
       const stamp    = conv.lastStamp || 0;
       if (q && !normalizeName(partner).includes(q) && !lastText.toLowerCase().includes(q)) return null;
@@ -12776,7 +13378,7 @@ function _renderQuotedPostHTML(quote) {
   const nested = quote.quoteOf || quote.quotedPost || null;
   return `<article class="quoted-post" tabindex="0" role="button" aria-label="Open post by @${escapeHtml(author)}" onclick="_openQuotedPostByKey('${registryKey}',event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();_openQuotedPostByKey('${registryKey}',event)}">
     <div class="quoted-post-header">
-      <div class="quoted-post-avatar" onclick="event.stopPropagation();viewUserProfile('${escapeHtml(author)}',event)">${renderAvatarHTML(author)}</div>
+      <div class="quoted-post-avatar" onclick="event.stopPropagation();_openQuotedPosterProfile('${registryKey}',event)">${renderAvatarHTML(author)}</div>
       <div class="quoted-post-author">@${escapeHtml(author)}</div>
     </div>
     ${media ? `<div class="quoted-post-media-carousel">${media}</div>` : ""}
@@ -12790,6 +13392,7 @@ function _openQuotedVideo(el, event) {
   if (!el) return;
   _openFullscreenVideoFromUrl(el.dataset.quotedVideoSrc, el.dataset.quotedVideoPoster || "");
 }
+window._openQuotedVideo = _openQuotedVideo;
 
 function _openQuotedPostByKey(key, event) {
   event?.stopPropagation();
@@ -12797,6 +13400,16 @@ function _openQuotedPostByKey(key, event) {
   if (!quote) return;
   _openQuotedPost(quote);
 }
+window._openQuotedPostByKey = _openQuotedPostByKey;
+
+function _openQuotedPosterProfile(key, event) {
+  event?.stopPropagation();
+  const quote = _quotedPostRegistry.get(key);
+  const author = normalizeName(quote?.author || "");
+  if (!author) return;
+  viewUserProfile(author, event);
+}
+window._openQuotedPosterProfile = _openQuotedPosterProfile;
 
 function _openQuotedPost(quote) {
   if (!quote) return;
@@ -12999,12 +13612,31 @@ function _buildPostCard(post) {
       const dotsEl = card.querySelector(".pc-dots");
       if (!carousel || !dotsEl) return;
       const dots = dotsEl.querySelectorAll(".pc-dot");
-      carousel.addEventListener("scroll", () => {
-        const index = Math.round(carousel.scrollLeft / carousel.offsetWidth);
-        dots.forEach((dot, i) => dot.classList.toggle("active", i === index));
-      }, { passive: true });
+      const syncCarouselIndicator = () => {
+        const items = Array.from(carousel.querySelectorAll(".pc-item"));
+        if (!items.length) return;
+        /* Use the item nearest the viewport center instead of dividing by
+           carousel width. This remains correct with the 78% item width,
+           gap, centered snapping, and at both scroll boundaries. */
+        const viewportCenter = carousel.scrollLeft + carousel.clientWidth / 2;
+        let activeIndex = 0;
+        let nearestDistance = Infinity;
+        items.forEach((item, index) => {
+          const itemCenter = item.offsetLeft + item.offsetWidth / 2;
+          const distance = Math.abs(itemCenter - viewportCenter);
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            activeIndex = index;
+          }
+        });
+        dots.forEach((dot, index) => dot.classList.toggle("active", index === activeIndex));
+      };
+      carousel.addEventListener("scroll", syncCarouselIndicator, { passive: true });
+      window.addEventListener("resize", syncCarouselIndicator, { passive: true });
+      requestAnimationFrame(syncCarouselIndicator);
     }, 80);
   }
+  if (post.id) _fetchCommentCount(post.id);
   requestAnimationFrame(() => _observeFeedVideos(_fyActiveScroll()));
   return card;
 }
@@ -13030,10 +13662,57 @@ function _avoidConsecutiveAuthors(arr) {
   return result;
 }
 
+function _sortPostsForFeed(arr) {
+  return arr
+    .map((post, index) => ({ post, index }))
+    .sort((a, b) => {
+      const stampDiff = _postPublicationAt(b.post) - _postPublicationAt(a.post);
+      return stampDiff || a.index - b.index;
+    })
+    .map(item => item.post);
+}
+
+/*
+ * Keep each author's posts in their ranking order, but take the next post
+ * from a different author whenever one is available. This is deliberately
+ * author-aware rather than just looking at adjacent array entries: the
+ * adjacent-only approach can preserve large same-author runs after a new
+ * page or live update is merged into the feed.
+ */
+function _distributeByAuthor(arr) {
+  if (arr.length <= 1) return arr;
+  const queues = new Map();
+  const authorOrder = [];
+  arr.forEach(post => {
+    const author = normalizeName(post.author);
+    if (!queues.has(author)) {
+      queues.set(author, []);
+      authorOrder.push(author);
+    }
+    queues.get(author).push(post);
+  });
+
+  const result = [];
+  let lastAuthor = null;
+  while (result.length < arr.length) {
+    let selectedAuthor = authorOrder.find(author =>
+      queues.get(author)?.length && author !== lastAuthor
+    );
+    if (!selectedAuthor) {
+      selectedAuthor = authorOrder.find(author => queues.get(author)?.length);
+    }
+    if (!selectedAuthor) break;
+    result.push(queues.get(selectedAuthor).shift());
+    lastAuthor = selectedAuthor;
+  }
+  return result;
+}
+
 /* For You feed ordering algorithm */
 function _buildFeedOrder(allPosts, q) {
   const THREE_DAYS_MS = 72 * 60 * 60 * 1000;
   const now = nowStamp();
+  const search = String(q || "").trim().toLowerCase();
   /* Filter out posts from blocked users and users who blocked me */
   const filtered = allPosts.filter(p => {
     if (!_isPostCurrentlyVisible(p, now)) return false;
@@ -13041,21 +13720,32 @@ function _buildFeedOrder(allPosts, q) {
     if (author === normalizeName(currentUser)) return true;
     if (isBlocked(author)) return false;
     if (isTargetBlockingMe(author)) return false;
+    if (search && !String(p.text || "").toLowerCase().includes(search)) return false;
     return true;
   });
 
   if (followingModeActive) {
     const src = filtered.filter(p => followingList.includes(normalizeName(p.author)));
-    return q ? src.filter(p => p.text.toLowerCase().includes(q)) : src;
+    return _avoidConsecutiveAuthors(
+      _distributeByAuthor(_sortPostsForFeed(src))
+    );
   }
 
   /* Split into recent (<72h) and old (≥72h) */
-  const recent = filtered.filter(p => (now - _postPublicationAt(p)) < THREE_DAYS_MS);
-  const old    = filtered.filter(p => (now - _postPublicationAt(p)) >= THREE_DAYS_MS);
+  const recent = _sortPostsForFeed(
+    filtered.filter(p => (now - _postPublicationAt(p)) < THREE_DAYS_MS)
+  );
+  const old = _sortPostsForFeed(
+    filtered.filter(p => (now - _postPublicationAt(p)) >= THREE_DAYS_MS)
+  );
 
   /* For recent posts: boost following 1:2 ratio */
-  const recFollowed = recent.filter(p => followingList.includes(normalizeName(p.author)));
-  const recOthers   = recent.filter(p => !followingList.includes(normalizeName(p.author)));
+  const recFollowed = _distributeByAuthor(
+    recent.filter(p => followingList.includes(normalizeName(p.author)))
+  );
+  const recOthers = _distributeByAuthor(
+    recent.filter(p => !followingList.includes(normalizeName(p.author)))
+  );
   const mergedRecent = [];
   let fi = 0, oi = 0;
   while (fi < recFollowed.length || oi < recOthers.length) {
@@ -13063,12 +13753,11 @@ function _buildFeedOrder(allPosts, q) {
     for (let k = 0; k < 2 && oi < recOthers.length; k++) mergedRecent.push(recOthers[oi++]);
   }
 
-  /* For old posts: just sort by recency (newest first), no following boost */
-  const sortedOld = [...old].sort((a, b) => _postPublicationAt(b) - _postPublicationAt(a));
+  /* Old posts keep recency priority while still being author-distributed. */
+  const sortedOld = _distributeByAuthor(old);
 
   const merged  = [...mergedRecent, ...sortedOld];
-  const deduped = _avoidConsecutiveAuthors(merged);
-  return q ? deduped.filter(p => p.text.toLowerCase().includes(q)) : deduped;
+  return _avoidConsecutiveAuthors(merged);
 }
 
 /* Returns the active inner scroll wrapper */
@@ -13095,32 +13784,72 @@ function _appendNewPostToFeed(post) {
   if (isBlocked(normalizeName(post.author))) return;
   if (isTargetBlockingMe(normalizeName(post.author))) return;
   document.getElementById("fyEndCard")?.remove();
-  fyFeedPosts.push(post);
-  fyVisibleCount++;
+  const allKnownPosts = posts.some(existing => existing.id === post.id)
+    ? posts
+    : [...posts, post];
+  const orderedPosts = _buildFeedOrder(allKnownPosts, q);
+  const newIndex = orderedPosts.findIndex(item => item.id === post.id);
+  if (newIndex < 0) return;
+  const renderedCards = Array.from(feed.querySelectorAll("[data-post-id]"));
+  const renderedCardById = new Map(
+    renderedCards.map(card => [card.dataset.postId, card])
+  );
+  fyFeedPosts = orderedPosts;
+  fyKnownPostIds = new Set(allKnownPosts.map(item => item.id));
+  const previousVisibleCount = fyVisibleCount;
   const card = _buildPostCard(post);
-  /* Item 8: Insert before the first post older than 72h so new posts stay in the "recent" section */
-  const THREE_DAYS_MS = 72 * 60 * 60 * 1000;
-  const now = nowStamp();
-  let inserted = false;
-  const cards = Array.from(feed.children);
-  for (const existingCard of cards) {
-    const pid = existingCard.dataset && existingCard.dataset.postId;
-    if (!pid) continue;
-    const existingPost = fyFeedPosts.find(p => p !== post && p.id === pid);
-    if (existingPost && (now - _postPublicationAt(existingPost)) >= THREE_DAYS_MS) {
-      feed.insertBefore(card, existingCard);
-      inserted = true;
-      break;
-    }
-  }
-  if (!inserted) feed.appendChild(card);
+  /*
+   * Keep the live update in the same ranked position as a fresh render.
+   * Existing cards are not rebuilt, so the browser keeps its scroll anchor;
+   * only the new card is inserted relative to the rendered ordered prefix.
+   */
+  const nextRenderedCard = orderedPosts
+    .slice(newIndex + 1)
+    .map(item => renderedCardById.get(item.id))
+    .find(Boolean);
+  if (nextRenderedCard) feed.insertBefore(card, nextRenderedCard);
+  else feed.appendChild(card);
+  feed.querySelector("#fyEmptyState")?.remove();
+  fyVisibleCount = Math.min(
+    fyFeedPosts.length,
+    Math.max(previousVisibleCount + 1, renderedCards.length + 1)
+  );
+  requestAnimationFrame(() => _observeFeedVideos(_fyActiveScroll()));
+}
+
+function _scheduleForYouRetry() {
+  if (!_fyRetryPending || _fyRetryTimer || !navigator.onLine) return;
+  const delay = Math.min(30000, 1200 * Math.pow(2, Math.min(_fyRetryAttempt, 5)));
+  _fyRetryAttempt++;
+  _fyRetryTimer = setTimeout(() => {
+    _fyRetryTimer = null;
+    if (!_fyRetryPending) return;
+    if (!_fyFirstPageReady) listenToPosts();
+    else _loadMorePosts();
+  }, delay);
 }
 
 async function _loadMorePosts() {
   if (_fyPostsLoading) return;
   const feed = _fyActiveFeed();
   if (!feed) return;
-  if (fyVisibleCount >= fyFeedPosts.length && _fyHasMorePosts && _fyPostCursor) {
+  /* Reveal already-fetched posts immediately. Only hit Firestore once the
+     rendered list has no buffered posts left. */
+  if (fyVisibleCount < fyFeedPosts.length) {
+    feed.querySelector("#fyEmptyState")?.remove();
+    document.getElementById("fyEndCard")?.remove();
+    const prevEnd = fyVisibleCount;
+    fyVisibleCount = Math.min(fyVisibleCount + FY_POST_PAGE_SIZE, fyFeedPosts.length);
+    fyFeedPosts.slice(prevEnd, fyVisibleCount).forEach(post => feed.appendChild(_buildPostCard(post)));
+    if (followingModeActive && fyVisibleCount >= fyFeedPosts.length) feed.appendChild(_buildEndOfFollowingCard());
+    requestAnimationFrame(() => _observeFeedVideos(_fyActiveScroll()));
+    return;
+  }
+  if (_fyHasMorePosts && _fyPostCursor) {
+    if (navigator.onLine === false) {
+      _fyRetryPending = true;
+      return;
+    }
     _fyPostsLoading = true;
     try {
       const nextQuery = query(
@@ -13133,18 +13862,45 @@ async function _loadMorePosts() {
       const nextPosts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       _fyPostCursor = snapshot.docs.length ? snapshot.docs[snapshot.docs.length - 1] : _fyPostCursor;
       _fyHasMorePosts = snapshot.docs.length === FY_POST_PAGE_SIZE;
+      _fyRetryPending = false;
+      _fyRetryAttempt = 0;
       const existingIds = new Set(posts.map(p => p.id));
       posts = [...posts, ...nextPosts.filter(p => !existingIds.has(p.id))];
       _reconcilePostLifecycle(posts);
-       /* The fetched page is the next visible batch. Preserve the existing
-          cards and reveal exactly ten more instead of resetting to page one. */
-       _fyPreserveVisibleCount = Math.min(
-         fyVisibleCount + FY_POST_PAGE_SIZE,
-         _buildFeedOrder(posts, document.getElementById("fySearch")?.value || "").length
-       );
-      renderPostFeed(document.getElementById("fySearch")?.value || "");
-    } catch (_) {
-      /* Keep the current page usable; a later scroll can retry. */
+      /*
+       * Recompute the order, but never clear/rebuild the live feed here.
+       * Re-rendering the whole list changes card heights and scroll anchoring
+       * while the user is moving, which is the jump seen at batch boundaries.
+       * The existing prefix remains unchanged; only the newly revealed tail
+       * is appended in place.
+       */
+      const q = document.getElementById("fySearch")?.value || "";
+      const renderedIds = new Set(
+        Array.from(feed.querySelectorAll("[data-post-id]")).map(card => card.dataset.postId)
+      );
+      const previousVisibleCount = fyVisibleCount;
+      const orderedPosts = _buildFeedOrder(posts, q);
+      fyFeedPosts = orderedPosts;
+      fyKnownPostIds = new Set(posts.map(p => p.id));
+      /*
+       * The first page can receive live updates while the user is reading.
+       * Never rebuild existing cards here: append only unseen posts. This
+       * preserves the browser's scroll anchor and avoids a visible reload.
+       */
+      const newPosts = orderedPosts.filter(post => !renderedIds.has(post.id));
+      const postsToAppend = newPosts.slice(0, FY_POST_PAGE_SIZE);
+      feed.querySelector("#fyEmptyState")?.remove();
+      postsToAppend.forEach(post => feed.appendChild(_buildPostCard(post)));
+      fyVisibleCount = Math.max(previousVisibleCount, renderedIds.size + postsToAppend.length);
+      if (followingModeActive && fyVisibleCount >= fyFeedPosts.length) {
+        feed.appendChild(_buildEndOfFollowingCard());
+      }
+      requestAnimationFrame(() => _observeFeedVideos(_fyActiveScroll()));
+    } catch (error) {
+      /* Do not turn a transient network failure into "no more posts". */
+      console.warn("For You pagination failed; will retry:", error);
+      _fyRetryPending = true;
+      _scheduleForYouRetry();
     } finally {
       _fyPostsLoading = false;
     }
@@ -13166,8 +13922,9 @@ function renderPostFeed(filterText) {
   fyKnownPostIds = new Set(posts.map(p => p.id));
   if (!fyFeedPosts.length) {
     const msg = followingModeActive ? "No posts from people you follow yet." : "No posts found.";
-    feed.innerHTML = `<div style="padding:30px;text-align:center;color:gray;">${msg}</div>`;
+    feed.innerHTML = `<div id="fyEmptyState" style="padding:30px;text-align:center;color:gray;">${msg}</div>`;
     fyVisibleCount = 0;
+    if (_fyHasMorePosts) requestAnimationFrame(() => _loadMorePosts());
     return;
   }
   const preservedCount = _fyPreserveVisibleCount;
@@ -13291,6 +14048,7 @@ async function openChat(partner) {
   if (_prevInp) { _prevInp.value = ""; autoResizeMessageInput(); }
   _cancelReply();
   await ensureConversation(currentUser, partner);
+  activeConversationData = conversations[threadId(currentUser, partner)] || {};
   markAsRead(partner);
   _saveForYouScroll();
   isOnForYou = false;
@@ -13327,6 +14085,7 @@ async function openChat(partner) {
   const avatarEl = document.getElementById("chatHeaderAvatar");
   if (avatarEl) avatarEl.innerHTML = renderAvatarHTML(partner);
   updateBlockButton();
+  _updateDisappearingIndicator();
   _applyChatHeaderModeForType();
   setupChatUI();
   setActiveTab(0);
@@ -13525,12 +14284,14 @@ function hideChat() {
   if (typeof _cancelEditMsg === "function") _cancelEditMsg();
   /* Close any open header menus */
   document.getElementById("chatDotsMenu")?.classList.remove("open");
+  document.getElementById("disappearingOptions")?.classList.remove("open");
   document.getElementById("callOptionMenu")?.classList.remove("open");
   /* Blur input so keyboard closes before animation — prevents layout scatter */
   document.getElementById("messageInput")?.blur();
   if (activeMessageUnsub) { activeMessageUnsub(); activeMessageUnsub = null; }
   if (activeConvUnsub)    { activeConvUnsub();    activeConvUnsub = null; }
   if (typingTimeout)      { clearTimeout(typingTimeout); typingTimeout = null; }
+  if (_chatExpiryTimer)   { clearTimeout(_chatExpiryTimer); _chatExpiryTimer = null; }
   if (currentChatName && currentChatType === "dm") {
     const tid = threadId(currentUser, currentChatName);
     updateDoc(doc(db, "conversations", tid), { [`typing_${normalizeName(currentUser)}`]: 0 }).catch(() => {});
@@ -13545,6 +14306,8 @@ function hideChat() {
   const _tai = document.getElementById("typingAboveInput");
   if (_tai) _tai.style.display = "none";
   currentChatName = "";
+  activeConversationData = {};
+  _updateDisappearingIndicator();
   hideGroupChat();
   /* Restore call/block header controls in case the next chat opened is a
      regular DM — group/self chats hide them via _applyChatHeaderModeForType. */
@@ -13802,7 +14565,7 @@ async function toggleFollow(u, btnEl) {
 window.toggleFollow = toggleFollow;
 
 async function toggleFollowFromProfile() {
-  const u = viewingUsername;
+  const u = _profileActionUsername();
   if (!u || u === normalizeName(currentUser)) return;
   await toggleFollow(u, null);
   _updateVpFollowBtn(u);
@@ -13862,9 +14625,22 @@ window.updateBlockButton = updateBlockButton;
 /* ── 3-dot menu block action ── */
 function _dotsMenuBlock() {
   document.getElementById("chatDotsMenu")?.classList.remove("open");
+  document.getElementById("disappearingOptions")?.classList.remove("open");
   toggleBlockUser();
 }
 window._dotsMenuBlock = _dotsMenuBlock;
+
+/* ── Disappearing-message menu ── */
+function _toggleDisappearingMenu(e) {
+  if (e) e.stopPropagation();
+  if (currentChatType !== "dm") return;
+  const options = document.getElementById("disappearingOptions");
+  const action = document.getElementById("disappearingMenuBtn");
+  if (!options) return;
+  const isOpen = options.classList.toggle("open");
+  if (action) action.setAttribute("aria-expanded", isOpen ? "true" : "false");
+}
+window._toggleDisappearingMenu = _toggleDisappearingMenu;
 
 /* ── Toggle 3-dot menu ── */
 function _toggleChatDotsMenu(e) {
@@ -13872,6 +14648,8 @@ function _toggleChatDotsMenu(e) {
   const menu = document.getElementById("chatDotsMenu");
   if (!menu) return;
   document.getElementById("callOptionMenu")?.classList.remove("open");
+  document.getElementById("disappearingOptions")?.classList.remove("open");
+  document.getElementById("disappearingMenuBtn")?.setAttribute("aria-expanded", "false");
   menu.classList.toggle("open");
 }
 window._toggleChatDotsMenu = _toggleChatDotsMenu;
@@ -14845,34 +15623,28 @@ function showMediaPreview() {
     updateSendButtonState();
     return;
   }
-  if (attachedMedia.type === "image") {
+   if (attachedMedia.type === "image") {
     const img = document.createElement("img");
     img.src = attachedMedia.dataUrl;
     img.className = "preview-thumbnail";
-    if (attachedMedia._needsCrop) {
-      img.title = "Tap to crop";
-      img.style.cursor = "pointer";
-      img.onclick = () => {
-        const origFile = attachedMedia._originalFile || attachedMedia.file;
-        const origDataUrl = attachedMedia.dataUrl;
-        openCropModal(origDataUrl, (croppedFile) => {
-          if (!croppedFile) return;
-          const r = new FileReader();
-          r.onload = () => {
-            attachedMedia = { type: "image", dataUrl: String(r.result || ""), file: croppedFile };
-            showMediaPreview();
-          };
-          r.readAsDataURL(croppedFile);
-        });
-      };
+     img.title = "Tap to edit";
+     img.tabIndex = 0;
+     img.setAttribute("role", "button");
+     img.style.cursor = "pointer";
+     img.onclick = () => _openChatMediaEditor(attachedMedia, 0);
+     img.onkeydown = event => {
+       if (event.key === "Enter" || event.key === " ") {
+         event.preventDefault();
+         _openChatMediaEditor(attachedMedia, 0);
+       }
+     };
       thumb.appendChild(img);
-      const hint = document.createElement("div");
-      hint.style.cssText = "font-size:11px;color:#9ca3af;text-align:center;margin-top:3px;";
-      hint.textContent = "Tap image to crop";
-      thumb.appendChild(hint);
-    } else {
-      thumb.appendChild(img);
-    }
+      if (attachedMedia._needsCrop) {
+        const hint = document.createElement("div");
+        hint.style.cssText = "font-size:11px;color:#9ca3af;text-align:center;margin-top:3px;";
+       hint.textContent = "Tap image to edit";
+        thumb.appendChild(hint);
+      }
   } else if (attachedMedia.type === "video") {
     const vid = document.createElement("video");
     vid.src = attachedMedia.dataUrl;
@@ -14881,6 +15653,8 @@ function showMediaPreview() {
      vid.controls = true;
      vid.autoplay = true;
      vid.addEventListener("loadeddata", () => vid.play().catch(() => {}), { once: true });
+      vid.title = "Tap to edit video";
+      vid.onclick = () => _openChatMediaEditor(attachedMedia, 0);
     thumb.appendChild(vid);
   } else if (attachedMedia.type === "file") {
     const label = document.createElement("div");
@@ -14892,6 +15666,536 @@ function showMediaPreview() {
   updateSendButtonState();
 }
 window.showMediaPreview = showMediaPreview;
+
+/* ── Chat media editor ──
+   The editor works on the same queue item used by the composer. Nothing is
+   committed to that item until the user taps Done, so closing the editor
+   keeps the existing selected-media preview and send behavior unchanged. */
+let _chatEditorState = null;
+
+const _chatEditorFilterOptions = [
+  { id: "none", label: "Original", filter: "none" },
+  { id: "mono", label: "B&W", filter: "grayscale(1)" },
+  { id: "warm", label: "Warm", filter: "sepia(.3) saturate(1.35)" },
+  { id: "cool", label: "Cool", filter: "saturate(.82) hue-rotate(12deg) brightness(1.04)" },
+  { id: "fade", label: "Fade", filter: "contrast(.86) brightness(1.08) saturate(.72)" }
+];
+
+function _chatEditorImage(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = dataUrl;
+  });
+}
+
+function _chatEditorVideo(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    video.preload = "auto";
+    video.playsInline = true;
+    video.src = dataUrl;
+    const ready = () => {
+      video.removeEventListener("loadeddata", ready);
+      video.removeEventListener("error", failed);
+      video.pause();
+      resolve(video);
+    };
+    const failed = () => {
+      video.removeEventListener("loadeddata", ready);
+      video.removeEventListener("error", failed);
+      reject(new Error("Video could not be opened"));
+    };
+    video.addEventListener("loadeddata", ready, { once: true });
+    video.addEventListener("error", failed, { once: true });
+    video.load();
+  });
+}
+
+function _chatEditorMediaKind(item) {
+  const declaredType = String(item?.type || "").toLowerCase();
+  const fileType = String(item?.file?.type || item?.raw?.type || item?.mimeType || "").toLowerCase();
+  const dataUrl = String(item?.dataUrl || item?.url || "").toLowerCase();
+  if (declaredType === "video" || item?.isVid === true || fileType.startsWith("video/") || dataUrl.startsWith("data:video/")) {
+    return "video";
+  }
+  if (declaredType === "image" || fileType.startsWith("image/") || dataUrl.startsWith("data:image/")) {
+    return "image";
+  }
+  return declaredType;
+}
+
+function _chatEditorPoint(event) {
+  const state = _chatEditorState;
+  const canvas = document.getElementById("chatEditorCanvas");
+  if (!state || !canvas) return { x: 0, y: 0 };
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: Math.max(0, Math.min(1, (event.clientX - rect.left) / Math.max(1, rect.width))),
+    y: Math.max(0, Math.min(1, (event.clientY - rect.top) / Math.max(1, rect.height)))
+  };
+}
+
+function _chatEditorRender() {
+  const state = _chatEditorState;
+  const canvas = document.getElementById("chatEditorCanvas");
+   if (!state?.image || !canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const maxSide = 1800;
+   const sourceWidth = state.image.videoWidth || state.image.naturalWidth || 0;
+   const sourceHeight = state.image.videoHeight || state.image.naturalHeight || 0;
+   if (!sourceWidth || !sourceHeight) return;
+   const scale = Math.min(1, maxSide / Math.max(sourceWidth, sourceHeight));
+   const width = Math.max(1, Math.round(sourceWidth * scale));
+   const height = Math.max(1, Math.round(sourceHeight * scale));
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  ctx.filter = state.filter || "none";
+  ctx.drawImage(state.image, 0, 0, width, height);
+  ctx.restore();
+
+  (state.strokes || []).forEach(stroke => {
+    if (!stroke.points.length) return;
+    ctx.save();
+    ctx.strokeStyle = stroke.color;
+    ctx.lineWidth = Math.max(2, stroke.width * Math.min(width, height));
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    stroke.points.forEach((point, index) => {
+      const x = point.x * width;
+      const y = point.y * height;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    if (stroke.points.length === 1) {
+      ctx.arc(stroke.points[0].x * width, stroke.points[0].y * height, ctx.lineWidth / 2, 0, Math.PI * 2);
+      ctx.fillStyle = stroke.color;
+      ctx.fill();
+    } else {
+      ctx.stroke();
+    }
+    ctx.restore();
+  });
+
+  (state.texts || []).forEach(text => {
+    ctx.save();
+    const size = Math.max(18, Math.round(Math.min(width, height) * (text.size || .075)));
+    ctx.font = `700 ${size}px Arial, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = Math.max(2, size * .08);
+    ctx.strokeStyle = "rgba(0,0,0,.55)";
+    ctx.fillStyle = text.color || "#ffffff";
+    ctx.strokeText(text.text, text.x * width, text.y * height);
+    ctx.fillText(text.text, text.x * width, text.y * height);
+    ctx.restore();
+  });
+}
+
+function _chatEditorColorButtons(selected, onPick) {
+  const colors = ["#ffffff", "#000000", "#ff3b30", "#ffcc00", "#34c759", "#0a84ff", "#bf5af2"];
+  return colors.map(color => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chat-editor-color" + (color === selected ? " active" : "");
+    button.style.background = color;
+    button.setAttribute("aria-label", `Use ${color}`);
+    button.addEventListener("click", () => onPick(color));
+    return button;
+  });
+}
+
+function _renderChatEditorSubtools() {
+  const state = _chatEditorState;
+  const panel = document.getElementById("chatEditorSubtools");
+  if (!state || !panel) return;
+  panel.innerHTML = "";
+  if (state.tool === "crop") {
+    if (state.mediaKind === "video") {
+      const note = document.createElement("span");
+      note.textContent = "Video crop is unavailable here; the video will stay a video.";
+      note.style.cssText = "font-size:12px;color:#aeb8bd;";
+      panel.appendChild(note);
+      return;
+    }
+    const cropButton = document.createElement("button");
+    cropButton.type = "button";
+    cropButton.textContent = "Open crop tool";
+    cropButton.addEventListener("click", _startChatEditorCrop);
+    panel.appendChild(cropButton);
+    return;
+  }
+  if (state.tool === "filters") {
+    _chatEditorFilterOptions.forEach(option => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = option.label;
+      button.className = state.filterId === option.id ? "active" : "";
+      button.addEventListener("click", () => {
+        state.filterId = option.id;
+        state.filter = option.filter;
+        state.dirty = option.id !== "none" || state.strokes.length > 0 || state.texts.length > 0;
+        _renderChatEditorSubtools();
+        _chatEditorRender();
+      });
+      panel.appendChild(button);
+    });
+    return;
+  }
+  if (state.tool === "text") {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.maxLength = 80;
+    input.placeholder = "Write something…";
+     input.setAttribute("aria-label", "Text to add to media");
+    input.style.cssText = "width:min(180px,42vw);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 12px;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:12px;outline:none;";
+    panel.appendChild(input);
+    const add = document.createElement("button");
+    add.type = "button";
+    add.textContent = "Add text";
+    add.addEventListener("click", () => {
+      const text = input.value.trim();
+      if (!text) { input.focus(); return; }
+      state.texts.push({ text, color: state.color, x: .5, y: .5, size: .075 });
+      state.dirty = true;
+      input.value = "";
+      _chatEditorRender();
+    });
+    panel.appendChild(add);
+    _chatEditorColorButtons(state.color, color => {
+      state.color = color;
+      _renderChatEditorSubtools();
+    }).forEach(button => panel.appendChild(button));
+    return;
+  }
+  if (state.tool === "draw") {
+    const hint = document.createElement("span");
+     hint.textContent = state.mediaKind === "video" ? "Draw on the video" : "Draw on the photo";
+    hint.style.cssText = "font-size:12px;color:#aeb8bd;margin-right:3px;";
+    panel.appendChild(hint);
+    _chatEditorColorButtons(state.color, color => {
+      state.color = color;
+      _renderChatEditorSubtools();
+    }).forEach(button => panel.appendChild(button));
+    [
+      ["Thin", .006],
+      ["Medium", .014],
+      ["Bold", .026]
+    ].forEach(([label, width]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = label;
+      button.className = state.lineWidth === width ? "active" : "";
+      button.addEventListener("click", () => {
+        state.lineWidth = width;
+        _renderChatEditorSubtools();
+      });
+      panel.appendChild(button);
+    });
+    const undo = document.createElement("button");
+    undo.type = "button";
+    undo.textContent = "Undo";
+    undo.disabled = !state.strokes.length;
+    undo.addEventListener("click", () => {
+      state.strokes.pop();
+      state.dirty = state.filterId !== "none" || state.strokes.length > 0 || state.texts.length > 0;
+      _renderChatEditorSubtools();
+      _chatEditorRender();
+    });
+    panel.appendChild(undo);
+  }
+}
+
+function _selectChatEditorTool(tool) {
+  const state = _chatEditorState;
+  if (!state) return;
+  state.tool = tool;
+  document.querySelectorAll("[data-chat-editor-tool]").forEach(button => {
+    button.classList.toggle("active", button.dataset.chatEditorTool === tool);
+  });
+  _renderChatEditorSubtools();
+  if (tool === "crop") _startChatEditorCrop();
+}
+window._selectChatEditorTool = _selectChatEditorTool;
+
+function _startChatEditorCrop() {
+  const state = _chatEditorState;
+  const modal = document.getElementById("chatMediaEditorModal");
+  if (!state || !modal) return;
+  if (state.mediaKind === "video") {
+    _showToastMsg("Video crop is not available, but filters, text, and drawing preserve the video.");
+    _selectChatEditorTool("filters");
+    return;
+  }
+  modal.classList.remove("open");
+  openCropModal(state.draftDataUrl, croppedFile => {
+    if (!croppedFile) {
+      modal.classList.add("open");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      state.draftDataUrl = String(reader.result || state.draftDataUrl);
+      state.draftFile = croppedFile;
+      state.dirty = true;
+      try { state.image = await _chatEditorImage(state.draftDataUrl); } catch (_) {}
+      modal.classList.add("open");
+      _selectChatEditorTool("filters");
+      _chatEditorRender();
+    };
+    reader.readAsDataURL(croppedFile);
+  });
+}
+
+function _bindChatEditorCanvas() {
+  const canvas = document.getElementById("chatEditorCanvas");
+  if (!canvas || canvas.dataset.bound === "true") return;
+  canvas.dataset.bound = "true";
+  canvas.addEventListener("pointerdown", event => {
+    const state = _chatEditorState;
+    if (!state || state.tool !== "draw") return;
+    event.preventDefault();
+    canvas.setPointerCapture?.(event.pointerId);
+    state.drawing = true;
+    state.strokes.push({ color: state.color, width: state.lineWidth, points: [_chatEditorPoint(event)] });
+    state.dirty = true;
+    _chatEditorRender();
+  });
+  canvas.addEventListener("pointermove", event => {
+    const state = _chatEditorState;
+    if (!state?.drawing || state.tool !== "draw") return;
+    event.preventDefault();
+    const stroke = state.strokes[state.strokes.length - 1];
+    if (stroke) {
+      stroke.points.push(_chatEditorPoint(event));
+      _chatEditorRender();
+    }
+  });
+  const finish = event => {
+    const state = _chatEditorState;
+    if (!state) return;
+    state.drawing = false;
+    try { canvas.releasePointerCapture?.(event.pointerId); } catch (_) {}
+  };
+  canvas.addEventListener("pointerup", finish);
+  canvas.addEventListener("pointercancel", finish);
+}
+
+async function _openChatMediaEditor(item, index = 0, onCommit = null) {
+  if (!item) return;
+  const mediaKind = _chatEditorMediaKind(item);
+  if (mediaKind !== "image" && mediaKind !== "video") {
+    _showToastMsg("This file can be sent, but it cannot be edited here.");
+    return;
+  }
+  const modal = document.getElementById("chatMediaEditorModal");
+  const title = document.getElementById("chatEditorTitle");
+  if (!modal) return;
+  try {
+    const image = mediaKind === "video"
+      ? await _chatEditorVideo(item.dataUrl || item.url)
+      : await _chatEditorImage(item.dataUrl || item.url);
+    _chatEditorState = {
+      item,
+      index,
+      onCommit,
+      mediaKind,
+      image,
+      video: mediaKind === "video" ? image : null,
+      draftDataUrl: item.dataUrl || item.url,
+      draftFile: item.file || item.raw || null,
+      filterId: "none",
+      filter: "none",
+      texts: [],
+      strokes: [],
+      color: "#ffffff",
+      lineWidth: .014,
+      tool: "filters",
+      dirty: false,
+      drawing: false
+    };
+    if (title) title.textContent = mediaKind === "video"
+      ? "Edit video"
+      : item._needsCrop ? "Edit photo" : "Edit media";
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    _bindChatEditorCanvas();
+    _selectChatEditorTool("filters");
+    _chatEditorRender();
+  } catch (_) {
+    _showToastMsg("This media could not be opened for editing.");
+  }
+}
+window._openChatMediaEditor = _openChatMediaEditor;
+
+function _closeChatMediaEditor() {
+  const modal = document.getElementById("chatMediaEditorModal");
+  if (modal) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+  _chatEditorState = null;
+}
+window._closeChatMediaEditor = _closeChatMediaEditor;
+
+function _saveChatMediaEditor() {
+  const state = _chatEditorState;
+  if (!state) return;
+  if (!state.dirty) {
+    _closeChatMediaEditor();
+    return;
+  }
+  const canvas = document.getElementById("chatEditorCanvas");
+  if (!canvas) return;
+   if (state.mediaKind === "video") {
+     _exportChatEditedVideo(state, canvas);
+     return;
+   }
+  canvas.toBlob(blob => {
+    if (!blob) {
+      _showToastMsg("Could not save the edited media.");
+      return;
+    }
+    const sourceName = state.item.fileName || state.item.file?.name || "photo.jpg";
+    const outputName = sourceName.replace(/\.[^.]+$/, "") + ".jpg";
+    const editedFile = new File([blob], outputName, { type: "image/jpeg" });
+    const reader = new FileReader();
+    reader.onload = () => {
+      const editedDataUrl = String(reader.result || state.draftDataUrl);
+      if (typeof state.onCommit === "function") {
+        state.onCommit(editedDataUrl, editedFile);
+      } else {
+        state.item.type = state.mediaKind;
+        state.item.dataUrl = editedDataUrl;
+        state.item.file = editedFile;
+        state.item.fileName = outputName;
+        state.item._originalFile = state.item._originalFile || editedFile;
+        state.item._needsCrop = false;
+        _syncChatMediaQueuePreview();
+      }
+      _closeChatMediaEditor();
+    };
+    reader.readAsDataURL(blob);
+  }, "image/jpeg", .92);
+}
+window._saveChatMediaEditor = _saveChatMediaEditor;
+
+function _exportChatEditedVideo(state, canvas) {
+  const video = state.video;
+  const captureCanvas = canvas.captureStream;
+  const captureVideo = video?.captureStream || video?.mozCaptureStream;
+  if (!video || !captureCanvas || !captureVideo || typeof MediaRecorder === "undefined") {
+    _showToastMsg("This browser cannot export an edited video yet.");
+    return;
+  }
+  const saveButton = document.getElementById("chatEditorSaveBtn");
+  if (saveButton) {
+    saveButton.disabled = true;
+    saveButton.textContent = "Processing…";
+  }
+  const canvasStream = captureCanvas.call(canvas, 30);
+  let sourceStream;
+  try {
+    sourceStream = captureVideo.call(video);
+    sourceStream.getAudioTracks().forEach(track => canvasStream.addTrack(track));
+  } catch (_) {
+    sourceStream = null;
+  }
+  const mimeTypes = [
+    String(state.item.file?.type || state.item.raw?.type || state.item.mimeType || "").toLowerCase(),
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm",
+    "video/mp4"
+  ].filter(Boolean).filter((type, index, list) => list.indexOf(type) === index);
+  const mimeType = mimeTypes.find(type => {
+    try { return MediaRecorder.isTypeSupported(type); } catch (_) { return false; }
+  });
+  if (!mimeType) {
+    if (saveButton) { saveButton.disabled = false; saveButton.textContent = "Done"; }
+    _showToastMsg("This browser cannot export an edited video yet.");
+    return;
+  }
+  let recorder;
+  try {
+    recorder = new MediaRecorder(canvasStream, { mimeType });
+  } catch (_) {
+    if (saveButton) { saveButton.disabled = false; saveButton.textContent = "Done"; }
+    _showToastMsg("This video could not be edited.");
+    return;
+  }
+  const chunks = [];
+  let finished = false;
+  let frameRequest = 0;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    cancelAnimationFrame(frameRequest);
+    try { video.pause(); } catch (_) {}
+    try { recorder.stop(); } catch (_) {}
+  };
+  recorder.ondataavailable = event => {
+    if (event.data && event.data.size) chunks.push(event.data);
+  };
+  recorder.onerror = () => {
+    if (saveButton) { saveButton.disabled = false; saveButton.textContent = "Done"; }
+    _showToastMsg("This video could not be edited.");
+  };
+  recorder.onstop = () => {
+    canvasStream.getTracks().forEach(track => track.stop());
+    sourceStream?.getTracks().forEach(track => track.stop());
+    if (!chunks.length) {
+      if (saveButton) { saveButton.disabled = false; saveButton.textContent = "Done"; }
+      _showToastMsg("This video could not be edited.");
+      return;
+    }
+    const blob = new Blob(chunks, { type: mimeType });
+    const sourceName = state.item.fileName || state.item.file?.name || state.item.raw?.name || "video";
+    const baseName = sourceName.replace(/\.[^.]+$/, "") || "video";
+    const extension = mimeType.includes("mp4") ? "mp4" : "webm";
+    const editedFile = new File([blob], `${baseName}.${extension}`, { type: mimeType });
+    const reader = new FileReader();
+    reader.onload = () => {
+      const editedDataUrl = String(reader.result || state.draftDataUrl);
+      if (typeof state.onCommit === "function") {
+        state.onCommit(editedDataUrl, editedFile);
+      } else {
+        state.item.dataUrl = editedDataUrl;
+        state.item.file = editedFile;
+        state.item.fileName = editedFile.name;
+        state.item.mimeType = mimeType;
+      }
+      _closeChatMediaEditor();
+    };
+    reader.onloadend = () => {
+      if (saveButton) { saveButton.disabled = false; saveButton.textContent = "Done"; }
+    };
+    reader.readAsDataURL(blob);
+  };
+  video.currentTime = 0;
+  video.volume = 0;
+  video.muted = false;
+  video.onended = finish;
+  const drawFrame = () => {
+    if (finished) return;
+    _chatEditorRender();
+    frameRequest = requestAnimationFrame(drawFrame);
+  };
+  recorder.start(100);
+  drawFrame();
+  video.play().catch(() => finish());
+  const durationMs = Number.isFinite(video.duration) && video.duration > 0
+    ? Math.ceil(video.duration * 1000) + 750
+    : 60000;
+  setTimeout(finish, Math.min(durationMs, 120000));
+}
 
 function _showChatImagesPreview() {
   const wrap  = document.getElementById("previewArea");
@@ -14924,21 +16228,39 @@ function _renderChatMediaCarousel() {
   _chatMediaQueue.forEach(item => {
     const card = document.createElement("div");
     card.className = "chat-media-preview-card";
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", item.type === "video"
+      ? "Preview selected video"
+      : item.type === "image" ? "Preview selected image" : "Selected file");
+     const previewSelectedMedia = () => _openChatMediaEditor(item, _chatMediaQueue.indexOf(item));
+    card.addEventListener("click", previewSelectedMedia);
+    card.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        previewSelectedMedia();
+      }
+    });
     if (item.type === "video") {
       const video = document.createElement("video");
       video.src = item.dataUrl;
       video.muted = true;
       video.autoplay = true;
       video.loop = true;
-      video.controls = true;
+       video.controls = false;
       video.playsInline = true;
       video.addEventListener("loadeddata", () => video.play().catch(() => {}), { once: true });
       card.appendChild(video);
-    } else {
+    } else if (item.type === "image") {
       const img = document.createElement("img");
       img.src = item.dataUrl;
       img.alt = "Selected media";
       card.appendChild(img);
+    } else {
+      const label = document.createElement("div");
+      label.style.cssText = "display:flex;align-items:center;justify-content:center;height:100%;padding:8px;color:#e5e7eb;font-size:11px;text-align:center;overflow:hidden;word-break:break-word;";
+      label.textContent = item.fileName || item.file?.name || "Selected file";
+      card.appendChild(label);
     }
     track.appendChild(card);
   });
@@ -14965,14 +16287,31 @@ function clearMediaQueue() {
 }
 window.clearMediaQueue = clearMediaQueue;
 
+function _syncChatMediaQueuePreview() {
+  _chatMediaQueue = _chatMediaQueue.slice(0, CHAT_MEDIA_MAX);
+  attachedMedia = _chatMediaQueue[0] || null;
+  _chatImagesQueue = _chatMediaQueue.filter(item => item.type === "image");
+  if (_chatMediaQueue.length > 1) _renderChatMediaCarousel();
+  else showMediaPreview();
+}
+
+function _appendChatMedia(item) {
+  if (!item) return false;
+  if (_chatMediaQueue.length >= CHAT_MEDIA_MAX) {
+    _showToastMsg(`You can select up to ${CHAT_MEDIA_MAX} media items`);
+    return false;
+  }
+  _chatMediaQueue.push(item);
+  _syncChatMediaQueuePreview();
+  return true;
+}
+
 function openImageDirect(file) {
   const reader = new FileReader();
   reader.onload = () => {
     const dataUrl = String(reader.result || "");
     /* Show preview immediately — user taps the image to crop */
-     attachedMedia = { type: "image", dataUrl, file, _originalFile: file, _needsCrop: true };
-     _chatMediaQueue = [attachedMedia];
-    showMediaPreview();
+     _appendChatMedia({ type: "image", dataUrl, file, _originalFile: file, _needsCrop: true });
   };
   reader.readAsDataURL(file);
 }
@@ -14997,9 +16336,7 @@ async function openVideoDirect(file) {
     }
     const reader = new FileReader();
     reader.onload = () => {
-      attachedMedia = { type: "video", dataUrl: String(reader.result || ""), file: finalFile, isVid: true };
-      _chatMediaQueue = [attachedMedia];
-      showMediaPreview();
+      _appendChatMedia({ type: "video", dataUrl: String(reader.result || ""), file: finalFile, isVid: true });
     };
     reader.readAsDataURL(finalFile);
   };
@@ -15055,12 +16392,78 @@ function _scrollChatToBottom() {
   if (area) area.scrollTop = area.scrollHeight;
 }
 
-function _showSendFailure(chatBox, labelText, retryFn) {
+function _activeRetryThreadKey() {
+  if (currentChatType === "group") return `group:${String(currentGroupId || "")}`;
+  if (currentChatType === "self") return `self:${normalizeName(currentUser)}`;
+  return currentChatName ? `dm:${threadId(currentUser, currentChatName)}` : "";
+}
+
+function _chatMediaLabel(item) {
+  if (!item) return "Media";
+  if (item.type === "video") return "Video";
+  if (item.type === "file") return item.fileName || item.file?.name || "File";
+  return "Photo";
+}
+
+async function _chatUploadFile(item) {
+  if (item?.file) {
+    const originalName = item.file.name || item.fileName || (item.type === "video" ? "video.mp4" : "photo");
+    const type = item.file.type || (item.type === "video" ? "video/mp4" : "image/jpeg");
+    /* Keep the original filename and MIME type so GIFs remain GIFs on retry. */
+    return item.file instanceof File
+      ? item.file
+      : new File([item.file], originalName, { type });
+  }
+  const blob = await fetch(item.dataUrl).then(response => response.blob());
+  const fallbackName = item.fileName || (item.type === "video"
+    ? "video.mp4"
+    : String(blob.type || "").toLowerCase() === "image/gif" ? "animation.gif" : "photo.jpg");
+  return new File([blob], fallbackName, {
+    type: item.mimeType || blob.type || (item.type === "video" ? "video/mp4" : "image/jpeg")
+  });
+}
+
+async function _uploadChatMediaItem(item) {
+  const file = await _chatUploadFile(item);
+  const resourceType = item.type === "video" ? "video" : item.type === "file" ? "raw" : "image";
+  return window.uploadToCloudinary(file, resourceType);
+}
+
+function _appendFailedMediaPreview(parent, mediaItems) {
+  const items = Array.isArray(mediaItems) ? mediaItems.filter(Boolean).slice(0, CHAT_MEDIA_MAX) : [];
+  if (!items.length) return;
+  const preview = document.createElement("div");
+  preview.className = "chat-failed-media-preview";
+  items.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "chat-failed-media-thumb";
+    if (item.type === "video") {
+      const video = document.createElement("video");
+      video.src = item.dataUrl || "";
+      video.muted = true;
+      video.playsInline = true;
+      card.appendChild(video);
+    } else if (item.type === "image") {
+      const img = document.createElement("img");
+      img.src = item.dataUrl || "";
+      img.alt = "Media waiting to retry";
+      card.appendChild(img);
+    } else {
+      card.textContent = `📎 ${item.fileName || item.file?.name || "File"}`;
+    }
+    preview.appendChild(card);
+  });
+  parent.appendChild(preview);
+}
+
+function _createSendFailureCard(record) {
   const wrap = document.createElement("div");
   wrap.className = "msg-fail-wrap";
+  wrap.dataset.retryId = record.id;
   const bubble = document.createElement("div");
   bubble.className = "msg me";
-  bubble.textContent = labelText || "Message";
+  bubble.textContent = record.labelText || "Message";
+  _appendFailedMediaPreview(bubble, record.mediaItems);
   const status = document.createElement("div");
   status.className = "msg-fail-status";
   const notSent = document.createElement("span");
@@ -15070,14 +16473,135 @@ function _showSendFailure(chatBox, labelText, retryFn) {
   retry.className = "msg-retry-btn";
   retry.textContent = "Try again";
   retry.addEventListener("click", () => {
-    wrap.remove();
-    if (retryFn) retryFn();
+    if (retry.disabled || !record.retryFn) return;
+    retry.disabled = true;
+    retry.textContent = "Retrying…";
+    Promise.resolve(record.retryFn()).then(result => {
+      if (result === false) throw new Error("Retry failed");
+      _pendingChatRetries.delete(record.id);
+      wrap.remove();
+    }).catch(() => {
+      retry.disabled = false;
+      retry.textContent = "Try again";
+    });
   });
   status.appendChild(notSent);
-  if (retryFn) status.appendChild(retry);
+  if (record.retryFn) status.appendChild(retry);
   wrap.appendChild(bubble);
   wrap.appendChild(status);
-  if (chatBox) { chatBox.appendChild(wrap); chatBox.scrollTop = chatBox.scrollHeight; }
+  return wrap;
+}
+
+function _renderPendingChatRetries(threadKey, chatBox) {
+  if (!threadKey || !chatBox) return;
+  _pendingChatRetries.forEach(record => {
+    if (record.threadKey !== threadKey) return;
+    if (!chatBox.querySelector(`[data-retry-id="${record.id}"]`)) {
+      chatBox.appendChild(_createSendFailureCard(record));
+    }
+  });
+}
+
+function _showSendFailure(chatBox, labelText, retryFn, mediaItems = [], threadKey = _activeRetryThreadKey()) {
+  const id = `chat-retry-${++_chatRetrySequence}`;
+  const record = {
+    id,
+    threadKey,
+    labelText: labelText || "Message",
+    mediaItems: Array.isArray(mediaItems) ? mediaItems.slice() : [],
+    retryFn
+  };
+  _pendingChatRetries.set(id, record);
+  const wrap = _createSendFailureCard(record);
+  if (chatBox) chatBox.appendChild(wrap);
+  return record;
+}
+
+async function _sendChatMediaBatch(payload) {
+  const imageItems = payload.items.filter(item => item.type === "image");
+  if (imageItems.length && !payload.imagesSent) {
+    const imageUrls = await Promise.all(imageItems.map(async item => {
+      if (!item.uploadedUrl) item.uploadedUrl = await _uploadChatMediaItem(item);
+      return item.uploadedUrl;
+    }));
+    const dimensions = await Promise.all(imageItems.map(item => _getImageDimensions(item.dataUrl)));
+    await addMsgImages(payload.partner, imageUrls, payload.text, payload.replyTo, dimensions);
+    payload.imagesSent = true;
+  }
+  for (const item of payload.items.filter(entry => entry.type !== "image")) {
+    if (item.sent) continue;
+    if (!item.uploadedUrl) item.uploadedUrl = await _uploadChatMediaItem(item);
+    await addMsg(
+      payload.partner,
+      payload.text || (item.type === "video" ? "🎥 Video" : `📎 ${item.fileName || item.file?.name || "File"}`),
+      item.uploadedUrl,
+      item.type === "video",
+      false,
+      item.type === "file",
+      item.fileName || item.file?.name || "",
+      payload.replyTo
+    );
+    item.sent = true;
+  }
+  return true;
+}
+
+async function _sendGroupImageBatch(payload) {
+  if (payload.imagesSent) return true;
+  const imageUrls = await Promise.all(payload.items.map(async item => {
+    if (!item.uploadedUrl) item.uploadedUrl = await _uploadChatMediaItem(item);
+    return item.uploadedUrl;
+  }));
+  const dimensions = await Promise.all(payload.items.map(item => _getImageDimensions(item.dataUrl)));
+  const stamp = nowStamp();
+  const me = normalizeName(currentUser);
+  _lastSentMessageStamp = stamp;
+  await addDoc(collection(db, "conversations", payload.groupId, "messages"), {
+    sender: me,
+    text: payload.text,
+    images: imageUrls,
+    img: imageUrls[0] || null,
+    imageDimensions: dimensions,
+    isVid: false,
+    time: formatTimeFromStamp(stamp),
+    stamp,
+    ...(payload.replyTo ? { replyTo: payload.replyTo } : {})
+  });
+  const unreadUpdates = {};
+  payload.members.forEach(member => {
+    if (normalizeName(member) !== me) unreadUpdates[`unread_${normalizeName(member)}`] = increment(1);
+  });
+  await updateDoc(doc(db, "conversations", payload.groupId), {
+    lastStamp: stamp,
+    lastText: payload.text || `📷 ${imageUrls.length} Photo${imageUrls.length === 1 ? "" : "s"}`,
+    lastSender: me,
+    lastIsImg: true,
+    lastIsVid: false,
+    chatCleared: false,
+    ...unreadUpdates
+  }).catch(() => {});
+  payload.imagesSent = true;
+  markGroupAsRead(payload.groupId);
+  updateActivity();
+  return true;
+}
+
+async function _sendSingleChatMedia(payload) {
+  const item = payload.item;
+  if (!payload.uploadedUrl) payload.uploadedUrl = await _uploadChatMediaItem(item);
+  const mediaMeta = item.type === "image" ? await _getImageDimensions(item.dataUrl) : null;
+  await addMsg(
+    payload.partner,
+    payload.text || (item.type === "video" ? "🎥 Video" : item.type === "file" ? `📎 ${item.fileName || "File"}` : "📷 Photo"),
+    payload.uploadedUrl,
+    item.type === "video",
+    false,
+    item.type === "file",
+    item.fileName || item.file?.name || "",
+    payload.replyTo,
+    mediaMeta
+  );
+  return true;
 }
 
 async function sendText() {
@@ -15129,35 +16653,36 @@ async function sendText() {
     const _mediaItems = [..._chatMediaQueue];
     const _multiText = text;
     const _rtMulti = _replyToMsg; _cancelReply();
+    const _mediaPayload = {
+      partner,
+      items: _mediaItems,
+      text: _multiText,
+      replyTo: _rtMulti,
+      imagesSent: false
+    };
     clearMediaQueue();
     try { input.blur(); } catch(_) {}
     const chatBox = document.getElementById("chatBox");
     const sendEl = document.createElement("div");
     sendEl.className = "chat-sending-indicator";
     sendEl.textContent = `Sending ${_mediaItems.length} media items…`;
-    if (chatBox) { chatBox.appendChild(sendEl); chatBox.scrollTop = chatBox.scrollHeight; }
+    if (chatBox) chatBox.appendChild(sendEl);
     try {
-      const imageItems = _mediaItems.filter(item => item.type === "image");
-      if (imageItems.length) {
-        const imageUrls = await Promise.all(imageItems.map(async item => {
-          const blob = await fetch(item.dataUrl).then(r => r.blob());
-          return window.uploadToCloudinary(new File([blob], "photo.jpg", { type: blob.type }), "image");
-        }));
-        const dims = await Promise.all(imageItems.map(item => _getImageDimensions(item.dataUrl)));
-        await addMsgImages(currentChatName, imageUrls, _multiText, _rtMulti, dims);
-      }
-      for (const item of _mediaItems.filter(item => item.type === "video")) {
-        const blob = await fetch(item.dataUrl).then(r => r.blob());
-        const url = await window.uploadToCloudinary(new File([blob], "video.mp4", { type: blob.type }), "video");
-        await addMsg(currentChatName, _multiText || "🎥 Video", url, true, false, false, "", _rtMulti);
-      }
+      await _sendChatMediaBatch(_mediaPayload);
     } catch(err) {
-      alert("Failed to send selected media. Please try again.");
+      sendEl.remove();
+      _showSendFailure(
+        chatBox,
+        _multiText || `${_mediaItems.length} media items`,
+        () => _sendChatMediaBatch(_mediaPayload),
+        _mediaItems,
+        _activeRetryThreadKey()
+      );
     } finally {
       sendEl.remove();
     }
     setTimeout(_scrollChatToBottom, 50);
-  } else if (_chatImagesQueue.length > 0) {
+  } else if (_chatImagesQueue.length > 1) {
     const _imgs = [..._chatImagesQueue];
     const _multiText = text;
     const _rtMulti = _replyToMsg; _cancelReply();
@@ -15167,7 +16692,7 @@ async function sendText() {
     const sendEl = document.createElement("div");
     sendEl.className = "chat-sending-indicator";
     sendEl.textContent = `Sending ${_imgs.length} photos…`;
-    if (chatBox) { chatBox.appendChild(sendEl); chatBox.scrollTop = chatBox.scrollHeight; }
+    if (chatBox) chatBox.appendChild(sendEl);
     try {
       const _urls = await Promise.all(_imgs.map(async item => {
         const blob = await fetch(item.dataUrl).then(r => r.blob());
@@ -15185,7 +16710,14 @@ async function sendText() {
   } else if (attachedMedia) {
     const isVid  = attachedMedia.type === "video";
     const isFile = attachedMedia.type === "file";
-    const media  = attachedMedia;
+    const media  = { ...attachedMedia };
+    const _mediaPayload = {
+      partner,
+      item: media,
+      text,
+      replyTo: _replyToMsg,
+      uploadedUrl: null
+    };
     clearMediaQueue();
     try { input.blur(); } catch(_) {} /* dismiss keyboard after media send */
     const chatBox = document.getElementById("chatBox");
@@ -15195,30 +16727,17 @@ async function sendText() {
       const sendEl = document.createElement("div");
       sendEl.className = "chat-sending-indicator";
       sendEl.textContent = isVid ? "Sending video…" : isFile ? "Sending file…" : "Sending photo…";
-      if (chatBox) { chatBox.appendChild(sendEl); chatBox.scrollTop = chatBox.scrollHeight; }
-      let mediaUrl = null;
+      if (chatBox) chatBox.appendChild(sendEl);
       try {
-        if (isFile) {
-          mediaUrl = await window.uploadToCloudinary(media.file, "raw");
-        } else {
-          const resourceType = isVid ? "video" : "image";
-          const blob = await fetch(media.dataUrl).then(r => r.blob());
-          const file = new File([blob], isVid ? "video.mp4" : "photo.jpg", { type: blob.type });
-          mediaUrl = await window.uploadToCloudinary(file, resourceType);
-        }
+        _mediaPayload.replyTo = _rt1;
+        await _sendSingleChatMedia(_mediaPayload);
       } catch (e) {
         sendEl.remove();
-        _showSendFailure(chatBox, text || fallbackText, _doMediaSend);
-        return;
+        _showSendFailure(chatBox, text || fallbackText, _doMediaSend, [media], _activeRetryThreadKey());
+        return false;
       }
       sendEl.remove();
-      const _mediaMeta = !isVid && !isFile ? await _getImageDimensions(media.dataUrl) : null;
-      try {
-        await addMsg(partner, text || fallbackText, mediaUrl, isVid, false, isFile, media.fileName || "", _rt1, _mediaMeta);
-      } catch(e) {
-        const _savedUrl = mediaUrl;
-        _showSendFailure(chatBox, text || fallbackText, () => addMsg(partner, text || fallbackText, _savedUrl, isVid, false, isFile, media.fileName || "", _rt1, _mediaMeta));
-      }
+      return true;
     };
     await _doMediaSend();
   } else {
@@ -15274,25 +16793,27 @@ function setupChatUI() {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     e.target.value = "";
-    if (files.length === 1) { openImageDirect(files[0]); return; }
-    clearMediaQueue();
-     _chatMediaQueue = [];
-    let _loaded = 0;
-     const _batch = files.filter(file => file.type.startsWith("image/") || file.type.startsWith("video/")).slice(0, 9);
-    _batch.forEach(file => {
+     const _batch = files.filter(file => file.type.startsWith("image/") || file.type.startsWith("video/"))
+       .slice(0, Math.max(0, CHAT_MEDIA_MAX - _chatMediaQueue.length));
+     if (files.length === 1) { openImageDirect(files[0]); return; }
+     if (!_batch.length) {
+       _showToastMsg(`You can select up to ${CHAT_MEDIA_MAX} media items`);
+       return;
+     }
+     let _loaded = 0;
+     _batch.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
-         _chatMediaQueue.push({
+          const item = {
            file,
            dataUrl: String(reader.result || ""),
            type: file.type.startsWith("video/") ? "video" : "image",
            isVid: file.type.startsWith("video/")
-         });
+          };
+          _chatMediaQueue.push(item);
         _loaded++;
          if (_loaded === _batch.length) {
-           attachedMedia = _chatMediaQueue[0] || null;
-           _chatImagesQueue = _chatMediaQueue.filter(item => item.type === "image");
-           _renderChatMediaCarousel();
+            _syncChatMediaQueuePreview();
          }
       };
       reader.readAsDataURL(file);
@@ -15302,17 +16823,21 @@ function setupChatUI() {
      const files = Array.from(e.target.files || []).filter(file => file.type.startsWith("video/"));
      e.target.value = "";
      if (!files.length) return;
-     if (files.length === 1) { openVideoDirect(files[0]); return; }
-     clearMediaQueue();
-     let loaded = 0;
-     files.slice(0, 9).forEach(file => {
+      if (files.length === 1) { openVideoDirect(files[0]); return; }
+      let loaded = 0;
+      const _videoBatch = files.slice(0, Math.max(0, CHAT_MEDIA_MAX - _chatMediaQueue.length));
+      const _videoExpected = _videoBatch.length;
+      if (!_videoExpected) {
+        _showToastMsg(`You can select up to ${CHAT_MEDIA_MAX} media items`);
+        return;
+      }
+      _videoBatch.forEach(file => {
        const reader = new FileReader();
        reader.onload = () => {
-         _chatMediaQueue.push({ file, dataUrl: String(reader.result || ""), type: "video", isVid: true });
+          _chatMediaQueue.push({ file, dataUrl: String(reader.result || ""), type: "video", isVid: true });
          loaded++;
-         if (loaded === Math.min(files.length, 9)) {
-           attachedMedia = _chatMediaQueue[0] || null;
-           _renderChatMediaCarousel();
+          if (loaded === _videoExpected) {
+            _syncChatMediaQueuePreview();
          }
        };
        reader.readAsDataURL(file);
@@ -15321,9 +16846,7 @@ function setupChatUI() {
   if (fileInput)  fileInput.addEventListener("change",  e => {
     const f = e.target.files?.[0];
     if (!f) return;
-     attachedMedia = { type: "file", dataUrl: null, file: f, fileName: f.name };
-     _chatMediaQueue = [attachedMedia];
-    showMediaPreview();
+      _appendChatMedia({ type: "file", dataUrl: null, file: f, fileName: f.name });
   });
   if (removeBtn) removeBtn.addEventListener("click", clearMediaQueue);
   const vnBtnSetup = document.getElementById("voiceNoteBtn");
@@ -16078,8 +17601,14 @@ function _renderGroupMessages(messages) {
     messages.length > existingMessageWraps.length && existingIdsMatch;
   const unchanged = messages.length > 0 &&
     messages.length === existingMessageWraps.length && existingIdsMatch;
-  if (unchanged) return;
-  const renderStartIndex = appendOnly ? existingMessageWraps.length : 0;
+   if (unchanged) {
+     _renderPendingChatRetries(`group:${groupThreadId}`, box);
+     return;
+   }
+   const renderStartIndex = appendOnly ? existingMessageWraps.length : 0;
+   const hasSendAnimation = shouldScrollToBottom && messages.slice(renderStartIndex).some(msg =>
+     normalizeName(msg.sender) === me && Number(msg.stamp) === Number(_lastSentMessageStamp)
+   );
   box.dataset.threadId = groupThreadId;
   if (!appendOnly) box.innerHTML = "";
   const existingDividers = appendOnly
@@ -16143,7 +17672,8 @@ function _renderGroupMessages(messages) {
     } else if (groupImageUrls.length > 2) {
       const collage = document.createElement("div");
       const groupCollageClass = groupImageUrls.length === 3 ? "collage-3"
-        : groupImageUrls.length === 4 ? "collage-4" : "collage-many";
+        : groupImageUrls.length === 4 ? "collage-4"
+        : `collage-many${groupImageUrls.length % 2 ? " collage-odd" : ""}`;
       collage.className = `chat-collage ${groupCollageClass}`;
       groupImageUrls.slice(0, 9).forEach((url, imageIndex) => {
         const tile = _createChatImage(url, msg, imageIndex, () => {
@@ -16314,7 +17844,14 @@ function _renderGroupMessages(messages) {
   });
   if (_lastSentMessageStamp !== null) _lastSentMessageStamp = null;
 
-  if (shouldScrollToBottom) setTimeout(_scrollChatToBottom, 30);
+   _renderPendingChatRetries(`group:${groupThreadId}`, box);
+   if (shouldScrollToBottom) {
+     if (hasSendAnimation) {
+       setTimeout(_scrollChatToBottom, 380);
+     } else {
+       setTimeout(_scrollChatToBottom, 30);
+     }
+   }
 }
 
 async function sendGroupImages() {
@@ -16327,6 +17864,14 @@ async function sendGroupImages() {
     : (attachedMedia?.type === "image" ? [attachedMedia] : [])).slice(0, 9);
   if (!items.length) return;
 
+  const payload = {
+    groupId: currentGroupId,
+    members: (currentGroupData && currentGroupData.members) || [],
+    items,
+    text,
+    replyTo,
+    imagesSent: false
+  };
   input.value = "";
   autoResizeMessageInput();
   updateSendButtonState();
@@ -16338,49 +17883,20 @@ async function sendGroupImages() {
   const sendEl = document.createElement("div");
   sendEl.className = "chat-sending-indicator";
   sendEl.textContent = `Sending ${items.length} photo${items.length === 1 ? "" : "s"}…`;
-  if (chatBox) { chatBox.appendChild(sendEl); chatBox.scrollTop = chatBox.scrollHeight; }
+  if (chatBox) chatBox.appendChild(sendEl);
 
   try {
-    const [urls, dimensions] = await Promise.all([
-      Promise.all(items.map(async item => {
-        const blob = await fetch(item.dataUrl).then(r => r.blob());
-        return window.uploadToCloudinary(new File([blob], "photo.jpg", { type: blob.type }), "image");
-      })),
-      Promise.all(items.map(item => _getImageDimensions(item.dataUrl)))
-    ]);
-    const me = normalizeName(currentUser);
-    const stamp = nowStamp();
-    const gid = currentGroupId;
-    const members = (currentGroupData && currentGroupData.members) || [];
-    _lastSentMessageStamp = stamp;
-    await addDoc(collection(db, "conversations", gid, "messages"), {
-      sender: me,
-      text,
-      images: urls,
-      img: urls[0] || null,
-      imageDimensions: dimensions,
-      isVid: false,
-      time: formatTimeFromStamp(stamp),
-       stamp,
-       ...(replyTo ? { replyTo } : {})
-    });
-    const unreadUpdates = {};
-    members.forEach(m => {
-      if (normalizeName(m) !== me) unreadUpdates[`unread_${normalizeName(m)}`] = increment(1);
-    });
-    await updateDoc(doc(db, "conversations", gid), {
-      lastStamp: stamp,
-      lastText: text || `📷 ${urls.length} Photo${urls.length === 1 ? "" : "s"}`,
-      lastSender: me,
-      lastIsImg: true,
-      lastIsVid: false,
-      chatCleared: false,
-      ...unreadUpdates
-    }).catch(() => {});
+    await _sendGroupImageBatch(payload);
     _cancelReply();
-    updateActivity();
   } catch (e) {
-    _matchToast("Photos failed to send. Try again.");
+    sendEl.remove();
+    _showSendFailure(
+      chatBox,
+      text || `${items.length} photos`,
+      () => _sendGroupImageBatch(payload),
+      items,
+      `group:${String(payload.groupId)}`
+    );
   } finally {
     sendEl.remove();
     setTimeout(_scrollChatToBottom, 50);
@@ -16819,6 +18335,8 @@ async function viewUserProfile(username, e) {
   username = normalizeName(username);
   if (!username) return;
   viewingUsername = username;
+  const profileBackdrop = document.getElementById("viewProfileBackdrop");
+  if (profileBackdrop) profileBackdrop.dataset.username = username;
   const p = await fetchProfile(username) || ensureProfile(username);
   const displayName = escapeHtml(p.username || username);
 
@@ -16923,20 +18441,31 @@ window._upToggleBio = function() {
 window.viewUserProfile = viewUserProfile;
 
 function closeViewProfile() {
-  document.getElementById("viewProfileBackdrop").style.display = "none";
+  const backdrop = document.getElementById("viewProfileBackdrop");
+  if (backdrop) {
+    backdrop.style.display = "none";
+    delete backdrop.dataset.username;
+  }
 }
 window.closeViewProfile = closeViewProfile;
 
+function _profileActionUsername() {
+  const backdrop = document.getElementById("viewProfileBackdrop");
+  return normalizeName(backdrop?.dataset.username || viewingUsername);
+}
+
 function dmFromProfile() {
+  const target = _profileActionUsername();
   closeCommentPage();
   closeViewProfile();
-  if (viewingUsername) openChat(viewingUsername);
+  if (target) openChat(target);
 }
 window.dmFromProfile = dmFromProfile;
 
 function viewPostsFromProfile() {
+  const target = _profileActionUsername();
   closeViewProfile();
-  if (viewingUsername) showUserPosts(viewingUsername);
+  if (target) showUserPosts(target);
 }
 window.viewPostsFromProfile = viewPostsFromProfile;
 
@@ -17336,6 +18865,14 @@ window.ppHandleVideoSelect = function(e) {
 let _ppMediaItems = [];
 let _ppExpiryMode = "none";
 let _ppScheduledAt = null;
+function _isGifFile(file) {
+  const name = String(file?.name || "").toLowerCase();
+  const type = String(file?.type || "").toLowerCase();
+  return type === "image/gif" || /\.gif(?:$|[?#])/.test(name);
+}
+function _isImageFile(file) {
+  return String(file?.type || "").toLowerCase().startsWith("image/") || _isGifFile(file);
+}
 function _syncPostMediaAliases() {
   _ppStagedFiles = _ppMediaItems.filter(item => item.type === "image");
   _postVideoFiles = _ppMediaItems.filter(item => item.type === "video").map(item => item.raw);
@@ -17419,9 +18956,30 @@ function _renderPpMediaCarousel() {
       }, { once: true });
       media.addEventListener("loadeddata", () => media.play().catch(() => {}), { once: true });
       media.addEventListener("canplay", () => media.play().catch(() => {}), { once: true });
+       media.tabIndex = 0;
+       media.setAttribute("role", "button");
+       media.title = "Tap to edit";
+       media.onclick = event => {
+         if (event.target === media && !event.defaultPrevented) window._ppTapImg(i);
+       };
+       media.onkeydown = event => {
+         if (event.key === "Enter" || event.key === " ") {
+           event.preventDefault();
+           window._ppTapImg(i);
+         }
+       };
     } else {
       media.alt = "Selected post image";
+      media.tabIndex = 0;
+      media.setAttribute("role", "button");
+      media.title = "Tap to edit";
       media.onclick = () => window._ppTapImg(i);
+      media.onkeydown = event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          window._ppTapImg(i);
+        }
+      };
     }
     card.appendChild(media);
     if (item.type === "video") {
@@ -17456,9 +19014,9 @@ function _renderPpMediaCarousel() {
       event.stopPropagation();
       window._ppMoveMedia(i, 1);
     }; card.appendChild(forward);
-    if (item.type === "image" && !item.cropped) {
+     if ((item.type === "image" && !item.cropped) || (item.type === "video" && !item.edited)) {
       const hint = document.createElement("span");
-      hint.className = "pp-media-crop-hint"; hint.textContent = "Tap to crop"; card.appendChild(hint);
+      hint.className = "pp-media-crop-hint"; hint.textContent = "Tap to edit"; card.appendChild(hint);
     }
     if (item.trimNote) {
       const note = document.createElement("span");
@@ -17469,11 +19027,12 @@ function _renderPpMediaCarousel() {
   wrap.appendChild(track);
 }
 window.ppHandleImageSelect = function(e) {
-  const files = Array.from(e.target.files || []).filter(f => f.type.startsWith("image/"));
+  const files = Array.from(e.target.files || []).filter(_isImageFile);
   e.target.value = "";
   const used = _ppMediaItems.filter(item => item.type === "image").length;
   files.slice(0, Math.max(0, 6 - used)).forEach(file => _ppMediaItems.push({
-    type: "image", raw: file, url: URL.createObjectURL(file), cropped: null
+    type: "image", raw: file, url: URL.createObjectURL(file), cropped: null,
+    isGif: _isGifFile(file)
   }));
   _syncPostMediaAliases(); _renderPpMediaCarousel();
 };
@@ -17484,9 +19043,10 @@ window.ppHandleMediaSelect = function(e) {
   let videoSlots = Math.max(0, 3 - _ppMediaItems.filter(item => item.type === "video").length);
   const videosToProbe = [];
   files.forEach(file => {
-    if (file.type.startsWith("image/") && imageSlots > 0) {
+    if (_isImageFile(file) && imageSlots > 0) {
       _ppMediaItems.push({
-        type: "image", raw: file, url: URL.createObjectURL(file), cropped: null
+        type: "image", raw: file, url: URL.createObjectURL(file), cropped: null,
+        isGif: _isGifFile(file)
       });
       imageSlots--;
     } else if (file.type.startsWith("video/") && videoSlots > 0) {
@@ -17506,15 +19066,40 @@ window.ppHandleMediaSelect = function(e) {
 window.handlePostMediaSelect = window.ppHandleMediaSelect;
 window._ppTapImg = function(i) {
   const item = _ppMediaItems[i];
-  if (!item || item.type !== "image") return;
-  openCropModal(item.url, croppedFile => {
-    if (croppedFile) {
-      item.cropped = croppedFile;
+  if (!item || (item.type !== "image" && item.type !== "video")) return;
+  const mediaKind = _chatEditorMediaKind(item);
+  const sourceFile = item.type === "image" ? (item.cropped || item.raw) : item.raw;
+  const sourceUrl = item.previewUrl || item.url;
+  const editorItem = {
+    type: mediaKind,
+    dataUrl: sourceUrl,
+    file: sourceFile,
+    fileName: sourceFile?.name || "post-photo.jpg"
+  };
+  _openChatMediaEditor(editorItem, i, (editedDataUrl, editedFile) => {
+    if (mediaKind === "video") {
+      if (item.url) URL.revokeObjectURL(item.url);
       if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
-      item.previewUrl = URL.createObjectURL(croppedFile);
+      item.raw = editedFile;
+      item.url = URL.createObjectURL(editedFile);
+      item.previewUrl = "";
+      item.posterUrl = "";
+      item.posterPromise = null;
+      item.edited = true;
+      _syncPostMediaAliases();
+      _renderPpMediaCarousel();
+      _ensureVideoPreview(item);
+      return;
     }
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    item.cropped = editedFile;
+    item.previewUrl = URL.createObjectURL(editedFile);
+    item.edited = true;
+    /* An edited GIF is intentionally flattened to the edited JPEG output. */
+    item.isGif = false;
+    _syncPostMediaAliases();
     _renderPpMediaCarousel();
-  }, { circle: false });
+  });
 };
 window._ppRemoveMedia = function(i) {
   const item = _ppMediaItems[i];
@@ -17785,6 +19370,20 @@ function _trimVideoTo59s(file) {
 let _commentPostId = null;
 let _commentUnsub  = null;
 const _commentCounts = {}; /* postId → count cache */
+const COMMENT_PAGE_SIZE = 10;
+const COMMENT_PREFETCH_DISTANCE = 420;
+let _commentCursor = null;
+let _commentHasMore = false;
+let _commentLoading = false;
+let _commentRetryTimer = null;
+let _commentRetryAttempt = 0;
+let _commentRetryPending = false;
+let _commentRequestToken = 0;
+let _commentScrollToId = null;
+const _commentCountRetryTimers = {};
+const _commentCountRetryAttempts = {};
+const _commentCountRetryPending = new Set();
+const _commentCountLoading = new Set();
 let _sharePostId = null;
 
 function _postShareUrl(postId) {
@@ -17908,23 +19507,95 @@ function _updateCommentCountSpan(postId, count) {
   });
 }
 
-/* Fetch comment count for a post and update all its badges */
+function _scheduleCommentCountRetry(postId) {
+  if (!postId || !_commentCountRetryPending.has(postId) ||
+      _commentCountRetryTimers[postId] || navigator.onLine === false) return;
+  const attempt = _commentCountRetryAttempts[postId] || 0;
+  const delay = Math.min(30000, 1200 * Math.pow(2, Math.min(attempt, 5)));
+  _commentCountRetryAttempts[postId] = attempt + 1;
+  _commentCountRetryTimers[postId] = setTimeout(() => {
+    _commentCountRetryTimers[postId] = null;
+    if (_commentCountRetryPending.has(postId)) _fetchCommentCount(postId);
+  }, delay);
+}
+
+/* Fetch only the aggregate count. This must never read the comment documents. */
 function _fetchCommentCount(postId) {
   if (!postId) return;
   if (_commentCounts[postId] !== undefined) {
     _updateCommentCountSpan(postId, _commentCounts[postId]);
     return;
   }
-  getDocs(collection(db, "posts", postId, "comments")).then(snap => {
-    _updateCommentCountSpan(postId, snap.size);
-  }).catch(() => {});
+  if (_commentCountLoading.has(postId)) return;
+  _commentCountRetryPending.add(postId);
+  _commentCountLoading.add(postId);
+  getCountFromServer(collection(db, "posts", postId, "comments")).then(countSnap => {
+    _commentCountLoading.delete(postId);
+    _commentCountRetryPending.delete(postId);
+    _commentCountRetryAttempts[postId] = 0;
+    if (_commentCountRetryTimers[postId]) {
+      clearTimeout(_commentCountRetryTimers[postId]);
+      _commentCountRetryTimers[postId] = null;
+    }
+    _updateCommentCountSpan(postId, countSnap.data().count || 0);
+  }).catch(() => {
+    _commentCountLoading.delete(postId);
+    _scheduleCommentCountRetry(postId);
+  });
+}
+
+function _resumePendingCommentLoads() {
+  if (navigator.onLine === false) return;
+  if (_commentRetryPending && _commentPostId) _loadMoreComments(_commentPostId);
+  _commentCountRetryPending.forEach(postId => _fetchCommentCount(postId));
+}
+
+function _setCommentLoader(text, visible = true) {
+  const list = document.getElementById("commentPageList");
+  if (!list) return;
+  let status = document.getElementById("commentLazyStatus");
+  if (!status) {
+    status = document.createElement("div");
+    status.id = "commentLazyStatus";
+    status.style.cssText = "padding:16px 20px;text-align:center;color:#9ca3af;font-size:13px;";
+    list.appendChild(status);
+  }
+  status.textContent = text || "";
+  status.style.display = visible ? "block" : "none";
+}
+
+function _resetCommentPagination(postId, scrollToCommentId = null) {
+  if (_commentRetryTimer) {
+    clearTimeout(_commentRetryTimer);
+    _commentRetryTimer = null;
+  }
+  _commentRequestToken++;
+  _commentPostId = postId;
+  _commentCursor = null;
+  _commentHasMore = true;
+  _commentLoading = false;
+  _commentRetryAttempt = 0;
+  _commentRetryPending = false;
+  _commentScrollToId = scrollToCommentId || null;
+}
+
+function _setupCommentPaginationScroll() {
+  const scroll = document.getElementById("commentPageScroll");
+  if (!scroll || scroll._commentPaginationBound) return;
+  scroll._commentPaginationBound = true;
+  scroll.addEventListener("scroll", () => {
+    if (_commentPostId && _commentHasMore &&
+        scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight <= COMMENT_PREFETCH_DISTANCE) {
+      _loadMoreComments(_commentPostId);
+    }
+  }, { passive: true });
 }
 
 function openCommentModal(postId, scrollToCommentId) {
   if (!postId) return;
-  _commentPostId = postId;
   const page = document.getElementById("commentPage");
   if (!page) return;
+  _setupCommentPaginationScroll();
 
   /* Clear any stale reply target immediately, before any UI work */
   _cancelCommentReply();
@@ -18000,6 +19671,16 @@ window.openCommentModal = openCommentModal;
 
 function closeCommentPage() {
   if (_commentUnsub) { _commentUnsub(); _commentUnsub = null; }
+  if (_commentRetryTimer) {
+    clearTimeout(_commentRetryTimer);
+    _commentRetryTimer = null;
+  }
+  _commentRequestToken++;
+  _commentLoading = false;
+  _commentRetryPending = false;
+  _commentHasMore = false;
+  _commentCursor = null;
+  _commentScrollToId = null;
   _commentPostId = null;
   const page     = document.getElementById("commentPage");
   const backdrop = document.getElementById("commentBackdrop");
@@ -18050,126 +19731,153 @@ function _cancelCommentReply() {
 }
 window._cancelCommentReply = _cancelCommentReply;
 
+function _renderCommentItem(c) {
+  const item = document.createElement("div");
+  item.className = "comment-item";
+  item.dataset.commentId = c.id;
+  const replyBtn = `<button class="comment-reply-btn" onclick="event.stopPropagation();_startCommentReply('${escapeHtml(c.id)}','${escapeHtml(c.author||"")}')">Reply</button>`;
+  item.innerHTML = `
+    <div class="comment-item-inner">
+      <div class="comment-item-avatar" onclick="viewUserProfile('${escapeHtml(c.author||"")}',event)">${renderAvatarHTML(c.author||"")}</div>
+      <div class="comment-item-content">
+        <div class="comment-author">${escapeHtml(c.author||"")}</div>
+        <div class="comment-text">${_renderCommentText(c.text||"")}</div>
+        <div class="comment-time">${formatPostTimestamp(c.stamp||0)}${replyBtn}</div>
+      </div>
+    </div>`;
+  const isOwn = normalizeName(c.author||"") === normalizeName(currentUser);
+  if (isOwn) {
+    addLongPress(item, () => _showCommentActionMenu(item, _commentPostId, c.id, c.text||""));
+  }
+  return item;
+}
+
+function _commentReplyContainer(parentItem) {
+  let replies = parentItem.querySelector(":scope > .comment-replies");
+  if (!replies) {
+    replies = document.createElement("div");
+    replies.className = "comment-replies";
+    parentItem.appendChild(replies);
+  }
+  return replies;
+}
+
+function _reconcileCommentThreading(list) {
+  if (!list) return;
+  let moved = true;
+  while (moved) {
+    moved = false;
+    const items = Array.from(list.querySelectorAll(".comment-item[data-parent-comment-id]"));
+    items.forEach(item => {
+      const parentId = item.dataset.parentCommentId;
+      const parent = list.querySelector(`.comment-item[data-comment-id="${CSS.escape(parentId)}"]`);
+      if (!parent || parent === item || parent.contains(item)) return;
+      _commentReplyContainer(parent).appendChild(item);
+      moved = true;
+    });
+  }
+}
+
+function _appendCommentBatch(batch, scrollToCommentId) {
+  const list = document.getElementById("commentPageList");
+  if (!list) return;
+  batch.forEach(c => {
+    if (!c.id || list.querySelector(`.comment-item[data-comment-id="${CSS.escape(c.id)}"]`)) return;
+    const item = _renderCommentItem(c);
+    if (c.parentCommentId) item.dataset.parentCommentId = c.parentCommentId;
+    list.appendChild(item);
+  });
+  _reconcileCommentThreading(list);
+  const target = scrollToCommentId && list.querySelector(
+    `.comment-item[data-comment-id="${CSS.escape(scrollToCommentId)}"]`
+  );
+  if (target) {
+    setTimeout(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.style.background = "rgba(13,148,136,0.18)";
+      setTimeout(() => { target.style.background = ""; }, 1800);
+    }, 120);
+  }
+}
+
 function _loadComments(postId, scrollToCommentId) {
   const list = document.getElementById("commentPageList");
   if (!list) return;
-  list.innerHTML = '<div style="text-align:center;padding:16px;color:#9ca3af;font-size:13px;">Loading…</div>';
-  if (_commentUnsub) { _commentUnsub(); _commentUnsub = null; }
-  const q = query(
-    collection(db, "posts", postId, "comments"),
-    orderBy("stamp", "asc")
-  );
-  _commentUnsub = onSnapshot(q, (snap) => {
-    _updateCommentCountSpan(postId, snap.size);
-    const page = document.getElementById("commentPage");
-    if (!page || page.style.display === "none") return;
-    if (snap.empty) {
+  list.innerHTML = "";
+  _resetCommentPagination(postId, scrollToCommentId || null);
+  _setCommentLoader(navigator.onLine === false ? "Waiting for connection…" : "Loading comments…");
+  _loadMoreComments(postId);
+}
+
+async function _loadMoreComments(postId = _commentPostId) {
+  if (!postId || postId !== _commentPostId || _commentLoading || !_commentHasMore) return;
+  const page = document.getElementById("commentPage");
+  const list = document.getElementById("commentPageList");
+  if (!page || !list || page.style.display === "none") return;
+  if (navigator.onLine === false) {
+    _commentRetryPending = true;
+    _setCommentLoader("Waiting for connection…");
+    return;
+  }
+  const requestToken = _commentRequestToken;
+  _commentLoading = true;
+  _commentRetryPending = false;
+  _setCommentLoader("Loading comments…");
+  try {
+    const commentsRef = collection(db, "posts", postId, "comments");
+    const commentsQuery = _commentCursor
+      ? query(commentsRef, orderBy("stamp", "asc"), startAfter(_commentCursor), limit(COMMENT_PAGE_SIZE))
+      : query(commentsRef, orderBy("stamp", "asc"), limit(COMMENT_PAGE_SIZE));
+    const snap = await getDocs(commentsQuery);
+    if (requestToken !== _commentRequestToken || postId !== _commentPostId) return;
+    const batch = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    _commentCursor = snap.docs.length ? snap.docs[snap.docs.length - 1] : _commentCursor;
+    _commentHasMore = snap.docs.length === COMMENT_PAGE_SIZE;
+    _commentRetryAttempt = 0;
+    _commentRetryPending = false;
+    if (!batch.length && !_commentCursor) {
       list.innerHTML = '<div style="text-align:center;padding:24px;color:#9ca3af;font-size:13px;">No comments yet — be the first!</div>';
       return;
     }
-    list.innerHTML = "";
-    /* Threaded reply support */
-    const _postObj = (typeof posts !== "undefined" ? posts : []).find(p => p.id === postId);
-    const _isPostOwner = _postObj && normalizeName(_postObj.author || "") === normalizeName(currentUser);
-    const _allCmts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const _topLevel = _allCmts.filter(c => !c.parentCommentId);
-    const _replies  = _allCmts.filter(c => !!c.parentCommentId);
-    const _replyMap = {};
-    _replies.forEach(r => {
-      if (!_replyMap[r.parentCommentId]) _replyMap[r.parentCommentId] = [];
-      _replyMap[r.parentCommentId].push(r);
-    });
-    function _renderCmtItem(c, inReply) {
-      const item = document.createElement("div");
-      item.className = "comment-item";
-      item.dataset.commentId = c.id;
-      /* Reply button available to every user at every nesting level */
-      const _rBtn = `<button class="comment-reply-btn" onclick="event.stopPropagation();_startCommentReply('${escapeHtml(c.id)}','${escapeHtml(c.author||'')}')">Reply</button>`;
-      item.innerHTML = `
-        <div class="comment-item-inner">
-          <div class="comment-item-avatar" onclick="viewUserProfile('${escapeHtml(c.author||'')}',event)">${renderAvatarHTML(c.author||"")}</div>
-          <div class="comment-item-content">
-            <div class="comment-author">${escapeHtml(c.author||"")}</div>
-            <div class="comment-text">${_renderCommentText(c.text||"")}</div>
-            <div class="comment-time">${formatPostTimestamp(c.stamp||0)}${_rBtn}</div>
-          </div>
-        </div>`;
-      const isOwn = normalizeName(c.author||"") === normalizeName(currentUser);
-      if (isOwn) {
-        addLongPress(item, () => _showCommentActionMenu(item, _commentPostId, c.id, c.text||""));
-      }
-      return item;
-    }
-    /* Append replies to a container: owner replies always visible; others collapsed 4-at-a-time */
-    function _appendReplies(container, replies, postAuthorKey) {
-      const ownerReplies = replies.filter(r => normalizeName(r.author||"") === postAuthorKey);
-      const otherReplies = replies.filter(r => normalizeName(r.author||"") !== postAuthorKey);
-      /* Post owner's replies — always shown immediately, children wrapped in their own reply container */
-      ownerReplies.forEach(r => {
-        container.appendChild(_renderCmtItem(r, true));
-        const sub = _replyMap[r.id] || [];
-        if (sub.length) {
-          const subDiv = document.createElement("div");
-          subDiv.className = "comment-replies";
-          _appendReplies(subDiv, sub, postAuthorKey);
-          container.appendChild(subDiv);
-        }
-      });
-      /* Other replies — collapsed behind "See more replies" (load 4 at a time) */
-      if (otherReplies.length > 0) {
-        let remaining = otherReplies.slice();
-        const loadBtn = document.createElement("button");
-        loadBtn.className = "comment-load-more-btn";
-        const _updateBtn = () => {
-          loadBtn.textContent = `See ${remaining.length} more ${remaining.length === 1 ? "reply" : "replies"}`;
-        };
-        _updateBtn();
-        loadBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const toShow = remaining.splice(0, 4);
-          toShow.forEach(r => {
-            container.insertBefore(_renderCmtItem(r, true), loadBtn);
-            const sub = _replyMap[r.id] || [];
-            if (sub.length) {
-              const subDiv = document.createElement("div");
-              subDiv.className = "comment-replies";
-              _appendReplies(subDiv, sub, postAuthorKey);
-              container.insertBefore(subDiv, loadBtn);
-            }
-          });
-          if (!remaining.length) loadBtn.remove();
-          else _updateBtn();
+    _appendCommentBatch(batch, _commentScrollToId);
+    const targetFound = _commentScrollToId &&
+      list.querySelector(`.comment-item[data-comment-id="${CSS.escape(_commentScrollToId)}"]`);
+    if (targetFound) _commentScrollToId = null;
+    if (!_commentHasMore) {
+      _setCommentLoader("", false);
+    } else {
+      _setCommentLoader("", false);
+      if (_commentScrollToId) {
+        requestAnimationFrame(() => _loadMoreComments(postId));
+      } else {
+        requestAnimationFrame(() => {
+          const scroll = document.getElementById("commentPageScroll");
+          if (!scroll) return;
+          if (page.style.display !== "none" &&
+              scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < COMMENT_PREFETCH_DISTANCE) {
+            _loadMoreComments(postId);
+          }
         });
-        container.appendChild(loadBtn);
       }
     }
-    const _postAuthorKey = normalizeName(_postObj?.author || "");
-    _topLevel.forEach(c => {
-      list.appendChild(_renderCmtItem(c, false));
-      const nested = _replyMap[c.id] || [];
-      if (nested.length) {
-        const rDiv = document.createElement("div");
-        rDiv.className = "comment-replies";
-        _appendReplies(rDiv, nested, _postAuthorKey);
-        list.appendChild(rDiv);
-      }
-    });
-    /* Scroll to specific comment if requested */
-    if (scrollToCommentId) {
-      const target = list.querySelector(`[data-comment-id="${CSS.escape(scrollToCommentId)}"]`);
-      if (target) {
-        setTimeout(() => {
-          target.scrollIntoView({ behavior: "smooth", block: "center" });
-          target.style.background = "rgba(13,148,136,0.18)";
-          setTimeout(() => { target.style.background = ""; }, 1800);
-        }, 120);
-        return;
-      }
+  } catch (error) {
+    if (requestToken !== _commentRequestToken || postId !== _commentPostId) return;
+    console.warn("Comment pagination failed; will retry:", error);
+    _commentRetryPending = true;
+    _setCommentLoader(navigator.onLine === false
+      ? "Waiting for connection…"
+      : "Connection interrupted. Retrying…");
+    if (!_commentRetryTimer) {
+      const delay = Math.min(30000, 1200 * Math.pow(2, Math.min(_commentRetryAttempt, 5)));
+      _commentRetryAttempt++;
+      _commentRetryTimer = setTimeout(() => {
+        _commentRetryTimer = null;
+        if (_commentRetryPending) _loadMoreComments(postId);
+      }, delay);
     }
-    list.scrollTop = list.scrollHeight;
-  }, () => {
-    list.innerHTML = '<div style="text-align:center;padding:16px;color:#9ca3af;font-size:13px;">Could not load comments.</div>';
-  });
+  } finally {
+    if (requestToken === _commentRequestToken) _commentLoading = false;
+  }
 }
 
 async function submitComment() {
@@ -18178,6 +19886,7 @@ async function submitComment() {
   if (input && input.disabled) return;
   const text  = (input?.value || "").trim();
   if (!text || !_commentPostId || !currentUser) return;
+  const commentPostId = _commentPostId;
   const wc = text.split(/\s+/).filter(Boolean).length;
   if (wc > 50) { alert("Comments must be 50 words or fewer."); return; }
   input.disabled = true;
@@ -18187,15 +19896,24 @@ async function submitComment() {
     const _cmtData = { author: normalizeName(currentUser), text, stamp: nowStamp() };
     if (_replyToId) _cmtData.parentCommentId = _replyToId;
     _cancelCommentReply();
-    const commentRef = await addDoc(collection(db, "posts", _commentPostId, "comments"), _cmtData);
+    const commentRef = await addDoc(collection(db, "posts", commentPostId, "comments"), _cmtData);
     const commentId = commentRef.id;
+    const newComment = { id: commentId, ..._cmtData };
+    if (_commentPostId === commentPostId) {
+      _appendCommentBatch([newComment], null);
+      if (_commentCounts[commentPostId] !== undefined) {
+        _updateCommentCountSpan(commentPostId, _commentCounts[commentPostId] + 1);
+      } else {
+        _fetchCommentCount(commentPostId);
+      }
+    }
     /* Notify post author only for top-level comments (not replies) */
-    const post = posts.find(p => p.id === _commentPostId);
+    const post = posts.find(p => p.id === commentPostId);
     if (!_replyToId && post && normalizeName(post.author) !== normalizeName(currentUser)) {
       addDoc(collection(db, "userNotifications", normalizeName(post.author), "items"), {
         type: "comment",
         from: normalizeName(currentUser),
-        postId: _commentPostId,
+        postId: commentPostId,
         commentId,
         stamp: nowStamp()
       }).catch(() => {});
@@ -18207,7 +19925,7 @@ async function submitComment() {
         addDoc(collection(db, "userNotifications", _replyToKey, "items"), {
           type: "reply",
           from: normalizeName(currentUser),
-          postId: _commentPostId,
+          postId: commentPostId,
           commentId,
           parentCommentId: _replyToId,
           stamp: nowStamp()
@@ -18223,7 +19941,7 @@ async function submitComment() {
         addDoc(collection(db, "userNotifications", tagged, "items"), {
           type: "tag",
           from: normalizeName(currentUser),
-          postId: _commentPostId,
+          postId: commentPostId,
           commentId,
           stamp: nowStamp()
         }).catch(() => {});
@@ -18609,6 +20327,205 @@ window.cancelVoiceNote = cancelVoiceNote;
 ═══════════════════════════════════════ */
 function showMyPosts() { showUserPosts(currentUser); }
 
+function _isUserPostsPageActive(username = _upPostsUser) {
+  const page = document.getElementById("userPostsPage");
+  return !!page &&
+    page.style.display !== "none" &&
+    normalizeName(page.dataset.upUser) === normalizeName(username);
+}
+
+function _setUserPostsLoader(text, visible = true) {
+  const cards = document.getElementById("userPostsCards");
+  if (!cards) return;
+  let status = document.getElementById("userPostsLazyStatus");
+  if (!status) {
+    status = document.createElement("div");
+    status.id = "userPostsLazyStatus";
+    status.style.cssText = "padding:16px 20px;text-align:center;color:#94a3b8;font:500 13px Inter, sans-serif;";
+    cards.appendChild(status);
+  }
+  status.textContent = text || "";
+  status.style.display = visible ? "block" : "none";
+}
+
+function _scheduleUserPostsRetry() {
+  if (!_upPostsRetryPending || !_upHasMorePosts || _upPostsRetryTimer || !navigator.onLine) return;
+  const delay = Math.min(30000, 1200 * Math.pow(2, Math.min(_upPostsRetryAttempt, 5)));
+  _upPostsRetryAttempt++;
+  _upPostsRetryTimer = setTimeout(() => {
+    _upPostsRetryTimer = null;
+    if (_isUserPostsPageActive()) _loadMoreUserPosts();
+  }, delay);
+}
+
+async function _loadMoreUserPosts() {
+  if (_upPostsLoading || !_upHasMorePosts || !_upPostsUser) return;
+  if (!_isUserPostsPageActive()) return;
+  if (navigator.onLine === false) {
+    _upPostsRetryPending = true;
+    _setUserPostsLoader("Waiting for connection…");
+    return;
+  }
+
+  const username = _upPostsUser;
+  const requestToken = _upPostsRequestToken;
+  const cards = document.getElementById("userPostsCards");
+  if (!cards) return;
+  _upPostsLoading = true;
+  _upPostsRetryPending = false;
+  _setUserPostsLoader(_upPosts.length ? "Loading more posts…" : "Loading posts…");
+
+  try {
+    const postsRef = collection(db, "posts");
+    const pageQuery = _upPostsFallbackOrder
+      ? query(
+          postsRef,
+          where("author", "==", username)
+        )
+      : _upPostCursor
+      ? query(
+          postsRef,
+          where("author", "==", username),
+          ...(_upPostsFallbackOrder ? [] : [orderBy("stamp", "desc")]),
+          startAfter(_upPostCursor),
+          limit(UP_POST_PAGE_SIZE)
+        )
+      : query(
+          postsRef,
+          where("author", "==", username),
+          ...(_upPostsFallbackOrder ? [] : [orderBy("stamp", "desc")]),
+          limit(UP_POST_PAGE_SIZE)
+        );
+    let snapshot;
+    try {
+      snapshot = await getDocs(pageQuery);
+    } catch (queryError) {
+      /*
+       * Equality + sort can require a project-specific composite index. If
+       * this existing app has not been provisioned with that index, retain
+       * lazy loading using Firestore's implicit document-id order rather than
+       * retrying an index error forever. Normal installations keep the
+       * timestamp order above.
+       */
+      const needsIndexFallback = queryError?.code === "failed-precondition" ||
+        /index|requires an index/i.test(String(queryError?.message || ""));
+      if (!needsIndexFallback || _upPostsFallbackOrder) throw queryError;
+      _upPostsFallbackOrder = true;
+      const fallbackQuery = query(postsRef, where("author", "==", username));
+      snapshot = await getDocs(fallbackQuery);
+    }
+    if (requestToken !== _upPostsRequestToken || username !== _upPostsUser) return;
+
+    const nextPosts = snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(post => _isPostCurrentlyVisible(post));
+    _upPostCursor = _upPostsFallbackOrder
+      ? null
+      : snapshot.docs.length
+        ? snapshot.docs[snapshot.docs.length - 1]
+        : _upPostCursor;
+    _upHasMorePosts = !_upPostsFallbackOrder && snapshot.docs.length === UP_POST_PAGE_SIZE;
+    _upPostsRetryAttempt = 0;
+    _upPostsRetryPending = false;
+
+    const existingIds = new Set(_upPosts.map(post => post.id));
+    const newPosts = nextPosts.filter(post => !existingIds.has(post.id));
+    _upPosts.push(...newPosts);
+    _upPosts = _sortPostsForFeed(_upPosts);
+    /*
+     * Reorder existing card nodes instead of rebuilding them. This guarantees
+     * newest-first ordering even when the index fallback returns document-id
+     * order, while preserving any media/video DOM already on the page.
+     */
+    const statusNode = document.getElementById("userPostsLazyStatus");
+    if (statusNode) statusNode.remove();
+    const existingCards = new Map(
+      Array.from(cards.querySelectorAll("[data-post-id]"))
+        .map(card => [card.dataset.postId, card])
+    );
+    cards.innerHTML = "";
+    _upPosts.forEach(post => {
+      cards.appendChild(existingCards.get(post.id) || _buildPostCard(post));
+    });
+    if (statusNode) cards.appendChild(statusNode);
+
+    const status = document.getElementById("userPostsLazyStatus");
+    if (!_upPosts.length && !_upHasMorePosts) {
+      if (status) status.style.display = "none";
+      cards.innerHTML = `<div style="padding:30px;text-align:center;color:gray;font-family:'Inter',sans-serif;">No posts yet.</div>`;
+      return;
+    }
+    if (!_upHasMorePosts) {
+      if (status) status.style.display = "none";
+    } else if (status) {
+      status.textContent = "";
+      status.style.display = "none";
+    }
+    /*
+     * A user can have a page full of expired posts. Keep advancing through
+     * Firestore pages so an empty visible page does not look like the end.
+     * The same check also fills a viewport when cards are unusually short.
+     */
+    requestAnimationFrame(() => {
+      if (!_isUserPostsPageActive(username)) return;
+      const feed = document.getElementById("userPostsFeed");
+      if (feed && _upHasMorePosts &&
+          feed.scrollHeight - feed.scrollTop - feed.clientHeight < UP_POST_PREFETCH_DISTANCE) {
+        _loadMoreUserPosts();
+      }
+    });
+  } catch (error) {
+    if (requestToken !== _upPostsRequestToken || username !== _upPostsUser) return;
+    console.error("User posts pagination failed:", error);
+    _upPostsRetryPending = true;
+    _setUserPostsLoader(navigator.onLine === false
+      ? "Waiting for connection…"
+      : "Connection interrupted. Retrying…");
+    _scheduleUserPostsRetry();
+  } finally {
+    if (requestToken === _upPostsRequestToken) _upPostsLoading = false;
+  }
+}
+window._loadMoreUserPosts = _loadMoreUserPosts;
+
+function _resetUserPostsPagination(username) {
+  if (_upPostsRetryTimer) {
+    clearTimeout(_upPostsRetryTimer);
+    _upPostsRetryTimer = null;
+  }
+  _upPostsRequestToken++;
+  _upPostsUser = normalizeName(username);
+  _upPosts = [];
+  _upPostCursor = null;
+  _upHasMorePosts = true;
+  _upPostsLoading = false;
+  _upPostsRetryAttempt = 0;
+  _upPostsRetryPending = false;
+  _upPostsFallbackOrder = false;
+}
+
+function _resumePendingPostLoads() {
+  if (navigator.onLine === false) return;
+  if (_fyRetryPending) {
+    if (!_fyFirstPageReady) listenToPosts();
+    else _loadMorePosts();
+  }
+  if (_upPostsRetryPending && _isUserPostsPageActive()) _loadMoreUserPosts();
+}
+window.addEventListener("online", () => {
+  _fyRetryAttempt = 0;
+  _upPostsRetryAttempt = 0;
+  _commentRetryAttempt = 0;
+  _resumePendingPostLoads();
+  _resumePendingCommentLoads();
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    _resumePendingPostLoads();
+    _resumePendingCommentLoads();
+  }
+});
+
 function showUserPosts(u) {
   u = normalizeName(u);
   _saveForYouScroll();
@@ -18716,13 +20633,9 @@ function showUserPosts(u) {
   /* Post cards — use same _buildPostCard as For You feed */
   if (_upCards) {
     _upCards.innerHTML = "";
-    const userPosts = posts.filter(p => normalizeName(p.author) === u && _isPostCurrentlyVisible(p))
-                           .sort((a, b) => _postPublicationAt(b) - _postPublicationAt(a));
-    if (!userPosts.length) {
-      _upCards.innerHTML = `<div style="padding:30px;text-align:center;color:gray;font-family:'Inter',sans-serif;">No posts yet.</div>`;
-    } else {
-      userPosts.forEach(post => _upCards.appendChild(_buildPostCard(post)));
-    }
+    _resetUserPostsPagination(u);
+    _setUserPostsLoader(navigator.onLine === false ? "Waiting for connection…" : "Loading posts…");
+    _loadMoreUserPosts();
   }
 
   /* Async: fetch full profile → populate bio, fans, info, label */
@@ -18814,6 +20727,9 @@ function showUserPosts(u) {
       } else {
         _upCapsule.classList.remove("visible");
       }
+       if (_upFeed.scrollHeight - _upFeed.scrollTop - _upFeed.clientHeight < UP_POST_PREFETCH_DISTANCE) {
+         _loadMoreUserPosts();
+       }
     };
     _upFeed.addEventListener("scroll", _upFeed._upScrollHandler, { passive: true });
   }
@@ -18835,6 +20751,9 @@ function showUserPosts(u) {
       _up.scrollTop = 0;
       window.__upHideSourcesTimer = null;
     }, 320);
+  });
+  requestAnimationFrame(() => {
+    if (_isUserPostsPageActive(u)) _loadMoreUserPosts();
   });
 }
 
@@ -22538,7 +24457,13 @@ function _setupForYouScrollHandlers() {
     if (el._paginationBound) return;
     el._paginationBound = true;
     el.addEventListener("scroll", () => {
-      if (el.scrollHeight - el.scrollTop - el.clientHeight < 350) {
+      /*
+       * Prefetch well before the last rendered card. This gives Firestore
+       * enough time to return the next page while the user is still viewing
+       * existing content, avoiding a stop at the batch boundary.
+       */
+       const prefetchDistance = Math.max(FY_POST_PREFETCH_DISTANCE, Math.round(el.clientHeight * 2));
+      if (el.scrollHeight - el.scrollTop - el.clientHeight < prefetchDistance) {
         _loadMorePosts();
       }
       if (fyBar) {
@@ -23824,6 +25749,26 @@ async function openPostDetailPage(postId, scrollToCommentId, postOverride = null
     const sep = card.querySelector("hr.post-sep");
     if (sep) sep.remove();
     contentEl.appendChild(card);
+
+    /* Bind detail-page media directly as well as through the legacy inline
+       attributes. This keeps taps working when this module is loaded in a
+       browser that does not expose module-scoped functions to inline HTML. */
+    card.querySelectorAll(".post-images img").forEach(img => {
+      const url = img.getAttribute("src");
+      if (!url) return;
+      img.onclick = event => {
+        event.preventDefault();
+        event.stopPropagation();
+        openPostImgViewer(url);
+      };
+    });
+    card.querySelectorAll("[data-video-src]").forEach(wrap => {
+      wrap.onclick = event => {
+        event.preventDefault();
+        event.stopPropagation();
+        _toggleFeedVideo(wrap);
+      };
+    });
 
     /* Auto-open the comment bottom sheet when coming from a notification */
     if (scrollToCommentId) {
@@ -25762,6 +27707,36 @@ window._checkUsernameAvail = _checkUsernameAvail;
 
 <!-- ═══ EDITOR MODALS ═══ -->
 <canvas id="processingCanvas" style="display:none;"></canvas>
+
+<div class="chat-media-editor" id="chatMediaEditorModal" aria-hidden="true">
+  <div class="chat-editor-topbar">
+    <button type="button" onclick="_closeChatMediaEditor()" aria-label="Close media editor">✕</button>
+    <strong id="chatEditorTitle">Edit photo</strong>
+    <button type="button" class="chat-editor-save" id="chatEditorSaveBtn" onclick="_saveChatMediaEditor()">Done</button>
+  </div>
+  <div class="chat-editor-body">
+    <div class="chat-editor-tools" role="toolbar" aria-label="Media editing tools">
+      <button type="button" class="chat-editor-tool active" data-chat-editor-tool="crop" onclick="_selectChatEditorTool('crop')">
+        <span aria-hidden="true">⌗</span><span>Crop</span>
+      </button>
+      <button type="button" class="chat-editor-tool" data-chat-editor-tool="filters" onclick="_selectChatEditorTool('filters')">
+        <span aria-hidden="true">◐</span><span>Filters</span>
+      </button>
+      <button type="button" class="chat-editor-tool" data-chat-editor-tool="text" onclick="_selectChatEditorTool('text')">
+        <span aria-hidden="true">T</span><span>Write</span>
+      </button>
+      <button type="button" class="chat-editor-tool" data-chat-editor-tool="draw" onclick="_selectChatEditorTool('draw')">
+        <span aria-hidden="true">✎</span><span>Draw/Color</span>
+      </button>
+    </div>
+    <div class="chat-editor-stage">
+      <div class="chat-editor-canvas-wrap">
+        <canvas id="chatEditorCanvas" aria-label="Media editing canvas"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="chat-editor-subtools" id="chatEditorSubtools" aria-live="polite"></div>
+</div>
 
 <div class="editor-modal" id="imageModal">
   <h3 style="margin-top:0;color:#eff3f4;" id="cropModalTitle">Crop Photo</h3>
