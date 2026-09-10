@@ -15,18 +15,64 @@
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22MyChat%22%2C%22short_name%22%3A%22MyChat%22%2C%22description%22%3A%22MyChat%22%2C%22id%22%3A%22.%2F%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23008b8b%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2522http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2522%2520viewBox%253D%25220%25200%2520192%2520192%2522%253E%253Crect%2520width%253D%2522192%2522%2520height%253D%2522192%2522%2520rx%253D%252242%2522%2520fill%253D%2522%2523008b8b%2522%252F%253E%253Cpath%2520d%253D%2522M48%252060c0-8.8%25207.2-16%252016-16h64c8.8%25200%252016%25207.2%252016%252016v54c0%25208.8-7.2%252016-16%252016H96l-28%252024v-24h-4c-8.8%25200-16-7.2%252016-16V60Z%2522%2520fill%253D%2522white%2522%252F%253E%253Ccircle%2520cx%253D%252282%2522%2520cy%253D%252287%2522%2520r%253D%25228%2522%2520fill%253D%2522%2523008b8b%2522%252F%253E%253Ccircle%2520cx%253D%2522110%2522%2520cy%253D%252287%2522%2520r%253D%25228%2522%2520fill%253D%2522%2523008b8b%2522%252F%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D" />
 <title>MyChat</title>
 
+<!-- Keep the browser/PWA surface on the same visible loading color before the
+     main stylesheet and Firebase module have finished initializing. -->
+<style id="critical-startup-style">
+  html, body { background: #008b8b; }
+  #startupLoadingScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    background: #008b8b;
+    color: #ffffff;
+    font-family: Inter, Arial, sans-serif;
+    opacity: 1;
+    transition: opacity 0.16s ease;
+    pointer-events: auto;
+  }
+  #startupLoadingScreen.startup-ready {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #startupLoadingScreen .startup-logo {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  #startupLoadingScreen .startup-dots { display: flex; gap: 11px; }
+  #startupLoadingScreen .startup-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.88);
+    animation: startupPulse 0.9s ease-in-out infinite;
+  }
+  #startupLoadingScreen .startup-dot:nth-child(2) { animation-delay: 0.18s; }
+  #startupLoadingScreen .startup-dot:nth-child(3) { animation-delay: 0.36s; }
+  #startupLoadingScreen .startup-dot:nth-child(4) { animation-delay: 0.54s; }
+  @keyframes startupPulse {
+    0%, 80%, 100% { transform: scale(0.75); opacity: 0.45; }
+    40% { transform: scale(1.25); opacity: 1; }
+  }
+</style>
+
 <style>
 /* ═══════════════════════════════════════
    GLOBAL RESET
 ═══════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
-html { min-height: 100%; }
+html { min-height: 100%; background: #ffffff; }
 body {
   min-height: 100%;
   margin: 0;
   padding: 0;
   font-family: 'Inter', Arial, sans-serif;
-  background: #000000;
+  background: #ffffff;
   overflow-x: hidden; /* prevent left/right body shift */
   touch-action: manipulation; /* prevents browser double-tap zoom while preserving app gestures */
   -webkit-tap-highlight-color: transparent; /* item 14: no iOS blue flash */
@@ -579,7 +625,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #000000;
+  background-color: #ffffff;
 }
 /* Tell the browser to handle the keyboard layout natively, just like WhatsApp */
 html {
@@ -1022,6 +1068,25 @@ body.in-group-chat .chat-header-avatar img { border-radius: 8px; }
   padding: 2px;
   border: 1.5px solid rgba(255,255,255,0.18);
 }
+/* A captionless collage should be only the collage plus its time row. The
+   regular media-only bubble padding/border creates a visible halo around the
+   grid and reserves space that is only useful for captions. */
+.msg.chat-collage-only {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 12px;
+  overflow: visible;
+}
+.msg.chat-collage-only .msg-time-row {
+  padding: 2px 2px 0;
+}
+/* Two-photo messages use the same edge-to-edge treatment as collages.
+   The generic media-only bubble border otherwise leaves a visible outline
+   around the pair in both direct and group chats. */
+.msg.chat-two-image {
+  border: 0 !important;
+}
 /* ── Failed message indicator ── */
 .msg-fail-wrap {
   display: flex;
@@ -1352,6 +1417,7 @@ body.light-mode .vn-rec-timer { color: #111827; }
 .msg-seen { display: none !important; }
 .msg.other .msg-seen { display: none !important; }
 .chat-media-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -1373,6 +1439,55 @@ body.dark-mode .chat-media-wrap { background: #1e293b; }
   border-radius: 10px;
   display: block;
   cursor: pointer;
+}
+.chat-video-play-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.chat-video-play-overlay > span {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.24);
+}
+.chat-video-play-overlay svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: #ffffff;
+}
+.chat-media-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.chat-media-label svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  flex: 0 0 auto;
+}
+.chat-media-label-wrap {
+  margin-top: 6px;
+  white-space: pre-wrap;
+}
+.chat-list-media-label {
+  gap: 4px;
+}
+.chat-list-media-label svg {
+  width: 14px;
+  height: 14px;
 }
 #chatVideoViewer {
   display: none;
@@ -1661,6 +1776,152 @@ body.light-mode .chat-bottom-safe { background-color: transparent; }
 .chat-editor-subtools .chat-editor-color.active { outline: 2px solid #46d6d1; outline-offset: 2px; }
 body.light-mode .chat-media-editor .chat-editor-topbar,
 body.light-mode .chat-media-editor .chat-editor-subtools { background: rgba(20,25,28,.97); }
+/* Media editors follow the active app appearance instead of staying dark
+   while the rest of the app is light, lavender, or pink. */
+body.light-mode .chat-media-editor,
+body.lavender-mode .chat-media-editor,
+body.pink-mode .chat-media-editor {
+  color: #111827;
+  background: #f8fafc;
+}
+body.light-mode .chat-media-editor .chat-editor-topbar,
+body.light-mode .chat-media-editor .chat-editor-tools,
+body.light-mode .chat-media-editor .chat-editor-subtools {
+  background: #ffffff;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+body.light-mode .chat-media-editor .chat-editor-stage {
+  background: radial-gradient(circle at 50% 35%, rgba(13,148,136,.10), transparent 48%), #f1f5f9;
+}
+body.light-mode .chat-media-editor .chat-editor-tool,
+body.light-mode .chat-media-editor .chat-editor-subtools button {
+  color: #374151;
+  border-color: #d1d5db;
+  background: #f8fafc;
+}
+body.light-mode .chat-media-editor .chat-editor-tool:hover,
+body.light-mode .chat-media-editor .chat-editor-tool.active,
+body.light-mode .chat-media-editor .chat-editor-subtools button.active {
+  color: #064e4e;
+  background: #ccfbf1;
+  border-color: #14b8a6;
+}
+body.light-mode .chat-media-editor .chat-editor-save {
+  color: #ffffff;
+  background: #0d9488;
+}
+body.light-mode .chat-media-editor .chat-editor-subtools input {
+  color: #111827 !important;
+  background: #f8fafc !important;
+  border-color: #d1d5db !important;
+}
+body.lavender-mode .chat-media-editor {
+  background: #f5f3ff;
+}
+body.lavender-mode .chat-media-editor .chat-editor-topbar,
+body.lavender-mode .chat-media-editor .chat-editor-tools,
+body.lavender-mode .chat-media-editor .chat-editor-subtools {
+  background: #ede9fe;
+  color: #2d1b69;
+  border-color: #c4b5fd;
+}
+body.lavender-mode .chat-media-editor .chat-editor-stage {
+  background: radial-gradient(circle at 50% 35%, rgba(124,58,237,.14), transparent 48%), #f5f3ff;
+}
+body.lavender-mode .chat-media-editor .chat-editor-tool,
+body.lavender-mode .chat-media-editor .chat-editor-subtools button {
+  color: #4c1d95;
+  border-color: #c4b5fd;
+  background: rgba(255,255,255,.56);
+}
+body.lavender-mode .chat-media-editor .chat-editor-tool:hover,
+body.lavender-mode .chat-media-editor .chat-editor-tool.active,
+body.lavender-mode .chat-media-editor .chat-editor-subtools button.active {
+  color: #ffffff;
+  background: #7c3aed;
+  border-color: #7c3aed;
+}
+body.lavender-mode .chat-media-editor .chat-editor-save {
+  color: #ffffff;
+  background: #7c3aed;
+}
+body.lavender-mode .chat-media-editor .chat-editor-subtools input {
+  color: #2d1b69 !important;
+  background: #ffffff !important;
+  border-color: #c4b5fd !important;
+}
+body.pink-mode .chat-media-editor {
+  background: #fff0f5;
+}
+body.pink-mode .chat-media-editor .chat-editor-topbar,
+body.pink-mode .chat-media-editor .chat-editor-tools,
+body.pink-mode .chat-media-editor .chat-editor-subtools {
+  background: #fce7f3;
+  color: #6b1240;
+  border-color: #f9a8d4;
+}
+body.pink-mode .chat-media-editor .chat-editor-stage {
+  background: radial-gradient(circle at 50% 35%, rgba(233,30,140,.12), transparent 48%), #fff0f5;
+}
+body.pink-mode .chat-media-editor .chat-editor-tool,
+body.pink-mode .chat-media-editor .chat-editor-subtools button {
+  color: #9d174d;
+  border-color: #f9a8d4;
+  background: rgba(255,255,255,.62);
+}
+body.pink-mode .chat-media-editor .chat-editor-tool:hover,
+body.pink-mode .chat-media-editor .chat-editor-tool.active,
+body.pink-mode .chat-media-editor .chat-editor-subtools button.active {
+  color: #ffffff;
+  background: #e91e8c;
+  border-color: #e91e8c;
+}
+body.pink-mode .chat-media-editor .chat-editor-save {
+  color: #ffffff;
+  background: #e91e8c;
+}
+body.pink-mode .chat-media-editor .chat-editor-subtools input {
+  color: #6b1240 !important;
+  background: #ffffff !important;
+  border-color: #f9a8d4 !important;
+}
+body.light-mode .editor-modal,
+body.lavender-mode .editor-modal,
+body.pink-mode .editor-modal {
+  background: rgba(255,255,255,.96);
+  color: #111827;
+}
+body.light-mode .editor-modal #cropModalTitle,
+body.lavender-mode .editor-modal #cropModalTitle,
+body.pink-mode .editor-modal #cropModalTitle {
+  color: #111827 !important;
+}
+body.light-mode .editor-modal #cropModalHint,
+body.lavender-mode .editor-modal #cropModalHint,
+body.pink-mode .editor-modal #cropModalHint {
+  color: #6b7280 !important;
+}
+body.light-mode .editor-btn.cancel,
+body.lavender-mode .editor-btn.cancel,
+body.pink-mode .editor-btn.cancel {
+  color: #374151;
+  border-color: #9ca3af;
+}
+body.lavender-mode .editor-modal {
+  background: rgba(245,243,255,.97);
+}
+body.lavender-mode .editor-btn:not(.cancel) {
+  background: #7c3aed;
+  color: #ffffff;
+}
+body.pink-mode .editor-modal {
+  background: rgba(255,240,245,.97);
+}
+body.pink-mode .editor-btn:not(.cancel) {
+  background: #e91e8c;
+  color: #ffffff;
+}
 @media (max-width: 420px) {
   .chat-editor-tools { width: 72px; flex-basis: 72px; padding-left: 4px; padding-right: 4px; }
   .chat-editor-tool { width: 62px; }
@@ -2378,6 +2639,48 @@ body.light-mode .pp-compose-box { border-color: transparent; }
 }
 body.light-mode #ppTextarea { color: #111827; }
 #ppTextarea::placeholder { color: #6b7280; }
+.pp-format-row {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+}
+.pp-format-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 28px;
+  padding: 0 13px;
+  border: 1px solid rgba(156,163,175,0.38);
+  border-radius: 999px;
+  background: rgba(127,127,127,0.10);
+  color: inherit;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.pp-format-pill:hover {
+  background: rgba(0,139,139,0.14);
+  border-color: rgba(0,139,139,0.48);
+}
+.pp-format-pill[aria-pressed="true"] {
+  background: #008b8b;
+  border-color: #008b8b;
+  color: #ffffff;
+}
+body.light-mode .pp-format-pill {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+body.light-mode .pp-format-pill[aria-pressed="true"] {
+  background: #008b8b;
+  border-color: #008b8b;
+  color: #ffffff;
+}
 .pp-word-counter {
   font-size: 11px;
   color: #6b7280;
@@ -5186,6 +5489,9 @@ body.dark-mode .profile-fans-count { color: #6b7280; }
   color: rgba(255,255,255,0.92);
   font-family: 'Inter', Arial, sans-serif;
   display: inline-block;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
   background: rgba(0,0,0,0.38);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -8839,8 +9145,47 @@ body.light-mode .bottom-nav .nav-tab-indicator {
     .mkt-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
     
 </style>
+<!-- The initial loading color must win over the default page colors, but it
+     stays non-important so navigateToAuth/navigateToHome can set the final
+     body color inline after the loading surface is removed. -->
+<style id="initial-paint-background">
+  html { background: #008b8b; }
+  body { background: #008b8b; }
+</style>
 </head>
 <body>
+
+<!-- This is the first-paint loading surface. It stays visible while the
+     Firebase module restores the session, then navigation removes it in one
+     step instead of exposing an unstyled/black intermediate frame. -->
+<div id="startupLoadingScreen" role="status" aria-live="polite" aria-label="Loading MyChat">
+  <div class="startup-logo">MyChat</div>
+  <div class="startup-dots" aria-hidden="true">
+    <div class="startup-dot"></div>
+    <div class="startup-dot"></div>
+    <div class="startup-dot"></div>
+    <div class="startup-dot"></div>
+  </div>
+</div>
+<script>
+  window.__mychatStartupTimer = setTimeout(function () {
+    const home = document.getElementById("homeSection");
+    /* A signed-in transition may still be initializing the home shell.
+       Never remove the teal surface while that destination is mid-startup. */
+    if (home && home.style.display !== "none") return;
+    const startup = document.getElementById("startupLoadingScreen");
+    if (startup) {
+      startup.classList.add("startup-ready");
+      setTimeout(function () {
+        if (startup.classList.contains("startup-ready")) startup.style.display = "none";
+      }, 180);
+    }
+    const auth = document.getElementById("authSection");
+    if (auth) {
+      auth.style.display = "flex";
+    }
+  }, 15000);
+</script>
 
 <!-- ═══════════════════════════════════════
      AUTH SECTION
@@ -9202,8 +9547,8 @@ body.light-mode .bottom-nav .nav-tab-indicator {
               </svg>
             </button>
             <div class="media-popup" id="mediaPlusPopup">
-              <div class="media-popup-item" id="popupPhotoItem"><span>📷</span><span>Photo</span></div>
-              <div class="media-popup-item" id="popupVideoItem"><span>🎥</span><span>Video</span></div>
+              <div class="media-popup-item" id="popupPhotoItem"><span class="media-popup-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="12" cy="12" r="3.2"></circle><path d="m7 9 1.5-2h2L12 9"></path></svg></span><span>Photo</span></div>
+              <div class="media-popup-item" id="popupVideoItem"><span class="media-popup-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="2"></rect><path d="m16 10 5-3v10l-5-3z" fill="currentColor" stroke="none"></path></svg></span><span>Video</span></div>
               <div class="media-popup-item" id="popupFileItem"><span>📎</span><span>File</span></div>
             </div>
           </div>
@@ -9294,6 +9639,9 @@ body.light-mode .bottom-nav .nav-tab-indicator {
           <div class="pp-avatar" id="ppAvatar">U</div>
           <div class="pp-compose-col">
             <div class="pp-compose-box">
+              <div class="pp-format-row">
+                <button class="pp-format-pill" id="ppBoldBtn" type="button" onclick="ppToggleBold()" aria-label="Bold text" aria-pressed="false">B</button>
+              </div>
               <textarea id="ppTextarea" placeholder="Share your thoughts" oninput="ppOnInput()"></textarea>
               <div id="ppMediaCarousel" class="pp-media-carousel" aria-label="Selected post media"></div>
               <div class="pp-word-counter" id="ppWordCounter">0 / 250 words</div>
@@ -9508,7 +9856,7 @@ body.light-mode .bottom-nav .nav-tab-indicator {
             </div>
           </div>
           <div class="vp-bottom-row">
-            <span class="vp-fans-count" id="vpFansCount"></span>
+              <button class="vp-fans-count" id="vpFansCount" type="button" onclick="fansFromProfile()" aria-label="View fans"></button>
             <div style="display:flex;align-items:center;gap:8px;">
               <button class="vp-dm-icon" onclick="dmFromProfile()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
               <button class="vp-posts-capsule" onclick="viewPostsFromProfile()">Posts</button>
@@ -10443,6 +10791,9 @@ await setPersistence(auth, browserLocalPersistence);
 let currentUser        = "";
 let currentChatName    = "";
 let viewingUsername    = "";
+let _profileViewRequestToken = 0;
+let _profileActionOpeningChat = false;
+let _upCameFromPostDetail = false;
 let _upCameFromMatch      = false;  /* true when showUserPosts was entered from Match/Fantasy */
 let _upSourceMatchTab     = null;   /* match sub-tab active at time of entry */
 let _upSourceMatchScrollTop = 0;   /* feed scroll offset saved before opening */
@@ -10786,6 +11137,8 @@ async function firebaseSignup(email, password, username) {
 async function firebaseLogin(usernameOrEmail, password) {
   const input = String(usernameOrEmail || "").trim().toLowerCase();
   if (!input || !password) {
+    const _llsInvalid = document.getElementById("loginLoadingScreen");
+    if (_llsInvalid) _llsInvalid.classList.remove("visible");
     _showLoginError("Please enter your username/email and password.");
     const btn = document.getElementById("loginBtn");
     if (btn) { btn.disabled = false; btn.textContent = "Login"; }
@@ -10796,6 +11149,8 @@ async function firebaseLogin(usernameOrEmail, password) {
     try {
       email = await lookupEmailByUsername(input);
     } catch(e) {
+      const _llsLookup = document.getElementById("loginLoadingScreen");
+      if (_llsLookup) _llsLookup.classList.remove("visible");
       _showLoginError("Username not found. Check your username and try again.");
       const btn = document.getElementById("loginBtn");
       if (btn) { btn.disabled = false; btn.textContent = "Login"; }
@@ -10960,6 +11315,8 @@ function showVerificationScreen() {
   const user = auth.currentUser;
   const emailEl = document.getElementById("verifEmailDisplay");
   if (emailEl && user) emailEl.textContent = user.email || "";
+  _hideStartupLoadingScreen();
+  document.getElementById("loginLoadingScreen")?.classList.remove("visible");
   document.getElementById("authSection").style.display        = "none";
   document.getElementById("homeSection").style.display        = "none";
   document.getElementById("verificationScreen").style.display = "flex";
@@ -11021,9 +11378,25 @@ async function cancelVerification() {
 }
 window.cancelVerification = cancelVerification;
 
-function navigateToHome() {
-  document.getElementById("authSection").style.display = "none";
+function _hideStartupLoadingScreen() {
+  if (window.__mychatStartupTimer) {
+    clearTimeout(window.__mychatStartupTimer);
+    window.__mychatStartupTimer = null;
+  }
+  const startup = document.getElementById("startupLoadingScreen");
+  if (startup) {
+    startup.setAttribute("aria-hidden", "true");
+    startup.classList.add("startup-ready");
+    setTimeout(() => {
+      if (startup.classList.contains("startup-ready")) startup.style.display = "none";
+    }, 180);
+  }
+}
+
+async function navigateToHome() {
   document.getElementById("homeSection").style.display = "block";
+  document.getElementById("authSection").style.display = "none";
+  document.getElementById("verificationScreen").style.display = "none";
   document.body.style.background = "#f0f2f5";
   fyScrollPos = 0;
   followingScrollPos = 0;
@@ -11036,12 +11409,24 @@ function navigateToHome() {
   if (_fyS) _fyS.scrollTop = 0;
   const _folS = document.getElementById("fyFollowingScroll");
   if (_folS) _folS.scrollTop = 0;
-  initializeHomeComponent();
+  try {
+    /* Keep the teal startup surface above the destination while the first
+       user profile read, theme, listeners, and home shell are initialized. */
+    await initializeHomeComponent();
+  } catch (e) {
+    console.error("Home initialization failed:", e);
+  }
+  /* Give the browser two paint opportunities so the first visible frame is
+     the actual home shell, never the dark/empty background underneath it. */
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  document.getElementById("loginLoadingScreen")?.classList.remove("visible");
+  _hideStartupLoadingScreen();
   /* Start listening for incoming calls after login */
   if (typeof _startIncomingCallListener === "function") _startIncomingCallListener();
 }
 function navigateToAuth() {
-  /* Hide loading screen whether we arrive here from a failed auto-login or logout */
+  /* Hide loading screens whether we arrive here from a failed auto-login or logout */
+  _hideStartupLoadingScreen();
   const _llsNav = document.getElementById("loginLoadingScreen");
   if (_llsNav) _llsNav.classList.remove("visible");
   document.getElementById("authSection").style.display      = "flex";
@@ -11106,7 +11491,25 @@ function addLongPress(el, callback) {
 }
 
 async function deleteMessage(tid, msgId) {
-  await deleteDoc(doc(db, "conversations", tid, "messages", msgId)).catch(() => {});
+  const conv = conversations[tid] ? { ...conversations[tid] } : null;
+  const msg = arguments.length > 2 && arguments[2] ? arguments[2] : null;
+  const msgStamp = msg?.stamp?.toMillis?.() || Number(msg?.stamp) || 0;
+  const convStamp = conv?.lastStamp?.toMillis?.() || Number(conv?.lastStamp) || 0;
+  const updatesPreview = !!conv && !!msg && !!msgStamp && convStamp === msgStamp;
+  const optimisticPreview = { lastText: "Message deleted", lastIsImg: false, lastIsVid: false, lastSender: "" };
+  if (updatesPreview) {
+    conversations[tid] = { ...conv, ...optimisticPreview };
+    renderChatList();
+    updateDoc(doc(db, "conversations", tid), optimisticPreview).catch(() => {});
+  }
+  try {
+    await deleteDoc(doc(db, "conversations", tid, "messages", msgId));
+  } catch (_) {
+    if (updatesPreview) {
+      conversations[tid] = conv;
+      renderChatList();
+    }
+  }
 }
 window.deleteMessage = deleteMessage;
 
@@ -11144,7 +11547,7 @@ function _showMsgActionMenu(bubble, tid, msg, canEdit, isSeen) {
   const delBtn = document.createElement('button');
   delBtn.textContent = 'Delete';
   delBtn.className = 'mam-danger';
-  delBtn.onclick = e => { e.stopPropagation(); dismiss(); deleteMessage(tid, msg.id); };
+  delBtn.onclick = e => { e.stopPropagation(); dismiss(); deleteMessage(tid, msg.id, msg); };
   menu.appendChild(delBtn);
 
   overlay.onclick = dismiss;
@@ -11806,7 +12209,7 @@ async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = 
   if (replyTo) msgData.replyTo = replyTo;
   _lastSentMessageStamp = stamp;
   await addDoc(collection(db, "conversations", tid, "messages"), msgData);
-  const lastText = mediaUrl ? (isVid ? "🎥 Video" : isFile ? `📎 ${fileName || "File"}` : "📷 Photo") : (text || "");
+  const lastText = mediaUrl ? (isVid ? "Video" : isFile ? `File: ${fileName || "File"}` : "Photo") : (text || "");
   const unreadKey = `unread_${normalizeName(partner)}`;
   const _convBefore = conversations[tid] || {};
   const _updates = {
@@ -11848,13 +12251,47 @@ async function addMsgImages(partner, imageUrls, text, replyTo, imageDimensions =
   if (replyTo) msgData.replyTo = replyTo;
   _lastSentMessageStamp = stamp;
   await addDoc(collection(db, "conversations", tid, "messages"), msgData);
-  const lastText = `📷 ${safeImageUrls.length} Photos`;
+  const lastText = `${safeImageUrls.length} Photo${safeImageUrls.length === 1 ? "" : "s"}`;
   const unreadKey = `unread_${normalizeName(partner)}`;
   await updateDoc(doc(db, "conversations", tid), { lastStamp: stamp, lastText, lastSender: normalizeName(currentUser), lastIsImg: true, lastIsVid: false, chatCleared: false, [unreadKey]: increment(1) });
   markAsRead(partner);
   updateActivity();
 }
 window.addMsgImages = addMsgImages;
+
+function _chatMediaIconSvg(kind) {
+  if (kind === "video") {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="13" height="14" rx="2"></rect><path d="m16 10 5-3v10l-5-3z" fill="currentColor" stroke="none"></path></svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="12" cy="12" r="3.2"></circle><path d="m7 9 1.5-2h2L12 9"></path></svg>`;
+}
+
+function _chatMediaLabelMarkup(kind, label) {
+  return `<span class="chat-media-label">${_chatMediaIconSvg(kind)}<span>${escapeHtml(label)}</span></span>`;
+}
+
+function _chatMediaPlaceholderInfo(msg) {
+  if (!msg || (!msg.img && !(Array.isArray(msg.images) && msg.images.length))) return null;
+  const text = String(msg.text || "").trim();
+  const normalized = text.replace(/^[📷🎥]\s*/u, "").trim().toLowerCase();
+  if (msg.isVid && (normalized === "video" || normalized === "videos")) {
+    return { kind: "video", label: "Video" };
+  }
+  if (!msg.isVid && (normalized === "photo" || normalized === "photos" || /^\d+\s+photos?$/.test(normalized))) {
+    const count = Array.isArray(msg.images) && msg.images.length > 1 ? msg.images.length : 1;
+    return { kind: "photo", label: `${count} Photo${count === 1 ? "" : "s"}` };
+  }
+  return null;
+}
+
+function _chatListMediaLabel(conv, lastText) {
+  if (!conv?.lastIsImg) return escapeHtml(lastText || "");
+  const kind = conv.lastIsVid ? "video" : "photo";
+  const countMatch = String(lastText || "").match(/(\d+)\s+photos?/i);
+  const count = countMatch ? Number(countMatch[1]) : 1;
+  const label = kind === "video" ? "Video" : `${count} Photo${count === 1 ? "" : "s"}`;
+  return `<span class="chat-media-label chat-list-media-label">${_chatMediaIconSvg(kind)}<span>${label}</span></span>`;
+}
 
 /* Store image dimensions with new chat messages so the final display space
    can be reserved before a remote image has decoded. */
@@ -11930,6 +12367,11 @@ function _renderMessages(partner, messages) {
   const tid         = threadId(me, partnerNorm);
   const rawMessages = Array.isArray(messages) ? messages : [];
   messages = _visibleChatMessages(rawMessages);
+  if (_lastSentMessageStamp !== null && messages.some(msg =>
+    normalizeName(msg.sender) === me && Number(msg.stamp) === Number(_lastSentMessageStamp)
+  )) {
+    _clearChatSendingIndicators(box);
+  }
   _scheduleChatExpiry(rawMessages, tid, partnerNorm);
   currentChatMessages = messages;
   /* Update call button gating whenever messages change */
@@ -12145,8 +12587,8 @@ function _renderMessages(partner, messages) {
         _applyChatImageSizing(vWrap, v, null);
         v.onclick = () => _openFullscreenVideoFromUrl(msg.img);
         const playOverlay = document.createElement("div");
-        playOverlay.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;";
-        playOverlay.innerHTML = `<div style="width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" fill="white" width="22" height="22"><polygon points="8,5 19,12 8,19"/></svg></div>`;
+        playOverlay.className = "chat-video-play-overlay";
+        playOverlay.innerHTML = `<span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="8,5 19,12 8,19"/></svg></span>`;
         vWrap.appendChild(v);
         vWrap.appendChild(playOverlay);
         bubble.appendChild(vWrap);
@@ -12263,14 +12705,29 @@ function _renderMessages(partner, messages) {
       } else if (_isCaption) {
         const t = document.createElement("div");
         t.style.cssText = "margin-top:6px;white-space:pre-wrap;";
-        t.textContent = msg.text;
+         const mediaLabel = _chatMediaPlaceholderInfo(msg);
+         if (mediaLabel) {
+           t.className = "chat-media-label-wrap";
+           t.innerHTML = _chatMediaLabelMarkup(mediaLabel.kind, mediaLabel.label);
+         } else {
+           t.textContent = msg.text;
+         }
         bubble.appendChild(t);
       } else {
         bubble.appendChild(document.createTextNode(msg.text));
       }
     }
 
+    /* Captionless collages are rendered edge-to-edge. Captioned collages keep
+       the normal bubble treatment and spacing. */
+    if (Array.isArray(msg.images) && msg.images.length > 2 && !_hasTextContent) {
+      bubble.classList.add("chat-collage-only");
+    }
+
     /* Thin border for media-only messages */
+    if (Array.isArray(msg.images) && msg.images.length === 2) {
+      bubble.classList.add("chat-two-image");
+    }
     if (_hasMediaContent && !_hasTextContent && !msg.isFile) {
       bubble.classList.add("media-only");
     }
@@ -13020,11 +13477,9 @@ function renderChatList() {
       if (q && !normalizeName(partner).includes(q) && !lastText.toLowerCase().includes(q)) return null;
       const unread = getUnreadCount(partner);
       const online = isActiveRecently(partner);
-      const lastLabel = conv.chatCleared
+       const lastLabel = conv.chatCleared
         ? "Chat cleared"
-        : conv.lastIsImg
-          ? (conv.lastIsVid ? "🎥 Video" : "📷 Photo")
-          : escapeHtml(lastText);
+         : _chatListMediaLabel(conv, lastText);
       const typingKey = `typing_${normalizeName(partner)}`;
       const isTyping  = (conv[typingKey] || 0) > (nowStamp() - 4000);
       ensureProfile(partner);
@@ -13041,7 +13496,9 @@ function renderChatList() {
       if (q && !name.toLowerCase().includes(q) && !lastText.toLowerCase().includes(q)) return null;
       const unreadKey = `unread_${me}`;
       const unread = conv[unreadKey] || 0;
-      const lastLabel = conv.lastIsImg ? "📷 Photo" : (conv.lastSender ? `${escapeHtml(conv.lastSender)}: ${escapeHtml(lastText)}` : escapeHtml(lastText));
+       const lastLabel = conv.lastIsImg
+         ? _chatListMediaLabel(conv, lastText)
+         : (conv.lastSender ? `${escapeHtml(conv.lastSender)}: ${escapeHtml(lastText)}` : escapeHtml(lastText));
       return { kind: "group", groupId: gid, groupData: conv, name, lastLabel, stamp, unread };
     })
     .filter(Boolean);
@@ -13306,6 +13763,7 @@ function _setFeedVideoLayout(video) {
 }
 
 const _quotedPostRegistry = new Map();
+const _quotedPostNavigationChains = new Map();
 let _quotedPostRenderSeq = 0;
 let _quotedPostFallbackSeq = 0;
 const _quotedPostFallbacks = new Map();
@@ -13356,12 +13814,16 @@ function _quoteSourceSnapshot(post, seen = new Set()) {
   return snapshot;
 }
 
-function _renderQuotedPostHTML(quote) {
+function _renderQuotedPostHTML(quote, parentChain = []) {
   if (!quote) return "";
   const author = normalizeName(quote.author || "user");
   ensureProfile(author);
   const registryKey = `quoted-${++_quotedPostRenderSeq}`;
   _quotedPostRegistry.set(registryKey, quote);
+  _quotedPostNavigationChains.set(
+    registryKey,
+    parentChain.map(parent => _quoteSourceSnapshot(parent) || { ...parent })
+  );
   const quoteMedia = _postMediaItems(quote);
   const media = quoteMedia.map(item => {
     if (item.type === "video") {
@@ -13383,7 +13845,7 @@ function _renderQuotedPostHTML(quote) {
     </div>
     ${media ? `<div class="quoted-post-media-carousel">${media}</div>` : ""}
     ${quote.text ? `<div class="quoted-post-caption">${_renderQuotedCaption(quote.text)}</div>` : ""}
-    ${nested ? _renderQuotedPostHTML(nested) : ""}
+    ${nested ? _renderQuotedPostHTML(nested, [...parentChain, quote]) : ""}
   </article>`;
 }
 
@@ -13398,7 +13860,7 @@ function _openQuotedPostByKey(key, event) {
   event?.stopPropagation();
   const quote = _quotedPostRegistry.get(key);
   if (!quote) return;
-  _openQuotedPost(quote);
+  _openQuotedPost(quote, _quotedPostNavigationChains.get(key) || []);
 }
 window._openQuotedPostByKey = _openQuotedPostByKey;
 
@@ -13411,18 +13873,105 @@ function _openQuotedPosterProfile(key, event) {
 }
 window._openQuotedPosterProfile = _openQuotedPosterProfile;
 
-function _openQuotedPost(quote) {
+function _quotedDetailEntry(postId, postData = null) {
+  const id = String(postId || "").trim();
+  if (!id) return null;
+  return {
+    postId: id,
+    postOverride: postData ? { ...postData } : null
+  };
+}
+
+function _quotedDetailEntryFromSnapshot(quote) {
+  if (!quote) return null;
+  const snapshot = _quoteSourceSnapshot(quote) || { ...quote };
+  let id = _quotedPostId(snapshot);
+  if (!id) {
+    id = `quoted-inline-${++_quotedPostFallbackSeq}`;
+    snapshot.id = id;
+    _quotedPostFallbacks.set(id, snapshot);
+  }
+  return _quotedDetailEntry(id, snapshot);
+}
+
+function _quotedDetailOverride(entry) {
+  return entry?.postId?.startsWith("quoted-inline-")
+    ? (entry.postOverride || null)
+    : null;
+}
+
+function _captureQuotedOrigin() {
+  const forYouPage = document.getElementById("forYouPage");
+  const forYouVisible = !!(forYouPage && forYouPage.style.display !== "none");
+  const scrollEl = forYouVisible && typeof _fyActiveScroll === "function"
+    ? _fyActiveScroll()
+    : null;
+  return {
+    type: forYouVisible ? "forYou" : "forYou",
+    scrollTop: scrollEl ? scrollEl.scrollTop : fyScrollPos,
+    following: !!followingModeActive
+  };
+}
+
+function _restoreQuotedOrigin(origin) {
+  const restored = origin || { type: "forYou", scrollTop: fyScrollPos, following: false };
+  const page = document.getElementById("postDetailPage");
+  if (page) page.style.display = "none";
+  if (typeof followingModeActive !== "undefined") {
+    followingModeActive = !!restored.following;
+  }
+  if (restored.type === "forYou") {
+    if (restored.following) followingScrollPos = restored.scrollTop || 0;
+    else fyScrollPos = restored.scrollTop || 0;
+    isOnForYou = false;
+    showForYou();
+    requestAnimationFrame(() => {
+      const scrollEl = typeof _fyActiveScroll === "function" ? _fyActiveScroll() : null;
+      if (scrollEl) scrollEl.scrollTop = restored.scrollTop || 0;
+    });
+    return;
+  }
+  showForYou();
+}
+
+function _openQuotedPost(quote, parentChain = []) {
   if (!quote) return;
+  const detailPage = document.getElementById("postDetailPage");
+  const detailVisible = !!(detailPage && detailPage.style.display !== "none");
+  if (!_quotedDetailOrigin) _quotedDetailOrigin = _captureQuotedOrigin();
+
+  const parentEntries = parentChain
+    .map(parent => _quotedDetailEntryFromSnapshot(parent))
+    .filter(Boolean);
+  const currentEntry = detailVisible && _pdPostId
+    ? _quotedDetailEntry(_pdPostId, _pdCurrentPostData)
+    : null;
+  if (currentEntry) {
+    _quotedDetailHistory = [
+      ..._quotedDetailHistory,
+      currentEntry,
+      ...parentEntries
+    ];
+  } else {
+    _quotedDetailHistory = parentEntries;
+  }
+  const seenHistoryIds = new Set();
+  _quotedDetailHistory = _quotedDetailHistory.filter(entry => {
+    if (!entry || seenHistoryIds.has(entry.postId)) return false;
+    seenHistoryIds.add(entry.postId);
+    return true;
+  });
+
   const id = _quotedPostId(quote);
   if (id) {
-    openPostDetailPage(id);
+    openPostDetailPage(id, null, null, { quoted: true });
     return;
   }
   const fallbackId = `quoted-inline-${++_quotedPostFallbackSeq}`;
   const snapshot = _quoteSourceSnapshot(quote) || { ...quote, id: fallbackId };
   snapshot.id = fallbackId;
   _quotedPostFallbacks.set(fallbackId, snapshot);
-  openPostDetailPage(fallbackId, null, snapshot);
+  openPostDetailPage(fallbackId, null, snapshot, { quoted: true });
 }
 
 function _openFullscreenVideoFromUrl(url, poster = "") {
@@ -14035,6 +14584,8 @@ async function openChat(partner) {
     _promptUnlockChat(partner, () => openChat(partner));
     return;
   }
+  const openedFromProfileAction = _profileActionOpeningChat;
+  _profileActionOpeningChat = false;
   await fetchProfile(partner);
   /* Allow opening chat even if the other user has blocked us — send is disabled by syncComposerState */
   hideGroupChat();
@@ -14062,7 +14613,9 @@ async function openChat(partner) {
      celebration banner) so returning can restore the exact same stack instead
      of reloading it from scratch. */
   const _mpChat = document.getElementById("matchPage");
-  _chatCameFromMatchStack = !!(_mpChat && _mpChat.style.display !== "none");
+  if (!openedFromProfileAction) {
+    _chatCameFromMatchStack = !!(_mpChat && _mpChat.style.display !== "none");
+  }
   if (_mpChat) _mpChat.style.display = "none";
   const _mfr = document.getElementById("matchFabRow");
   if (_mfr) _mfr.style.display = "none";
@@ -14426,6 +14979,11 @@ function _saveForYouScroll() {
 }
 
 function showForYou(forceRefresh) {
+  const postDetailPage = document.getElementById("postDetailPage");
+  if (postDetailPage && postDetailPage.style.display !== "none" &&
+      typeof _resetQuotedDetailNavigation === "function") {
+    _resetQuotedDetailNavigation();
+  }
   if (isOnForYou) {
     _refreshFeedWithSpinner();
     const fyS = document.getElementById("fyForYouScroll");
@@ -16400,32 +16958,42 @@ function _activeRetryThreadKey() {
 
 function _chatMediaLabel(item) {
   if (!item) return "Media";
-  if (item.type === "video") return "Video";
+  if (_isChatVideoItem(item)) return "Video";
   if (item.type === "file") return item.fileName || item.file?.name || "File";
   return "Photo";
 }
 
+function _isChatVideoItem(item) {
+  const declared = String(item?.type || "").toLowerCase();
+  const fileType = String(item?.file?.type || item?.raw?.type || item?.mimeType || "").toLowerCase();
+  const dataType = String(item?.dataUrl || item?.url || "").toLowerCase();
+  return declared === "video" || item?.isVid === true ||
+    fileType.startsWith("video/") || dataType.startsWith("data:video/");
+}
+
 async function _chatUploadFile(item) {
   if (item?.file) {
-    const originalName = item.file.name || item.fileName || (item.type === "video" ? "video.mp4" : "photo");
-    const type = item.file.type || (item.type === "video" ? "video/mp4" : "image/jpeg");
+    const isVideo = _isChatVideoItem(item);
+    const originalName = item.file.name || item.fileName || (isVideo ? "video.mp4" : "photo");
+    const type = item.file.type || (isVideo ? "video/mp4" : "image/jpeg");
     /* Keep the original filename and MIME type so GIFs remain GIFs on retry. */
     return item.file instanceof File
       ? item.file
       : new File([item.file], originalName, { type });
   }
   const blob = await fetch(item.dataUrl).then(response => response.blob());
-  const fallbackName = item.fileName || (item.type === "video"
+  const isVideo = _isChatVideoItem(item);
+  const fallbackName = item.fileName || (isVideo
     ? "video.mp4"
     : String(blob.type || "").toLowerCase() === "image/gif" ? "animation.gif" : "photo.jpg");
   return new File([blob], fallbackName, {
-    type: item.mimeType || blob.type || (item.type === "video" ? "video/mp4" : "image/jpeg")
+    type: item.mimeType || blob.type || (isVideo ? "video/mp4" : "image/jpeg")
   });
 }
 
 async function _uploadChatMediaItem(item) {
   const file = await _chatUploadFile(item);
-  const resourceType = item.type === "video" ? "video" : item.type === "file" ? "raw" : "image";
+  const resourceType = _isChatVideoItem(item) ? "video" : item.type === "file" ? "raw" : "image";
   return window.uploadToCloudinary(file, resourceType);
 }
 
@@ -16502,6 +17070,12 @@ function _renderPendingChatRetries(threadKey, chatBox) {
   });
 }
 
+function _clearChatSendingIndicators(chatBox) {
+  const root = chatBox || document.getElementById("chatBox");
+  if (!root) return;
+  root.querySelectorAll(".chat-sending-indicator").forEach(indicator => indicator.remove());
+}
+
 function _showSendFailure(chatBox, labelText, retryFn, mediaItems = [], threadKey = _activeRetryThreadKey()) {
   const id = `chat-retry-${++_chatRetrySequence}`;
   const record = {
@@ -16531,11 +17105,12 @@ async function _sendChatMediaBatch(payload) {
   for (const item of payload.items.filter(entry => entry.type !== "image")) {
     if (item.sent) continue;
     if (!item.uploadedUrl) item.uploadedUrl = await _uploadChatMediaItem(item);
+    const isVideo = _isChatVideoItem(item);
     await addMsg(
       payload.partner,
-      payload.text || (item.type === "video" ? "🎥 Video" : `📎 ${item.fileName || item.file?.name || "File"}`),
+      payload.text || (isVideo ? "Video" : `File: ${item.fileName || item.file?.name || "File"}`),
       item.uploadedUrl,
-      item.type === "video",
+      isVideo,
       false,
       item.type === "file",
       item.fileName || item.file?.name || "",
@@ -16573,7 +17148,7 @@ async function _sendGroupImageBatch(payload) {
   });
   await updateDoc(doc(db, "conversations", payload.groupId), {
     lastStamp: stamp,
-    lastText: payload.text || `📷 ${imageUrls.length} Photo${imageUrls.length === 1 ? "" : "s"}`,
+    lastText: payload.text || `${imageUrls.length} Photo${imageUrls.length === 1 ? "" : "s"}`,
     lastSender: me,
     lastIsImg: true,
     lastIsVid: false,
@@ -16586,15 +17161,51 @@ async function _sendGroupImageBatch(payload) {
   return true;
 }
 
+async function _sendGroupSingleMedia(payload) {
+  if (!payload.uploadedUrl) payload.uploadedUrl = await _uploadChatMediaItem(payload.item);
+  const isVideo = _isChatVideoItem(payload.item);
+  const stamp = nowStamp();
+  const me = normalizeName(currentUser);
+  const members = payload.members || [];
+  await addDoc(collection(db, "conversations", payload.groupId, "messages"), {
+    sender: me,
+    text: payload.text || (isVideo ? "Video" : "File"),
+    img: payload.uploadedUrl,
+    isVid: isVideo,
+    isFile: payload.item.type === "file",
+    fileName: payload.item.fileName || payload.item.file?.name || "",
+    time: formatTimeFromStamp(stamp),
+    stamp,
+    ...(payload.replyTo ? { replyTo: payload.replyTo } : {})
+  });
+  const unreadUpdates = {};
+  members.forEach(member => {
+    if (normalizeName(member) !== me) unreadUpdates[`unread_${normalizeName(member)}`] = increment(1);
+  });
+  await updateDoc(doc(db, "conversations", payload.groupId), {
+    lastStamp: stamp,
+    lastText: payload.text || (isVideo ? "Video" : "File"),
+    lastSender: me,
+    lastIsImg: true,
+    lastIsVid: isVideo,
+    chatCleared: false,
+    ...unreadUpdates
+  }).catch(() => {});
+  markGroupAsRead(payload.groupId);
+  updateActivity();
+  return true;
+}
+
 async function _sendSingleChatMedia(payload) {
   const item = payload.item;
   if (!payload.uploadedUrl) payload.uploadedUrl = await _uploadChatMediaItem(item);
+  const isVideo = _isChatVideoItem(item);
   const mediaMeta = item.type === "image" ? await _getImageDimensions(item.dataUrl) : null;
   await addMsg(
     payload.partner,
-    payload.text || (item.type === "video" ? "🎥 Video" : item.type === "file" ? `📎 ${item.fileName || "File"}` : "📷 Photo"),
+    payload.text || (isVideo ? "Video" : item.type === "file" ? `File: ${item.fileName || "File"}` : "Photo"),
     payload.uploadedUrl,
-    item.type === "video",
+    isVideo,
     false,
     item.type === "file",
     item.fileName || item.file?.name || "",
@@ -16611,8 +17222,7 @@ async function sendText() {
     if (_chatImagesQueue.length || attachedMedia?.type === "image") {
       await sendGroupImages();
     } else if (attachedMedia) {
-      clearMediaQueue();
-      _matchToast("Groups currently support photo messages only.");
+      await sendGroupMedia();
     } else {
       await sendGroupText();
     }
@@ -16669,8 +17279,9 @@ async function sendText() {
     if (chatBox) chatBox.appendChild(sendEl);
     try {
       await _sendChatMediaBatch(_mediaPayload);
+        _clearChatSendingIndicators(chatBox);
     } catch(err) {
-      sendEl.remove();
+        _clearChatSendingIndicators(chatBox);
       _showSendFailure(
         chatBox,
         _multiText || `${_mediaItems.length} media items`,
@@ -16679,7 +17290,7 @@ async function sendText() {
         _activeRetryThreadKey()
       );
     } finally {
-      sendEl.remove();
+       _clearChatSendingIndicators(chatBox);
     }
     setTimeout(_scrollChatToBottom, 50);
   } else if (_chatImagesQueue.length > 1) {
@@ -16708,7 +17319,7 @@ async function sendText() {
     }
     setTimeout(_scrollChatToBottom, 50);
   } else if (attachedMedia) {
-    const isVid  = attachedMedia.type === "video";
+    const isVid  = _isChatVideoItem(attachedMedia);
     const isFile = attachedMedia.type === "file";
     const media  = { ...attachedMedia };
     const _mediaPayload = {
@@ -16721,9 +17332,9 @@ async function sendText() {
     clearMediaQueue();
     try { input.blur(); } catch(_) {} /* dismiss keyboard after media send */
     const chatBox = document.getElementById("chatBox");
-    const fallbackText = isVid ? "🎥 Video" : isFile ? `📎 ${media.fileName}` : "📷 Photo";
+    const fallbackText = isVid ? "Video" : isFile ? `File: ${media.fileName}` : "Photo";
     const _rt1 = _replyToMsg; _cancelReply();
-    const _doMediaSend = async () => {
+    const _doMediaSend = async (createFailureCard = false) => {
       const sendEl = document.createElement("div");
       sendEl.className = "chat-sending-indicator";
       sendEl.textContent = isVid ? "Sending video…" : isFile ? "Sending file…" : "Sending photo…";
@@ -16733,13 +17344,21 @@ async function sendText() {
         await _sendSingleChatMedia(_mediaPayload);
       } catch (e) {
         sendEl.remove();
-        _showSendFailure(chatBox, text || fallbackText, _doMediaSend, [media], _activeRetryThreadKey());
+        if (createFailureCard) {
+          _showSendFailure(
+            chatBox,
+            text || fallbackText,
+            () => _doMediaSend(false),
+            [media],
+            _activeRetryThreadKey()
+          );
+        }
         return false;
       }
       sendEl.remove();
       return true;
     };
-    await _doMediaSend();
+    await _doMediaSend(true);
   } else {
     const _rt2 = _replyToMsg; _cancelReply();
     const chatBoxTxt = document.getElementById("chatBox");
@@ -17582,6 +18201,11 @@ function _renderGroupMessages(messages) {
   const box = document.getElementById("chatBox");
   if (!box) return;
   const me = normalizeName(currentUser);
+  if (_lastSentMessageStamp !== null && messages.some(msg =>
+    normalizeName(msg.sender) === me && Number(msg.stamp) === Number(_lastSentMessageStamp)
+  )) {
+    _clearChatSendingIndicators(box);
+  }
   /* If the user is actively viewing this group, clear the unread count */
   if (currentGroupId) markGroupAsRead(currentGroupId);
   const area = document.getElementById("chatBox");
@@ -17735,13 +18359,25 @@ function _renderGroupMessages(messages) {
     } else if (_gRawText) {
       /* Match the DM renderer: plain text stays inline so the floated
          timestamp/Edited row can occupy the right edge of the last line. */
-      if (groupImageUrls.length) {
+      const mediaLabel = _chatMediaPlaceholderInfo(msg);
+      if (mediaLabel) {
+        textDiv.className = "msg-text chat-media-label-wrap";
+        textDiv.innerHTML = _chatMediaLabelMarkup(mediaLabel.kind, mediaLabel.label);
+        bubble.appendChild(textDiv);
+      } else if (groupImageUrls.length) {
         textDiv.style.cssText = "margin-top:6px;white-space:pre-wrap;";
         textDiv.textContent = _gRawText;
         bubble.appendChild(textDiv);
       } else {
         bubble.appendChild(document.createTextNode(_gRawText));
       }
+    }
+
+    if (groupImageUrls.length > 2 && !_gRawText.trim()) {
+      bubble.classList.add("chat-collage-only");
+    }
+    if (groupImageUrls.length === 2) {
+      bubble.classList.add("chat-two-image");
     }
 
     /* Time row: "Edited •" label + timestamp — same structure as DMs */
@@ -17887,9 +18523,10 @@ async function sendGroupImages() {
 
   try {
     await _sendGroupImageBatch(payload);
+    _clearChatSendingIndicators(chatBox);
     _cancelReply();
   } catch (e) {
-    sendEl.remove();
+    _clearChatSendingIndicators(chatBox);
     _showSendFailure(
       chatBox,
       text || `${items.length} photos`,
@@ -17898,11 +18535,56 @@ async function sendGroupImages() {
       `group:${String(payload.groupId)}`
     );
   } finally {
-    sendEl.remove();
+    _clearChatSendingIndicators(chatBox);
     setTimeout(_scrollChatToBottom, 50);
   }
 }
 window.sendGroupImages = sendGroupImages;
+
+async function sendGroupMedia() {
+  const input = document.getElementById("messageInput");
+  const item = attachedMedia ? { ...attachedMedia } : null;
+  if (!input || !currentGroupId || !item) return;
+  const text = input.value.trim();
+  const replyTo = _replyToMsg;
+  const payload = {
+    groupId: currentGroupId,
+    members: (currentGroupData && currentGroupData.members) || [],
+    item,
+    text,
+    replyTo,
+    uploadedUrl: null
+  };
+  input.value = "";
+  autoResizeMessageInput();
+  updateSendButtonState();
+  clearMediaQueue();
+  try { input.blur(); } catch(_) {}
+  window.__justSentMessage = true;
+  const chatBox = document.getElementById("chatBox");
+  const sendEl = document.createElement("div");
+  sendEl.className = "chat-sending-indicator";
+  sendEl.textContent = _isChatVideoItem(item) ? "Sending video…" : item.type === "file" ? "Sending file…" : "Sending photo…";
+  if (chatBox) chatBox.appendChild(sendEl);
+  try {
+    await _sendGroupSingleMedia(payload);
+    _clearChatSendingIndicators(chatBox);
+    _cancelReply();
+  } catch (e) {
+    _clearChatSendingIndicators(chatBox);
+    _showSendFailure(
+      chatBox,
+      text || (_isChatVideoItem(item) ? "Video" : "File"),
+      () => _sendGroupSingleMedia(payload),
+      [item],
+      `group:${String(payload.groupId)}`
+    );
+  } finally {
+    _clearChatSendingIndicators(chatBox);
+    setTimeout(_scrollChatToBottom, 50);
+  }
+}
+window.sendGroupMedia = sendGroupMedia;
 
 async function sendGroupText() {
   const input = document.getElementById("messageInput");
@@ -18334,10 +19016,15 @@ async function viewUserProfile(username, e) {
   if (e) e.stopPropagation();
   username = normalizeName(username);
   if (!username) return;
+  const requestToken = ++_profileViewRequestToken;
   viewingUsername = username;
   const profileBackdrop = document.getElementById("viewProfileBackdrop");
   if (profileBackdrop) profileBackdrop.dataset.username = username;
   const p = await fetchProfile(username) || ensureProfile(username);
+  /* A fast second tap can resolve before the first profile request. Never let
+     an older response repaint the currently selected poster's modal. */
+  if (requestToken !== _profileViewRequestToken ||
+      profileBackdrop?.dataset.username !== username) return;
   const displayName = escapeHtml(p.username || username);
 
   /* Cover image or initials */
@@ -18399,9 +19086,12 @@ async function viewUserProfile(username, e) {
   /* Fans count in modal */
   const vpFans = document.getElementById("vpFansCount");
   if (vpFans) {
+    vpFans.dataset.username = username;
     vpFans.textContent = "";
     _getFanCount(username).then(count => {
-      if (vpFans) vpFans.textContent = `Fans: ${count.toLocaleString()}`;
+      if (vpFans && vpFans.dataset.username === username) {
+        vpFans.textContent = `Fans: ${count.toLocaleString()}`;
+      }
     });
   }
 
@@ -18443,6 +19133,7 @@ window.viewUserProfile = viewUserProfile;
 function closeViewProfile() {
   const backdrop = document.getElementById("viewProfileBackdrop");
   if (backdrop) {
+    ++_profileViewRequestToken;
     backdrop.style.display = "none";
     delete backdrop.dataset.username;
   }
@@ -18454,18 +19145,74 @@ function _profileActionUsername() {
   return normalizeName(backdrop?.dataset.username || viewingUsername);
 }
 
+function _dismissNavigationLayersForProfileAction(keepPostDetail = false) {
+  /* Remove the modal and any sheet/detail layer synchronously. Waiting for a
+     slide-out animation lets the new destination render underneath it. */
+  closeViewProfile();
+  const commentBackdrop = document.getElementById("commentBackdrop");
+  if (commentBackdrop) commentBackdrop.classList.remove("open");
+  const commentPage = document.getElementById("commentPage");
+  if (commentPage) {
+    commentPage.style.display = "none";
+    commentPage.style.transition = "";
+    commentPage.style.transform = "";
+  }
+  const postDetailPage = document.getElementById("postDetailPage");
+  if (postDetailPage && !keepPostDetail) postDetailPage.style.display = "none";
+  const userPostsPage = document.getElementById("userPostsPage");
+  if (userPostsPage) {
+    userPostsPage.style.display = "none";
+    userPostsPage.style.transform = "";
+    userPostsPage.style.transition = "";
+  }
+  if (window.__upHideSourcesTimer) {
+    clearTimeout(window.__upHideSourcesTimer);
+    window.__upHideSourcesTimer = null;
+  }
+}
+
+function fansFromProfile() {
+  const target = _profileActionUsername();
+  if (!target) return;
+  _dismissNavigationLayersForProfileAction();
+  if (typeof _openFansSheet === "function") _openFansSheet(target);
+}
+window.fansFromProfile = fansFromProfile;
+
 function dmFromProfile() {
   const target = _profileActionUsername();
-  closeCommentPage();
-  closeViewProfile();
-  if (target) openChat(target);
+  if (!target) return;
+  _dismissNavigationLayersForProfileAction();
+  _profileActionOpeningChat = target !== normalizeName(currentUser);
+  const matchPage = document.getElementById("matchPage");
+  _chatCameFromMatchStack = !!(matchPage && matchPage.style.display !== "none");
+  document.getElementById("chatPage").style.display = "none";
+  document.querySelector(".top-bar").style.display = "none";
+  document.querySelector(".new-chat").style.display = "none";
+  document.getElementById("forYouPage").style.display = "none";
+  document.getElementById("profilePage").style.display = "none";
+  document.getElementById("userPostsPage").style.display = "none";
+  if (matchPage) matchPage.style.display = "none";
+  const matchFabRow = document.getElementById("matchFabRow");
+  if (matchFabRow) matchFabRow.style.display = "none";
+  const chatScreen = document.getElementById("chatScreen");
+  if (chatScreen) {
+    chatScreen.style.display = "flex";
+    chatScreen.style.zIndex = "";
+    const nameEl = document.getElementById("chatUserName");
+    if (nameEl) nameEl.textContent = target;
+    const avatarEl = document.getElementById("chatHeaderAvatar");
+    if (avatarEl) avatarEl.innerHTML = renderAvatarHTML(target);
+  }
+  openChat(target);
 }
 window.dmFromProfile = dmFromProfile;
 
 function viewPostsFromProfile() {
   const target = _profileActionUsername();
-  closeViewProfile();
-  if (target) showUserPosts(target);
+  if (!target) return;
+  _dismissNavigationLayersForProfileAction(true);
+  showUserPosts(target);
 }
 window.viewPostsFromProfile = viewPostsFromProfile;
 
@@ -18667,9 +19414,16 @@ function openPostPage() {
   _postVideoFiles = [];
   _ppExpiryMode   = "none";
   _ppScheduledAt  = null;
+  _ppBoldActive   = false;
   /* Clear UI */
   const ta = document.getElementById("ppTextarea");
-  if (ta) { ta.value = ""; ta.style.height = "58px"; }
+  if (ta) {
+    ta.value = "";
+    ta.style.height = "58px";
+    ta.style.fontWeight = "400";
+  }
+  const boldBtn = document.getElementById("ppBoldBtn");
+  if (boldBtn) boldBtn.setAttribute("aria-pressed", "false");
   const mediaCarousel = document.getElementById("ppMediaCarousel");
   if (mediaCarousel) mediaCarousel.innerHTML = "";
   const uploadProgress = document.getElementById("ppUploadProgress");
@@ -18710,6 +19464,11 @@ function closePostPage() {
   _postVideoFiles = [];
   _ppExpiryMode   = "none";
   _ppScheduledAt  = null;
+  _ppBoldActive   = false;
+  const ta = document.getElementById("ppTextarea");
+  if (ta) ta.style.fontWeight = "400";
+  const boldBtn = document.getElementById("ppBoldBtn");
+  if (boldBtn) boldBtn.setAttribute("aria-pressed", "false");
   const mediaCarousel = document.getElementById("ppMediaCarousel");
   if (mediaCarousel) mediaCarousel.innerHTML = "";
   const uploadProgress = document.getElementById("ppUploadProgress");
@@ -18730,6 +19489,23 @@ function closePostModal() { closePostPage(); }
 window.openPostModal  = openPostModal;
 window.closePostModal = closePostModal;
 
+window.ppToggleBold = function() {
+  _ppBoldActive = !_ppBoldActive;
+  const ta = document.getElementById("ppTextarea");
+  const button = document.getElementById("ppBoldBtn");
+  if (ta) {
+    ta.style.fontWeight = _ppBoldActive ? "700" : "400";
+    ta.focus();
+  }
+  if (button) {
+    button.setAttribute("aria-pressed", String(_ppBoldActive));
+    button.setAttribute(
+      "aria-label",
+      _ppBoldActive ? "Turn off bold text" : "Bold text"
+    );
+  }
+};
+
 /* Word counter + Post button enable */
 window.ppOnInput = function() {
   const ta      = document.getElementById("ppTextarea");
@@ -18749,6 +19525,7 @@ window.ppOnInput = function() {
 
 /* Image handling for post page — staged (no immediate crop) */
 let _ppStagedFiles = []; /* [{raw: File, url: string, cropped: File|null}] */
+let _ppBoldActive = false;
 
 window.ppHandleImageSelect = function(e) {
   const files = Array.from(e.target.files || []);
@@ -20530,6 +21307,8 @@ function showUserPosts(u) {
   u = normalizeName(u);
   _saveForYouScroll();
   isOnForYou = false;
+  const sourcePostDetail = document.getElementById("postDetailPage");
+  _upCameFromPostDetail = !!(sourcePostDetail && sourcePostDetail.style.display !== "none");
   /* Detect whether we're entering from the Match page — use matchPage
      visibility (reliable across all sub-tabs including Liked Me where the
      FAB is deliberately hidden) rather than FAB visibility.  Hide the FAB
@@ -20734,6 +21513,13 @@ function showUserPosts(u) {
     _upFeed.addEventListener("scroll", _upFeed._upScrollHandler, { passive: true });
   }
 
+  /* The source must be hidden before the destination is painted. This is
+     especially important when a quoted post was opened from post detail,
+     whose z-index is higher than the user-posts page. */
+  document.getElementById("chatScreen").style.display = "none";
+  document.getElementById("postDetailPage").style.display = "none";
+  document.getElementById("commentPage").style.display = "none";
+  document.getElementById("commentBackdrop").classList.remove("open");
   _up.style.transition = "none";
   _up.style.transform  = "translateX(100%)";
   _up.style.display    = "flex";
@@ -20799,7 +21585,19 @@ function _doCloseUserPostsNav() {
   if (_closeBotNav) { _closeBotNav.style.display = ""; }
   const activeTab = document.querySelector(".tab.active");
   const tabText   = activeTab ? activeTab.innerText.toLowerCase() : "chats";
-  if (tabText.includes("for you")) {
+  if (_upCameFromPostDetail) {
+    _upCameFromPostDetail = false;
+    const postDetailPage = document.getElementById("postDetailPage");
+    if (postDetailPage) postDetailPage.style.display = "flex";
+    document.getElementById("chatPage").style.display = "none";
+    document.getElementById("forYouPage").style.display = "none";
+    document.getElementById("profilePage").style.display = "none";
+    document.getElementById("chatScreen").style.display = "none";
+    document.querySelector(".top-bar").style.display = "none";
+    document.querySelector(".new-chat").style.display = "none";
+    const postDetailContent = document.getElementById("postDetailContent");
+    if (postDetailContent) postDetailContent.scrollTop = 0;
+  } else if (tabText.includes("for you")) {
     /* Return For You — preserve saved scroll position */
     isOnForYou  = false;
     navHidden   = false;
@@ -23723,19 +24521,12 @@ async function initializeHomeComponent() {
   if (!currentUser) return;
   fyScrollPos = 0;
   isOnForYou  = false;
-  const userSnap = await getDoc(doc(db, "users", currentUser));
-  if (userSnap.exists()) {
-    const data = userSnap.data();
-    profileCache[currentUser] = data;
-    blockedUsers  = data.blockedUsers || [];
-    lastReadMap   = data.lastRead     || {};
-    followingList = (data.following   || []).map(normalizeName);
-    pinnedItems   = new Set(data.pinnedItems || (data.pinnedChat ? [normalizeName(data.pinnedChat)] : []));
-  }
+  /* Paint the app shell immediately. The profile read hydrates state in the
+     background instead of keeping the full-screen teal mask up during a
+     network round-trip. */
+  const userSnapPromise = getDoc(doc(db, "users", currentUser)).catch(() => null);
   _teardownListeners();
-  listenToConversations();
-  listenToPosts();
-  renderProfile();
+  currentPage = -1;
   showChats();
   updateActivity();
   if (!intervalsStarted) {
@@ -23753,10 +24544,30 @@ async function initializeHomeComponent() {
   _registerSW();
   _showIOSInstallBanner();
   _setupNotifSwipe();
-  _startNotifBadgeListen();
   applyStoredTheme();
   initNetworkMonitor();
   initNotifications();
+  userSnapPromise.then(userSnap => {
+    if (userSnap && userSnap.exists()) {
+      const data = userSnap.data();
+      profileCache[currentUser] = data;
+      blockedUsers  = data.blockedUsers || [];
+      lastReadMap   = data.lastRead     || {};
+      followingList = (data.following   || []).map(normalizeName);
+      pinnedItems   = new Set(data.pinnedItems || (data.pinnedChat ? [normalizeName(data.pinnedChat)] : []));
+    }
+    listenToConversations();
+    listenToPosts();
+    renderProfile();
+    _startNotifBadgeListen();
+    updateActivity();
+  }).catch(() => {
+    /* The shell remains usable even if the first profile read is delayed. */
+    listenToConversations();
+    listenToPosts();
+    renderProfile();
+    _startNotifBadgeListen();
+  });
 }
 window.initializeHomeComponent = initializeHomeComponent;
 
@@ -25703,9 +26514,27 @@ window.closeAvatarZoom = closeAvatarZoom;
    ITEM 12: Dedicated Post Detail Page
 ════════════════════════════════════════ */
 let _pdPostId = null;
+let _pdCurrentPostData = null;
+let _pdRequestToken = 0;
+let _quotedDetailHistory = [];
+let _quotedDetailOrigin = null;
 
-async function openPostDetailPage(postId, scrollToCommentId, postOverride = null) {
+function _resetQuotedDetailNavigation() {
+  ++_pdRequestToken;
+  _quotedDetailHistory = [];
+  _quotedDetailOrigin = null;
+  _pdPostId = null;
+  _pdCurrentPostData = null;
+  const page = document.getElementById("postDetailPage");
+  if (page) page.style.display = "none";
+}
+
+async function openPostDetailPage(postId, scrollToCommentId, postOverride = null, navigationOptions = {}) {
   if (!postId) return;
+  if (!navigationOptions.quoted) {
+    _resetQuotedDetailNavigation();
+  }
+  const requestToken = ++_pdRequestToken;
   _pdPostId = postId;
   const page = document.getElementById("postDetailPage");
   if (!page) return;
@@ -25725,6 +26554,7 @@ async function openPostDetailPage(postId, scrollToCommentId, postOverride = null
       if (snap.exists()) postData = { id: snap.id, ...snap.data() };
     }
 
+    if (requestToken !== _pdRequestToken || _pdPostId !== postId) return;
     if (!postData || !contentEl) return;
 
     /* Normalise fields so _buildPostCard works correctly */
@@ -25741,8 +26571,10 @@ async function openPostDetailPage(postId, scrollToCommentId, postOverride = null
     const author = postData.author || "unknown";
     const authorProfile = profileCache[normalizeName(author)];
     if (!authorProfile?.picture) await fetchProfile(author);
+    if (requestToken !== _pdRequestToken || _pdPostId !== postId) return;
 
     /* Render using the exact same card builder as the For You feed */
+    _pdCurrentPostData = postData;
     contentEl.innerHTML = "";
     const card = _buildPostCard(postData);
     /* Remove the feed separator — this is a single-post dedicated view */
@@ -25780,9 +26612,28 @@ async function openPostDetailPage(postId, scrollToCommentId, postOverride = null
 }
 
 function closePostDetailPage() {
+  ++_pdRequestToken;
+  if (_quotedDetailHistory.length) {
+    const previous = _quotedDetailHistory.pop();
+    _pdPostId = previous.postId;
+    _pdCurrentPostData = previous.postOverride || null;
+    openPostDetailPage(
+      previous.postId,
+      null,
+      _quotedDetailOverride(previous),
+      { quoted: true }
+    );
+    return;
+  }
   const page = document.getElementById("postDetailPage");
   if (page) page.style.display = "none";
   _pdPostId = null;
+  _pdCurrentPostData = null;
+  if (_quotedDetailOrigin) {
+    const origin = _quotedDetailOrigin;
+    _quotedDetailOrigin = null;
+    _restoreQuotedOrigin(origin);
+  }
 }
 window.openPostDetailPage  = openPostDetailPage;
 window.closePostDetailPage = closePostDetailPage;
