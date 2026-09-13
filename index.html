@@ -1066,7 +1066,7 @@ body.in-group-chat .chat-header-avatar img { border-radius: 8px; }
 .msg.media-only {
   background: transparent !important;
   padding: 2px;
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 0 !important;
 }
 /* A captionless collage should be only the collage plus its time row. The
    regular media-only bubble padding/border creates a visible halo around the
@@ -1149,9 +1149,9 @@ body.in-group-chat .chat-header-avatar img { border-radius: 8px; }
 }
 body.light-mode .msg-not-sent { color: #dc2626; }
 body.light-mode .msg-retry-btn { color: #0f766e; }
-.msg.media-only.me { border-color: rgba(0,139,139,0.5); }
-body.light-mode .msg.media-only { border-color: rgba(0,0,0,0.18); }
-body.light-mode .msg.media-only.me { border-color: rgba(0,139,139,0.45); }
+.msg.media-only.me { border: 0 !important; }
+body.light-mode .msg.media-only,
+body.light-mode .msg.media-only.me { border: 0 !important; }
 .msg-time {
   font-size: 10px;
   color: rgba(255,255,255,0.6);
@@ -1161,6 +1161,70 @@ body.light-mode .msg.media-only.me { border-color: rgba(0,139,139,0.45); }
 }
 body.light-mode .msg.other .msg-time { color: rgba(0,0,0,0.45); }
 .msg.me .msg-time { color: rgba(225,245,254,0.75); }
+/* Captionless outgoing media uses a transparent bubble, so keep its
+   timestamp/status details black in light mode for clear contrast. */
+body.light-mode .msg.me.media-only .msg-time,
+body.light-mode .msg.me.media-only .msg-edited-label,
+body.light-mode .msg.me.chat-collage-only .msg-time,
+body.light-mode .msg.me.chat-collage-only .msg-edited-label,
+body.light-mode .msg.me.chat-two-image .msg-time,
+body.light-mode .msg.me.chat-two-image .msg-edited-label {
+  color: #000000;
+}
+body.light-mode .msg.me.media-only .msg-tick svg path,
+body.light-mode .msg.me.chat-collage-only .msg-tick svg path,
+body.light-mode .msg.me.chat-two-image .msg-tick svg path {
+  stroke: #000000 !important;
+}
+
+/* A pending media message keeps the final bubble geometry while the upload
+   is in flight. This is intentionally a line, not a "Sending photo/video"
+   placeholder. */
+.chat-upload-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  clear: both;
+  margin: 7px 2px 1px;
+  min-width: 84px;
+  color: rgba(255,255,255,0.82);
+  font-size: 10px;
+  line-height: 12px;
+}
+.chat-upload-progress-track {
+  position: relative;
+  flex: 1;
+  min-width: 54px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.28);
+}
+.chat-upload-progress-bar {
+  width: 12%;
+  height: 100%;
+  border-radius: inherit;
+  background: rgba(255,255,255,0.96);
+  transition: width 0.18s ease;
+}
+.chat-upload-progress-bar.indeterminate {
+  position: absolute;
+  width: 42%;
+  animation: chatUploadProgress 1.05s ease-in-out infinite;
+}
+@keyframes chatUploadProgress {
+  0% { transform: translateX(-115%); }
+  100% { transform: translateX(270%); }
+}
+body.light-mode .chat-upload-progress { color: #000000; }
+body.light-mode .chat-upload-progress-track { background: rgba(0,0,0,0.22); }
+body.light-mode .chat-upload-progress-bar { background: #000000; }
+body.light-mode .chat-pending-media .chat-upload-progress { color: #000000; }
+body.light-mode .chat-pending-media .chat-upload-progress-track { background: rgba(0,0,0,0.22); }
+body.light-mode .chat-pending-media .chat-upload-progress-bar { background: #000000; }
+@media (prefers-reduced-motion: reduce) {
+  .chat-upload-progress-bar.indeterminate { animation: none; width: 55%; }
+}
 /* Tick checkmarks inside time row */
 .msg-tick { display:inline-flex;align-items:center;margin-left:2px;flex-shrink:0; }
 .msg-tick svg { display:block; }
@@ -2629,16 +2693,22 @@ body.light-mode .pp-compose-box { border-color: transparent; }
   background: transparent;
   border: none;
   outline: none;
-  resize: none;
-  overflow-y: hidden;
+  overflow-y: auto;
   font-size: 16px;
   line-height: 1.6;
   color: #eff3f4;
   font-family: inherit;
   caret-color: #008b8b;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 body.light-mode #ppTextarea { color: #111827; }
 #ppTextarea::placeholder { color: #6b7280; }
+#ppTextarea[contenteditable="true"]:empty::before {
+  content: attr(data-placeholder);
+  color: #6b7280;
+  pointer-events: none;
+}
 .pp-format-row {
   display: flex;
   align-items: center;
@@ -5311,6 +5381,24 @@ body.light-mode #commentInput { color: #111827; }
 .chat-collage.collage-many.collage-odd .ci:last-child {
   grid-column: 1 / -1;
   aspect-ratio: 2 / 1;
+}
+/* Captionless group collages use one stable 4:3 frame. The tile grid fills
+   that frame while each tile keeps the existing cover crop. */
+.msg-group-wrap .msg.chat-collage-only .chat-collage {
+  width: min(240px, 100%);
+  aspect-ratio: 4 / 3;
+  grid-auto-rows: minmax(0, 1fr);
+}
+/* Captionless group collages with 3+ photos are square so the collage fills
+   its frame without letterboxing on the top, bottom, or sides. */
+.msg-group-wrap .msg.chat-collage-only .chat-collage.collage-3,
+.msg-group-wrap .msg.chat-collage-only .chat-collage.collage-4,
+.msg-group-wrap .msg.chat-collage-only .chat-collage.collage-many {
+  aspect-ratio: 1 / 1;
+}
+.msg-group-wrap .msg.chat-collage-only .chat-collage .ci {
+  aspect-ratio: auto;
+  min-height: 0;
 }
 .ci-more { position:absolute; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; color:#fff; cursor:pointer; }
 .chat-see-more-btn { background:none; border:none; padding:0; color:inherit; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; text-decoration:underline; }
@@ -8418,7 +8506,7 @@ body.lavender-mode .msg-call-card.other .call-card-meta    { color:#6d28d9; }
     border-color:#008b8b;box-shadow:0 0 0 2px rgba(0,139,139,0.35);
     }
 
-/* ── Chat media: preserve natural height, cap only tall media at 1:1 ── */
+/* ── Chat media: preserve natural height, cap tall media at 1:1 ── */
 .chat-media-wrap {
   width: 100%;
   max-width: 100%;
@@ -9640,9 +9728,9 @@ body.light-mode .bottom-nav .nav-tab-indicator {
           <div class="pp-compose-col">
             <div class="pp-compose-box">
               <div class="pp-format-row">
-                <button class="pp-format-pill" id="ppBoldBtn" type="button" onclick="ppToggleBold()" aria-label="Bold text" aria-pressed="false">B</button>
+                <button class="pp-format-pill" id="ppBoldBtn" type="button" onmousedown="event.preventDefault()" onclick="ppToggleBold()" aria-label="Bold text" aria-pressed="false">B</button>
               </div>
-              <textarea id="ppTextarea" placeholder="Share your thoughts" oninput="ppOnInput()"></textarea>
+              <div id="ppTextarea" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Share your thoughts" oninput="ppOnInput()"></div>
               <div id="ppMediaCarousel" class="pp-media-carousel" aria-label="Selected post media"></div>
               <div class="pp-word-counter" id="ppWordCounter">0 / 250 words</div>
             </div>
@@ -10853,7 +10941,7 @@ let fyVisibleCount = 0;
 let fyKnownPostIds = new Set();
 let lastScrollY = 0;
 let navHidden = false;
-const FY_POST_PAGE_SIZE = 10;
+const FY_POST_PAGE_SIZE = 15;
 const FY_POST_PREFETCH_DISTANCE = 1800;
 let _fyPostCursor = null;
 let _fyHasMorePosts = false;
@@ -11652,6 +11740,17 @@ function _showPostActionMenu(post, anchorEl) {
   });
 }
 
+function _postEditorMarkup(post) {
+  const runs = Array.isArray(post?.formattedText)
+    ? post.formattedText.filter(run => run && typeof run.text === "string")
+    : [];
+  const source = runs.length ? runs : [{ text: String(post?.text || ""), bold: false }];
+  return source.map(run => {
+    const content = escapeHtml(run.text).replace(/\n/g, "<br>");
+    return run.bold ? `<strong>${content}</strong>` : content;
+  }).join("");
+}
+
 /* X-style inline post editing */
 function _startInlinePostEdit(post, card) {
   /* Runtime ownership guard */
@@ -11669,11 +11768,14 @@ function _startInlinePostEdit(post, card) {
   wrapper.style.cssText = "display:flex;flex-direction:column;gap:8px;margin-bottom:8px;";
 
   const _textElHeight = Math.max(70, textEl.offsetHeight || 0);
-  const ta = document.createElement("textarea");
+  const ta = document.createElement("div");
   ta.className = "pie-textarea";
-  ta.value     = rawText;
-  ta.style.cssText = `width:100%;min-height:${_textElHeight}px;background:rgba(255,255,255,0.06);border:1px solid #374151;border-radius:10px;padding:10px;font-size:14px;line-height:1.6;color:#eff3f4;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;`;
-  ta.addEventListener("input", () => { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; });
+  ta.contentEditable = "true";
+  ta.setAttribute("role", "textbox");
+  ta.setAttribute("aria-multiline", "true");
+  ta.innerHTML = _postEditorMarkup(post);
+  ta.style.cssText = `width:100%;min-height:${_textElHeight}px;background:rgba(255,255,255,0.06);border:1px solid #374151;border-radius:10px;padding:10px;font-size:14px;line-height:1.6;color:#eff3f4;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;white-space:pre-wrap;word-break:break-word;`;
+  ta.addEventListener("input", () => { ta.style.minHeight = `${Math.max(_textElHeight, ta.scrollHeight)}px`; });
 
   const ctBody = document.querySelector("body");
   if (ctBody && ctBody.classList.contains("light-mode")) {
@@ -11681,6 +11783,24 @@ function _startInlinePostEdit(post, card) {
     ta.style.color      = "#111827";
     ta.style.border     = "1px solid #d1d5db";
   }
+
+  let inlineBoldActive = false;
+  const formatRow = document.createElement("div");
+  formatRow.style.cssText = "display:flex;align-items:center;gap:6px;";
+  const boldBtn = document.createElement("button");
+  boldBtn.type = "button";
+  boldBtn.textContent = "B";
+  boldBtn.setAttribute("aria-label", "Bold text");
+  boldBtn.setAttribute("aria-pressed", "false");
+  boldBtn.style.cssText = "background:none;border:1px solid #6b7280;color:inherit;border-radius:7px;min-width:32px;height:30px;font-weight:800;cursor:pointer;font-family:inherit;";
+  boldBtn.onmousedown = event => event.preventDefault();
+  boldBtn.onclick = () => {
+    ta.focus();
+    document.execCommand("bold", false, null);
+    try { inlineBoldActive = !!document.queryCommandState("bold"); } catch (_) { inlineBoldActive = !inlineBoldActive; }
+    boldBtn.setAttribute("aria-pressed", String(inlineBoldActive));
+    boldBtn.style.background = inlineBoldActive ? "rgba(0,139,139,0.22)" : "none";
+  };
 
   const actions = document.createElement("div");
   actions.style.cssText = "display:flex;gap:8px;justify-content:flex-end;";
@@ -11694,26 +11814,26 @@ function _startInlinePostEdit(post, card) {
   saveBtn.textContent = "Save";
   saveBtn.style.cssText = "background:#008b8b;color:white;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;";
   saveBtn.onclick = async () => {
-    const trimmed = ta.value.trim();
+    const trimmed = _ppEditorText(ta).trim();
     if (!trimmed) { ta.style.borderColor = "#ef4444"; return; }
     const words = trimmed.split(/\s+/).filter(Boolean);
     if (words.length < 3)   { ta.style.borderColor = "#ef4444"; ta.placeholder = "Min 3 words"; return; }
     if (words.length > 250) { ta.style.borderColor = "#ef4444"; return; }
     saveBtn.disabled = true; saveBtn.textContent = "Saving…";
     try {
-      await updateDoc(doc(db, "posts", post.id), { text: trimmed });
+      const formattedText = _ppSerializeFormattedText(ta);
+      await updateDoc(doc(db, "posts", post.id), { text: trimmed, formattedText });
       /* Update the live post object so re-render shows new text */
       post.text = trimmed;
+      post.formattedText = formattedText;
       /* Restore a new text element with updated content */
       const newEl = document.createElement("div");
       newEl.className = textEl.className;
-      const newWords = trimmed.split(/\s+/).filter(Boolean);
-      if (newWords.length > 25) {
-        const sh = newWords.slice(0,25).join(" ");
-        newEl.innerHTML = `<span class="ptb-short">${escapeHtml(sh)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${escapeHtml(trimmed)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button>`;
-      } else {
-        newEl.textContent = trimmed;
-      }
+      const rendered = new DOMParser().parseFromString(
+        _buildPostTextHTML(post, textEl.className),
+        "text/html"
+      ).body.firstElementChild;
+      if (rendered) newEl.innerHTML = rendered.innerHTML;
       wrapper.replaceWith(newEl);
     } catch(err) {
       alert("Edit failed: " + err.message);
@@ -11721,6 +11841,8 @@ function _startInlinePostEdit(post, card) {
     }
   };
 
+  formatRow.appendChild(boldBtn);
+  wrapper.appendChild(formatRow);
   actions.appendChild(cancelBtn);
   actions.appendChild(saveBtn);
   wrapper.appendChild(ta);
@@ -12229,6 +12351,7 @@ async function addMsg(partner, text, mediaUrl = null, isVid = false, viewOnce = 
   await updateDoc(doc(db, "conversations", tid), _updates);
   markAsRead(partner);
   updateActivity();
+  return stamp;
 }
 
 async function addMsgImages(partner, imageUrls, text, replyTo, imageDimensions = []) {
@@ -12256,6 +12379,7 @@ async function addMsgImages(partner, imageUrls, text, replyTo, imageDimensions =
   await updateDoc(doc(db, "conversations", tid), { lastStamp: stamp, lastText, lastSender: normalizeName(currentUser), lastIsImg: true, lastIsVid: false, chatCleared: false, [unreadKey]: increment(1) });
   markAsRead(partner);
   updateActivity();
+  return stamp;
 }
 window.addMsgImages = addMsgImages;
 
@@ -12307,12 +12431,32 @@ function _getImageDimensions(dataUrl) {
   });
 }
 
+/* Keep the measured local dimensions available while an upload transitions
+   from its optimistic bubble to the Firestore-backed bubble. This prevents a
+   completed media node from taking the unknown 1:1 frame for one paint. */
+const _chatMediaDimensionsByUrl = new Map();
+function _rememberChatMediaDimensions(url, dimensions) {
+  const key = String(url || "");
+  const width = Number(dimensions?.width);
+  const height = Number(dimensions?.height);
+  if (!key || !Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return;
+  _chatMediaDimensionsByUrl.set(key, { width, height });
+  if (_chatMediaDimensionsByUrl.size > 120) {
+    const oldest = _chatMediaDimensionsByUrl.keys().next().value;
+    if (oldest) _chatMediaDimensionsByUrl.delete(oldest);
+  }
+}
+
 function _getChatImageMeta(msg, index = 0) {
   const list = Array.isArray(msg?.imageDimensions) ? msg.imageDimensions : [];
   const item = list[index] || (index === 0 ? msg : null) || {};
   const width = Number(item.width || item.imageWidth || 0);
   const height = Number(item.height || item.imageHeight || 0);
-  return width > 0 && height > 0 ? { width, height } : null;
+  if (width > 0 && height > 0) return { width, height };
+  const urls = Array.isArray(msg?.images) && msg.images.length
+    ? msg.images
+    : (msg?.img ? [msg.img] : []);
+  return _chatMediaDimensionsByUrl.get(String(urls[index] || "")) || null;
 }
 
 function _applyChatImageSizing(wrap, img, meta) {
@@ -12383,6 +12527,12 @@ function _renderMessages(partner, messages) {
   window.__chatIsOpening   = false;
   const partnerProfile = ensureProfile(partnerNorm);
   const partnerLastRead = (partnerProfile.lastRead || {})[tid] || 0;
+  const pendingStampMatched = _consumePendingChatStamp(`dm:${tid}`, messages, me);
+  if (pendingStampMatched || (_lastSentMessageStamp !== null && messages.some(msg =>
+    normalizeName(msg.sender) === me && Number(msg.stamp) === Number(_lastSentMessageStamp)
+  ))) {
+    _removeOptimisticChatMedia(box, `dm:${tid}`);
+  }
 
   const existingMessageWraps = box.dataset.threadId === tid
     ? Array.from(box.querySelectorAll("[data-msgid]"))
@@ -12468,7 +12618,13 @@ function _renderMessages(partner, messages) {
     const wrap = document.createElement("div");
     wrap.style.cssText = `display:flex;flex-direction:column;align-items:${isMine ? "flex-end" : "flex-start"};margin-bottom:2px;`;
     if (msg.id) wrap.dataset.msgid = msg.id;
-    const shouldAnimate = isMine && Number(msg.stamp) === Number(_lastSentMessageStamp);
+    /* Media already has its own optimistic preview. Replaying the composer
+       send animation on the stored media node makes it briefly look like a
+       small thumbnail while the final DOM is settling. */
+    const shouldAnimate = isMine &&
+      !msg.img &&
+      !(Array.isArray(msg.images) && msg.images.length) &&
+      Number(msg.stamp) === Number(_lastSentMessageStamp);
 
     if (msg.kind === "call") {
       const side     = isMine ? "me" : "other";
@@ -12499,8 +12655,9 @@ function _renderMessages(partner, messages) {
     const bubble = document.createElement("div");
     bubble.className = `msg ${isMine ? "me" : "other"}`;
 
-    const _hasMediaContent = !!((msg.img || (msg.images && msg.images.length)) && !msg.isVoiceNote);
-    const _hasTextContent  = !!(msg.text && msg.text.trim());
+     const _hasMediaContent = !!((msg.img || (msg.images && msg.images.length)) && !msg.isVoiceNote);
+     const _mediaPlaceholder = _chatMediaPlaceholderInfo(msg);
+     const _hasTextContent  = !!(msg.text && msg.text.trim() && !_mediaPlaceholder);
 
     /* Reply quote (if this message is a reply) */
     if (msg.replyTo) {
@@ -12580,11 +12737,14 @@ function _renderMessages(partner, messages) {
         v.preload = "metadata";
         v.playsInline = true;
         v.style.cursor = "pointer";
+        const videoMeta = _getChatImageMeta(msg, 0);
         v.onloadedmetadata = () => {
-          _applyChatImageSizing(vWrap, v, { width: v.videoWidth, height: v.videoHeight });
+          if (!videoMeta) {
+            _applyChatImageSizing(vWrap, v, { width: v.videoWidth, height: v.videoHeight });
+          }
           if (v.readyState >= 1 && v.currentTime === 0) v.currentTime = 0.5;
         };
-        _applyChatImageSizing(vWrap, v, null);
+        _applyChatImageSizing(vWrap, v, videoMeta);
         v.onclick = () => _openFullscreenVideoFromUrl(msg.img);
         const playOverlay = document.createElement("div");
         playOverlay.className = "chat-video-play-overlay";
@@ -12651,7 +12811,7 @@ function _renderMessages(partner, messages) {
       }
     }
 
-    if (msg.text) {
+     if (msg.text && !_mediaPlaceholder) {
       const _isCaption = (_hasMediaContent || (msg.images && msg.images.length)) && !msg.isFile && !msg.isVoiceNote;
       /* Count words without destroying whitespace — split only on spaces/newlines,
          keep empty tokens out, but preserve newlines when slicing. */
@@ -12724,7 +12884,7 @@ function _renderMessages(partner, messages) {
       bubble.classList.add("chat-collage-only");
     }
 
-    /* Thin border for media-only messages */
+     /* Keep media-only messages edge-to-edge in both direct and group chats. */
     if (Array.isArray(msg.images) && msg.images.length === 2) {
       bubble.classList.add("chat-two-image");
     }
@@ -13268,7 +13428,8 @@ window.submitPost = async function () {
   const submitBtn = document.getElementById("ppPostBtn");
   if (submitBtn && submitBtn.disabled) return;
   const ta        = document.getElementById("ppTextarea");
-  const text      = ta ? ta.value.trim() : "";
+  const text      = ta ? _ppEditorText(ta).trim() : "";
+  const formattedText = ta ? _ppSerializeFormattedText(ta) : [];
   const wordCount = text.split(/\s+/).filter(Boolean).length;
   if (wordCount < 3)    { alert("Post must be at least 3 words."); return; }
   if (wordCount > 250)  { alert("Post must be 250 words or fewer."); return; }
@@ -13398,6 +13559,7 @@ window.submitPost = async function () {
     const _newPostRef = await addDoc(collection(db, "posts"), {
       author: normalizeName(currentUser),
       text,
+      ...(formattedText.length ? { formattedText } : {}),
       createdAt: now,
       publicationAt,
       publishedAt: isScheduled ? null : publicationAt,
@@ -14128,7 +14290,7 @@ function _buildPostCard(post) {
       ${age ? `<div class="post-age-tag">${escapeHtml(String(age))}yr</div>` : ""}
     </div>
     ${quoteSource ? "" : mediaHtml}
-    ${(()=>{ const _w=post.text.split(/\s+/).filter(Boolean); const _ln=post.text.split('\n'); const _cls=hasMedia?"post-text-compact":"post-text"; const _needsMore=_w.length>25||_ln.length>7; if(!_needsMore){ return `<div class="${_cls}">${renderTextWithHashtags(post.text)}</div>`; } const _sh=(_ln.length>7&&_w.length<=25)?_ln.slice(0,7).join('\n'):_w.slice(0,25).join(" "); return `<div class="${_cls}"><span class="ptb-short">${renderTextWithHashtags(_sh)}<span class="ptb-ellipsis">… </span></span><span class="ptb-full" style="display:none;">${renderTextWithHashtags(post.text)} </span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button></div>`; })()}
+     ${_buildPostTextHTML(post, hasMedia ? "post-text-compact" : "post-text")}
     ${quoteHtml}
     <div class="post-footer">
       <div class="post-footer-row">
@@ -16133,6 +16295,63 @@ function renderTextWithHashtags(rawText) {
   }).join('');
 }
 
+function renderPostTextMarkup(post) {
+  const fallbackText = String(post?.text || "");
+  const runs = Array.isArray(post?.formattedText)
+    ? post.formattedText.filter(run => run && typeof run.text === "string")
+    : [];
+  if (!runs.length) return renderTextWithHashtags(fallbackText);
+  return runs.map(run => {
+    const safeText = renderTextWithHashtags(run.text);
+    return run.bold ? `<strong>${safeText}</strong>` : safeText;
+  }).join("");
+}
+
+function _postTextCutPosition(rawText) {
+  const text = String(rawText || "");
+  const words = Array.from(text.matchAll(/\S+/g));
+  const lineCount = text.split("\n").length;
+  if (words.length <= 25 && lineCount <= 7) return null;
+  if (words.length <= 25 && lineCount > 7) {
+    let newlineCount = 0;
+    for (let index = 0; index < text.length; index++) {
+      if (text[index] !== "\n") continue;
+      newlineCount++;
+      if (newlineCount === 7) return index;
+    }
+    return text.length;
+  }
+  const word = words[24];
+  return word ? word.index + word[0].length : text.length;
+}
+
+function _renderPostTextRange(post, end) {
+  const text = String(post?.text || "");
+  const safeEnd = Math.max(0, Math.min(text.length, Number(end) || 0));
+  const runs = Array.isArray(post?.formattedText)
+    ? post.formattedText.filter(run => run && typeof run.text === "string")
+    : [];
+  if (!runs.length) return renderTextWithHashtags(text.slice(0, safeEnd));
+  let consumed = 0;
+  return runs.map(run => {
+    if (consumed >= safeEnd) return "";
+    const remaining = safeEnd - consumed;
+    const chunk = run.text.slice(0, Math.max(0, Math.min(run.text.length, remaining)));
+    consumed += run.text.length;
+    if (!chunk) return "";
+    const safeChunk = renderTextWithHashtags(chunk);
+    return run.bold ? `<strong>${safeChunk}</strong>` : safeChunk;
+  }).join("");
+}
+
+function _buildPostTextHTML(post, className) {
+  const rawText = String(post?.text || "");
+  const cls = className || "post-text";
+  const cut = _postTextCutPosition(rawText);
+  if (cut === null) return `<div class="${cls}">${renderPostTextMarkup(post)}</div>`;
+  return `<div class="${cls}"><span class="ptb-short">${_renderPostTextRange(post, cut)}<span class="ptb-ellipsis">…</span></span><span class="ptb-full" style="display:none;">${renderPostTextMarkup(post)}</span><button class="see-more-btn" onclick="event.stopPropagation();_toggleSeeMore(this)">See more</button></div>`;
+}
+
 function openHashtagPage(tag) {
   const page  = document.getElementById("hashtagPage");
   const title = document.getElementById("hashtagPageTitle");
@@ -16956,6 +17175,41 @@ function _activeRetryThreadKey() {
   return currentChatName ? `dm:${threadId(currentUser, currentChatName)}` : "";
 }
 
+/* Track the exact stored stamp behind an optimistic media bubble. The
+   renderer can then retire the matching pending node even if another
+   Firestore snapshot or chat refresh clears the older global animation stamp. */
+const _chatPendingMessageStamps = new Map();
+const _chatMediaSendLocks = new Map();
+function _markPendingChatStamp(threadKey, stamp) {
+  if (!threadKey || !Number.isFinite(Number(stamp))) return;
+  _chatPendingMessageStamps.set(threadKey, Number(stamp));
+}
+function _consumePendingChatStamp(threadKey, messages, sender) {
+  const expected = _chatPendingMessageStamps.get(threadKey);
+  if (!Number.isFinite(expected)) return false;
+  const found = (Array.isArray(messages) ? messages : []).some(msg =>
+    (!sender || normalizeName(msg.sender) === normalizeName(sender)) &&
+    Number(msg.stamp) === expected
+  );
+  if (found) _chatPendingMessageStamps.delete(threadKey);
+  return found;
+}
+function _runChatMediaSendOnce(threadKey, sendFn) {
+  if (!threadKey || typeof sendFn !== "function") return Promise.resolve(false);
+  const active = _chatMediaSendLocks.get(threadKey);
+  if (active) return active;
+  let promise;
+  promise = Promise.resolve()
+    .then(sendFn)
+    .finally(() => {
+      if (_chatMediaSendLocks.get(threadKey) === promise) {
+        _chatMediaSendLocks.delete(threadKey);
+      }
+    });
+  _chatMediaSendLocks.set(threadKey, promise);
+  return promise;
+}
+
 function _chatMediaLabel(item) {
   if (!item) return "Media";
   if (_isChatVideoItem(item)) return "Video";
@@ -16991,10 +17245,184 @@ async function _chatUploadFile(item) {
   });
 }
 
-async function _uploadChatMediaItem(item) {
+async function _uploadChatMediaItem(item, onProgress = null) {
   const file = await _chatUploadFile(item);
   const resourceType = _isChatVideoItem(item) ? "video" : item.type === "file" ? "raw" : "image";
-  return window.uploadToCloudinary(file, resourceType);
+  return window.uploadToCloudinary(file, resourceType, onProgress);
+}
+
+let _chatPendingMediaSequence = 0;
+
+function _getChatVideoDimensions(dataUrl) {
+  return new Promise(resolve => {
+    const video = document.createElement("video");
+    let settled = false;
+    const finish = (width = 0, height = 0) => {
+      if (settled) return;
+      settled = true;
+      video.removeAttribute("src");
+      video.load();
+      resolve({ width: Number(width) || 0, height: Number(height) || 0 });
+    };
+    const timeout = setTimeout(() => finish(video.videoWidth, video.videoHeight), 2500);
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      clearTimeout(timeout);
+      finish(video.videoWidth, video.videoHeight);
+    };
+    video.onerror = () => {
+      clearTimeout(timeout);
+      finish();
+    };
+    video.src = dataUrl || "";
+  });
+}
+
+async function _getChatMediaDimensions(item) {
+  if (!item || item.type === "file") return null;
+  if (_isChatVideoItem(item)) return _getChatVideoDimensions(item.dataUrl || "");
+  return _getImageDimensions(item.dataUrl || "");
+}
+
+function _createChatUploadProgress() {
+  const progress = document.createElement("div");
+  progress.className = "chat-upload-progress";
+  progress.setAttribute("role", "status");
+  progress.setAttribute("aria-label", "Uploading media");
+  const track = document.createElement("div");
+  track.className = "chat-upload-progress-track";
+  const bar = document.createElement("div");
+  bar.className = "chat-upload-progress-bar indeterminate";
+  track.appendChild(bar);
+  const label = document.createElement("span");
+  label.textContent = "Uploading";
+  progress.appendChild(track);
+  progress.appendChild(label);
+  progress._bar = bar;
+  return progress;
+}
+
+function _setChatUploadProgress(progress, percent) {
+  if (!progress || !progress._bar) return;
+  const value = Number(percent);
+  if (!Number.isFinite(value)) return;
+  progress._bar.classList.remove("indeterminate");
+  progress._bar.style.width = `${Math.max(0, Math.min(100, value))}%`;
+}
+
+function _appendOptimisticChatMediaItem(bubble, item, index, meta, allMeta) {
+  if (!bubble || !item) return;
+  if (item.type === "image") {
+    const previewMsg = { imageDimensions: allMeta || [], width: meta?.width, height: meta?.height };
+    const imageWrap = _createChatImage(item.dataUrl, previewMsg, index, () => {
+      const viewerImg = document.getElementById("postImgViewerImg");
+      const viewer = document.getElementById("postImgViewer");
+      if (viewerImg) viewerImg.src = item.dataUrl || "";
+      if (viewer) viewer.classList.add("open");
+    });
+    bubble.appendChild(imageWrap);
+    return;
+  }
+  if (_isChatVideoItem(item)) {
+    const vWrap = document.createElement("div");
+    vWrap.className = "chat-media-wrap";
+    const video = document.createElement("video");
+    video.src = item.dataUrl || "";
+    video.className = "chat-media";
+    video.preload = "metadata";
+    video.playsInline = true;
+    video.muted = true;
+    video.style.cursor = "pointer";
+    _applyChatImageSizing(vWrap, video, meta);
+    video.onloadedmetadata = () => {
+      _applyChatImageSizing(vWrap, video, {
+        width: video.videoWidth,
+        height: video.videoHeight
+      });
+    };
+    video.onclick = () => _openFullscreenVideoFromUrl(item.dataUrl || "");
+    const playOverlay = document.createElement("div");
+    playOverlay.className = "chat-video-play-overlay";
+    playOverlay.innerHTML = `<span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="8,5 19,12 8,19"/></svg></span>`;
+    vWrap.appendChild(video);
+    vWrap.appendChild(playOverlay);
+    bubble.appendChild(vWrap);
+    return;
+  }
+  const fileLabel = document.createElement("div");
+  fileLabel.className = "msg-file";
+  fileLabel.textContent = item.fileName || item.file?.name || "File";
+  bubble.appendChild(fileLabel);
+}
+
+async function _appendOptimisticChatMediaMessage({
+  items,
+  text = "",
+  threadKey,
+  chatBox = document.getElementById("chatBox")
+}) {
+  const mediaItems = Array.isArray(items) ? items.filter(Boolean).slice(0, CHAT_MEDIA_MAX) : [];
+  if (!mediaItems.length || !chatBox) return null;
+  /* A retry or a duplicate send event must not leave two local upload
+     bubbles for the same conversation. The stored message will replace this
+     single node once its exact stamp is observed below. */
+  _removeOptimisticChatMedia(chatBox, threadKey);
+  const metas = await Promise.all(mediaItems.map(_getChatMediaDimensions));
+  const id = `chat-pending-media-${++_chatPendingMediaSequence}`;
+  const wrap = document.createElement("div");
+  wrap.className = "chat-pending-media";
+  wrap.dataset.pendingMediaId = id;
+  wrap.dataset.threadKey = threadKey || "";
+  wrap.style.cssText = "display:flex;flex-direction:column;align-items:flex-end;margin-bottom:2px;";
+  const bubble = document.createElement("div");
+  bubble.className = "msg me";
+  const hasText = String(text || "").trim().length > 0;
+  const imageItems = mediaItems.filter(item => item.type === "image");
+  const videoItems = mediaItems.filter(item => _isChatVideoItem(item));
+
+  if (mediaItems.length > 2 && !videoItems.length) {
+    const collage = document.createElement("div");
+    const count = imageItems.length;
+    const collageClass = count === 3 ? "collage-3"
+      : count === 4 ? "collage-4"
+      : `collage-many${count % 2 ? " collage-odd" : ""}`;
+    collage.className = `chat-collage ${collageClass}`;
+    mediaItems.forEach((item, index) => {
+      const tile = document.createElement("div");
+      tile.className = "ci";
+      _appendOptimisticChatMediaItem(tile, item, index, metas[index], metas);
+      collage.appendChild(tile);
+    });
+    bubble.appendChild(collage);
+  } else {
+    mediaItems.forEach((item, index) => {
+      _appendOptimisticChatMediaItem(bubble, item, index, metas[index], metas);
+    });
+  }
+
+  if (hasText) {
+    const caption = document.createElement("div");
+    caption.style.cssText = "margin-top:6px;white-space:pre-wrap;";
+    caption.textContent = text;
+    bubble.appendChild(caption);
+  }
+  if (mediaItems.length > 2 && !hasText && !videoItems.length) bubble.classList.add("chat-collage-only");
+  if (mediaItems.length === 2 && !videoItems.length) bubble.classList.add("chat-two-image");
+  if (!hasText) bubble.classList.add("media-only");
+  const progress = _createChatUploadProgress();
+  bubble.appendChild(progress);
+  wrap.appendChild(bubble);
+  chatBox.appendChild(wrap);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  return { id, wrap, progress };
+}
+
+function _removeOptimisticChatMedia(chatBox, threadKey) {
+  const root = chatBox || document.getElementById("chatBox");
+  if (!root) return;
+  root.querySelectorAll(".chat-pending-media").forEach(node => {
+    if (!threadKey || node.dataset.threadKey === threadKey) node.remove();
+  });
 }
 
 function _appendFailedMediaPreview(parent, mediaItems) {
@@ -17094,19 +17522,37 @@ function _showSendFailure(chatBox, labelText, retryFn, mediaItems = [], threadKe
 async function _sendChatMediaBatch(payload) {
   const imageItems = payload.items.filter(item => item.type === "image");
   if (imageItems.length && !payload.imagesSent) {
-    const imageUrls = await Promise.all(imageItems.map(async item => {
-      if (!item.uploadedUrl) item.uploadedUrl = await _uploadChatMediaItem(item);
+    const imageUrls = await Promise.all(imageItems.map(async (item, itemIndex) => {
+      if (!item.uploadedUrl) {
+        item.uploadedUrl = await _uploadChatMediaItem(
+          item,
+          percent => payload.onProgress?.(percent, payload.items.indexOf(item))
+        );
+      }
       return item.uploadedUrl;
     }));
     const dimensions = await Promise.all(imageItems.map(item => _getImageDimensions(item.dataUrl)));
-    await addMsgImages(payload.partner, imageUrls, payload.text, payload.replyTo, dimensions);
+    imageUrls.forEach((url, index) => {
+      _rememberChatMediaDimensions(url, dimensions[index]);
+    });
+    const imageStamp = await addMsgImages(payload.partner, imageUrls, payload.text, payload.replyTo, dimensions);
+    _markPendingChatStamp(payload.threadKey || `dm:${threadId(currentUser, payload.partner)}`, imageStamp);
     payload.imagesSent = true;
   }
   for (const item of payload.items.filter(entry => entry.type !== "image")) {
     if (item.sent) continue;
-    if (!item.uploadedUrl) item.uploadedUrl = await _uploadChatMediaItem(item);
+    if (!item.uploadedUrl) {
+      item.uploadedUrl = await _uploadChatMediaItem(
+        item,
+        percent => payload.onProgress?.(percent, payload.items.indexOf(item))
+      );
+    }
     const isVideo = _isChatVideoItem(item);
-    await addMsg(
+    const mediaMeta = isVideo
+      ? await _getChatMediaDimensions(item)
+      : null;
+    if (mediaMeta) _rememberChatMediaDimensions(item.uploadedUrl, mediaMeta);
+    const mediaStamp = await addMsg(
       payload.partner,
       payload.text || (isVideo ? "Video" : `File: ${item.fileName || item.file?.name || "File"}`),
       item.uploadedUrl,
@@ -17114,8 +17560,10 @@ async function _sendChatMediaBatch(payload) {
       false,
       item.type === "file",
       item.fileName || item.file?.name || "",
-      payload.replyTo
+      payload.replyTo,
+      mediaMeta
     );
+    _markPendingChatStamp(payload.threadKey || `dm:${threadId(currentUser, payload.partner)}`, mediaStamp);
     item.sent = true;
   }
   return true;
@@ -17124,10 +17572,18 @@ async function _sendChatMediaBatch(payload) {
 async function _sendGroupImageBatch(payload) {
   if (payload.imagesSent) return true;
   const imageUrls = await Promise.all(payload.items.map(async item => {
-    if (!item.uploadedUrl) item.uploadedUrl = await _uploadChatMediaItem(item);
+    if (!item.uploadedUrl) {
+      item.uploadedUrl = await _uploadChatMediaItem(
+        item,
+        percent => payload.onProgress?.(percent, payload.items.indexOf(item))
+      );
+    }
     return item.uploadedUrl;
   }));
   const dimensions = await Promise.all(payload.items.map(item => _getImageDimensions(item.dataUrl)));
+  imageUrls.forEach((url, index) => {
+    _rememberChatMediaDimensions(url, dimensions[index]);
+  });
   const stamp = nowStamp();
   const me = normalizeName(currentUser);
   _lastSentMessageStamp = stamp;
@@ -17155,6 +17611,7 @@ async function _sendGroupImageBatch(payload) {
     chatCleared: false,
     ...unreadUpdates
   }).catch(() => {});
+  _markPendingChatStamp(`group:${String(payload.groupId)}`, stamp);
   payload.imagesSent = true;
   markGroupAsRead(payload.groupId);
   updateActivity();
@@ -17162,11 +17619,16 @@ async function _sendGroupImageBatch(payload) {
 }
 
 async function _sendGroupSingleMedia(payload) {
-  if (!payload.uploadedUrl) payload.uploadedUrl = await _uploadChatMediaItem(payload.item);
+  if (!payload.uploadedUrl) payload.uploadedUrl = await _uploadChatMediaItem(payload.item, payload.onProgress);
   const isVideo = _isChatVideoItem(payload.item);
+  const mediaMeta = payload.item.type === "image" || isVideo
+    ? await _getChatMediaDimensions(payload.item)
+    : null;
+  if (mediaMeta) _rememberChatMediaDimensions(payload.uploadedUrl, mediaMeta);
   const stamp = nowStamp();
   const me = normalizeName(currentUser);
   const members = payload.members || [];
+  _lastSentMessageStamp = stamp;
   await addDoc(collection(db, "conversations", payload.groupId, "messages"), {
     sender: me,
     text: payload.text || (isVideo ? "Video" : "File"),
@@ -17174,6 +17636,7 @@ async function _sendGroupSingleMedia(payload) {
     isVid: isVideo,
     isFile: payload.item.type === "file",
     fileName: payload.item.fileName || payload.item.file?.name || "",
+    ...(mediaMeta ? { width: mediaMeta.width, height: mediaMeta.height } : {}),
     time: formatTimeFromStamp(stamp),
     stamp,
     ...(payload.replyTo ? { replyTo: payload.replyTo } : {})
@@ -17191,6 +17654,7 @@ async function _sendGroupSingleMedia(payload) {
     chatCleared: false,
     ...unreadUpdates
   }).catch(() => {});
+  _markPendingChatStamp(`group:${String(payload.groupId)}`, stamp);
   markGroupAsRead(payload.groupId);
   updateActivity();
   return true;
@@ -17198,10 +17662,13 @@ async function _sendGroupSingleMedia(payload) {
 
 async function _sendSingleChatMedia(payload) {
   const item = payload.item;
-  if (!payload.uploadedUrl) payload.uploadedUrl = await _uploadChatMediaItem(item);
+  if (!payload.uploadedUrl) payload.uploadedUrl = await _uploadChatMediaItem(item, payload.onProgress);
   const isVideo = _isChatVideoItem(item);
-  const mediaMeta = item.type === "image" ? await _getImageDimensions(item.dataUrl) : null;
-  await addMsg(
+  const mediaMeta = item.type === "image" || _isChatVideoItem(item)
+    ? await _getChatMediaDimensions(item)
+    : null;
+  if (mediaMeta) _rememberChatMediaDimensions(payload.uploadedUrl, mediaMeta);
+  const mediaStamp = await addMsg(
     payload.partner,
     payload.text || (isVideo ? "Video" : item.type === "file" ? `File: ${item.fileName || "File"}` : "Photo"),
     payload.uploadedUrl,
@@ -17212,6 +17679,7 @@ async function _sendSingleChatMedia(payload) {
     payload.replyTo,
     mediaMeta
   );
+  _markPendingChatStamp(payload.threadKey || `dm:${threadId(currentUser, payload.partner)}`, mediaStamp);
   return true;
 }
 
@@ -17268,54 +17736,107 @@ async function sendText() {
       items: _mediaItems,
       text: _multiText,
       replyTo: _rtMulti,
-      imagesSent: false
+      imagesSent: false,
+      onProgress: null,
+      threadKey: _activeRetryThreadKey()
     };
     clearMediaQueue();
     try { input.blur(); } catch(_) {}
     const chatBox = document.getElementById("chatBox");
-    const sendEl = document.createElement("div");
-    sendEl.className = "chat-sending-indicator";
-    sendEl.textContent = `Sending ${_mediaItems.length} media items…`;
-    if (chatBox) chatBox.appendChild(sendEl);
+    const threadKey = _activeRetryThreadKey();
+    let pending = null;
+    const progressByItem = new Array(_mediaItems.length).fill(0);
+    const beginPendingUpload = async () => {
+      pending = await _appendOptimisticChatMediaMessage({
+        items: _mediaItems,
+        text: _multiText,
+        threadKey,
+        chatBox
+      });
+      _mediaPayload.onProgress = (percent, itemIndex = 0) => {
+      progressByItem[itemIndex] = Number(percent) || 0;
+      const done = progressByItem.reduce((sum, value) => sum + value, 0);
+      const total = Math.max(1, _mediaItems.length * 100);
+      _setChatUploadProgress(pending?.progress, done / total * 100);
+      };
+    };
+    await beginPendingUpload();
     try {
       await _sendChatMediaBatch(_mediaPayload);
-        _clearChatSendingIndicators(chatBox);
     } catch(err) {
-        _clearChatSendingIndicators(chatBox);
+      pending?.wrap.remove();
       _showSendFailure(
         chatBox,
         _multiText || `${_mediaItems.length} media items`,
-        () => _sendChatMediaBatch(_mediaPayload),
+        async () => {
+          try {
+            await beginPendingUpload();
+            return await _sendChatMediaBatch(_mediaPayload);
+          } catch (_) {
+            pending?.wrap.remove();
+            return false;
+          }
+        },
         _mediaItems,
-        _activeRetryThreadKey()
+        threadKey
       );
-    } finally {
-       _clearChatSendingIndicators(chatBox);
     }
     setTimeout(_scrollChatToBottom, 50);
   } else if (_chatImagesQueue.length > 1) {
     const _imgs = [..._chatImagesQueue];
     const _multiText = text;
     const _rtMulti = _replyToMsg; _cancelReply();
+    const _legacyPayload = {
+      partner,
+      items: _imgs,
+      text: _multiText,
+      replyTo: _rtMulti,
+      imagesSent: false,
+      onProgress: null,
+      threadKey: _activeRetryThreadKey()
+    };
     clearMediaQueue();
     try { input.blur(); } catch(_) {}
     const chatBox = document.getElementById("chatBox");
-    const sendEl = document.createElement("div");
-    sendEl.className = "chat-sending-indicator";
-    sendEl.textContent = `Sending ${_imgs.length} photos…`;
-    if (chatBox) chatBox.appendChild(sendEl);
+    const threadKey = _activeRetryThreadKey();
+    let pending = null;
+    const progressByItem = new Array(_imgs.length).fill(0);
+    const beginLegacyUpload = async () => {
+      pending = await _appendOptimisticChatMediaMessage({
+        items: _imgs,
+        text: _multiText,
+        threadKey,
+        chatBox
+      });
+      _legacyPayload.onProgress = (percent, itemIndex = 0) => {
+      progressByItem[itemIndex] = Number(percent) || 0;
+      const total = Math.max(1, _imgs.length * 100);
+      _setChatUploadProgress(
+        pending?.progress,
+        progressByItem.reduce((sum, value) => sum + value, 0) / total * 100
+      );
+      };
+    };
+    await beginLegacyUpload();
     try {
-      const _urls = await Promise.all(_imgs.map(async item => {
-        const blob = await fetch(item.dataUrl).then(r => r.blob());
-        const f = new File([blob], "photo.jpg", { type: blob.type });
-        return window.uploadToCloudinary(f, "image");
-      }));
-      const _dims = await Promise.all(_imgs.map(item => _getImageDimensions(item.dataUrl)));
-      sendEl.remove();
-      await addMsgImages(currentChatName, _urls, _multiText, _rtMulti, _dims);
+      await _sendChatMediaBatch(_legacyPayload);
     } catch(err) {
-      sendEl.remove();
-      alert("Failed to send photos. Please try again.");
+      pending?.wrap.remove();
+      _showSendFailure(
+        chatBox,
+        _multiText || `${_imgs.length} photos`,
+        async () => {
+          try {
+            await beginLegacyUpload();
+            return await _sendChatMediaBatch(_legacyPayload);
+          } catch (_) {
+            pending?.wrap.remove();
+            return false;
+          }
+        },
+        _imgs,
+        threadKey
+      );
     }
     setTimeout(_scrollChatToBottom, 50);
   } else if (attachedMedia) {
@@ -17327,38 +17848,43 @@ async function sendText() {
       item: media,
       text,
       replyTo: _replyToMsg,
-      uploadedUrl: null
+      uploadedUrl: null,
+      onProgress: null,
+      threadKey: _activeRetryThreadKey()
     };
     clearMediaQueue();
     try { input.blur(); } catch(_) {} /* dismiss keyboard after media send */
     const chatBox = document.getElementById("chatBox");
     const fallbackText = isVid ? "Video" : isFile ? `File: ${media.fileName}` : "Photo";
     const _rt1 = _replyToMsg; _cancelReply();
+    const threadKey = _mediaPayload.threadKey;
     const _doMediaSend = async (createFailureCard = false) => {
-      const sendEl = document.createElement("div");
-      sendEl.className = "chat-sending-indicator";
-      sendEl.textContent = isVid ? "Sending video…" : isFile ? "Sending file…" : "Sending photo…";
-      if (chatBox) chatBox.appendChild(sendEl);
+      let pending = await _appendOptimisticChatMediaMessage({
+        items: [media],
+        text,
+        threadKey,
+        chatBox
+      });
+      _mediaPayload.onProgress = percent => _setChatUploadProgress(pending?.progress, percent);
       try {
         _mediaPayload.replyTo = _rt1;
         await _sendSingleChatMedia(_mediaPayload);
       } catch (e) {
-        sendEl.remove();
+        pending?.wrap.remove();
         if (createFailureCard) {
           _showSendFailure(
             chatBox,
             text || fallbackText,
-            () => _doMediaSend(false),
+            () => _runChatMediaSendOnce(threadKey, () => _doMediaSend(false)),
             [media],
-            _activeRetryThreadKey()
+            threadKey
           );
         }
         return false;
       }
-      sendEl.remove();
       return true;
     };
-    await _doMediaSend(true);
+    await _runChatMediaSendOnce(threadKey, () => _doMediaSend(true));
   } else {
     const _rt2 = _replyToMsg; _cancelReply();
     const chatBoxTxt = document.getElementById("chatBox");
@@ -17414,7 +17940,11 @@ function setupChatUI() {
     e.target.value = "";
      const _batch = files.filter(file => file.type.startsWith("image/") || file.type.startsWith("video/"))
        .slice(0, Math.max(0, CHAT_MEDIA_MAX - _chatMediaQueue.length));
-     if (files.length === 1) { openImageDirect(files[0]); return; }
+      if (files.length === 1) {
+        if (files[0].type.startsWith("video/")) openVideoDirect(files[0]);
+        else openImageDirect(files[0]);
+        return;
+      }
      if (!_batch.length) {
        _showToastMsg(`You can select up to ${CHAT_MEDIA_MAX} media items`);
        return;
@@ -18201,10 +18731,16 @@ function _renderGroupMessages(messages) {
   const box = document.getElementById("chatBox");
   if (!box) return;
   const me = normalizeName(currentUser);
-  if (_lastSentMessageStamp !== null && messages.some(msg =>
+  const pendingStampMatched = _consumePendingChatStamp(
+    `group:${String(currentGroupId || "")}`,
+    messages,
+    me
+  );
+  if (pendingStampMatched || (_lastSentMessageStamp !== null && messages.some(msg =>
     normalizeName(msg.sender) === me && Number(msg.stamp) === Number(_lastSentMessageStamp)
-  )) {
+  ))) {
     _clearChatSendingIndicators(box);
+    _removeOptimisticChatMedia(box, `group:${String(currentGroupId || "")}`);
   }
   /* If the user is actively viewing this group, clear the unread count */
   if (currentGroupId) markGroupAsRead(currentGroupId);
@@ -18258,7 +18794,10 @@ function _renderGroupMessages(messages) {
        only the identifying avatar beside the bubble. */
     wrap.style.cssText = `display:flex;flex-direction:${isMine ? "column" : "row"};align-items:${isMine ? "flex-end" : "flex-start"};justify-content:${isMine ? "flex-end" : "flex-start"};gap:${isMine ? "0" : "6px"};margin-bottom:2px;max-width:100%;`;
      if (msg.id) wrap.dataset.msgid = msg.id;
-    const shouldAnimate = isMine && Number(msg.stamp) === Number(_lastSentMessageStamp);
+    const shouldAnimate = isMine &&
+      !msg.img &&
+      !(Array.isArray(msg.images) && msg.images.length) &&
+      Number(msg.stamp) === Number(_lastSentMessageStamp);
 
     if (!isMine) {
       ensureProfile(msg.sender);
@@ -18287,12 +18826,38 @@ function _renderGroupMessages(messages) {
     const groupImageUrls = Array.isArray(msg.images) && msg.images.length
       ? msg.images : (msg.img ? [msg.img] : []);
     if (groupImageUrls.length === 1) {
-      bubble.appendChild(_createChatImage(groupImageUrls[0], msg, 0, () => {
-        const viewerImg = document.getElementById("postImgViewerImg");
-        const viewer = document.getElementById("postImgViewer");
-        if (viewerImg) viewerImg.src = groupImageUrls[0];
-        if (viewer) viewer.classList.add("open");
-      }));
+      if (msg.isVid) {
+        const vWrap = document.createElement("div");
+        vWrap.className = "chat-media-wrap";
+        const video = document.createElement("video");
+        video.src = groupImageUrls[0];
+        video.className = "chat-media";
+        video.preload = "metadata";
+        video.playsInline = true;
+        video.style.cursor = "pointer";
+         const videoMeta = _getChatImageMeta(msg, 0);
+        video.onloadedmetadata = () => {
+           if (!videoMeta) {
+             _applyChatImageSizing(vWrap, video, { width: video.videoWidth, height: video.videoHeight });
+           }
+          if (video.readyState >= 1 && video.currentTime === 0) video.currentTime = 0.5;
+        };
+         _applyChatImageSizing(vWrap, video, videoMeta);
+        video.onclick = () => _openFullscreenVideoFromUrl(groupImageUrls[0]);
+        const playOverlay = document.createElement("div");
+        playOverlay.className = "chat-video-play-overlay";
+        playOverlay.innerHTML = `<span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><polygon points="8,5 19,12 8,19"/></svg></span>`;
+        vWrap.appendChild(video);
+        vWrap.appendChild(playOverlay);
+        bubble.appendChild(vWrap);
+      } else {
+        bubble.appendChild(_createChatImage(groupImageUrls[0], msg, 0, () => {
+          const viewerImg = document.getElementById("postImgViewerImg");
+          const viewer = document.getElementById("postImgViewer");
+          if (viewerImg) viewerImg.src = groupImageUrls[0];
+          if (viewer) viewer.classList.add("open");
+        }));
+      }
     } else if (groupImageUrls.length > 2) {
       const collage = document.createElement("div");
       const groupCollageClass = groupImageUrls.length === 3 ? "collage-3"
@@ -18321,11 +18886,13 @@ function _renderGroupMessages(messages) {
       });
     }
 
+    const _gMediaPlaceholder = _chatMediaPlaceholderInfo(msg);
+    const _gHasText = !!(msg.text && msg.text.trim() && !_gMediaPlaceholder);
     const _gRawText  = msg.text || "";
     const _gWords    = _gRawText.match(/\S+/g) || [];
     const textDiv    = document.createElement("div");
     textDiv.className = "msg-text";
-    if (_gWords.length > 60) {
+    if (_gHasText && _gWords.length > 60) {
       /* Truncation: identical logic to DM see-more */
       let _gWc = 0, _gCut = 0, _gScan = false;
       for (let _gi = 0; _gi <= _gRawText.length; _gi++) {
@@ -18356,15 +18923,10 @@ function _renderGroupMessages(messages) {
       textDiv.appendChild(_gFullEl);
       textDiv.appendChild(_gBtn);
       if (_gRawText) bubble.appendChild(textDiv);
-    } else if (_gRawText) {
+    } else if (_gHasText) {
       /* Match the DM renderer: plain text stays inline so the floated
          timestamp/Edited row can occupy the right edge of the last line. */
-      const mediaLabel = _chatMediaPlaceholderInfo(msg);
-      if (mediaLabel) {
-        textDiv.className = "msg-text chat-media-label-wrap";
-        textDiv.innerHTML = _chatMediaLabelMarkup(mediaLabel.kind, mediaLabel.label);
-        bubble.appendChild(textDiv);
-      } else if (groupImageUrls.length) {
+       if (groupImageUrls.length) {
         textDiv.style.cssText = "margin-top:6px;white-space:pre-wrap;";
         textDiv.textContent = _gRawText;
         bubble.appendChild(textDiv);
@@ -18373,11 +18935,14 @@ function _renderGroupMessages(messages) {
       }
     }
 
-    if (groupImageUrls.length > 2 && !_gRawText.trim()) {
+    if (groupImageUrls.length > 2 && !_gHasText) {
       bubble.classList.add("chat-collage-only");
     }
     if (groupImageUrls.length === 2) {
       bubble.classList.add("chat-two-image");
+    }
+    if (groupImageUrls.length && !_gHasText && !msg.isFile) {
+      bubble.classList.add("media-only");
     }
 
     /* Time row: "Edited •" label + timestamp — same structure as DMs */
@@ -18506,7 +19071,8 @@ async function sendGroupImages() {
     items,
     text,
     replyTo,
-    imagesSent: false
+    imagesSent: false,
+    onProgress: null
   };
   input.value = "";
   autoResizeMessageInput();
@@ -18516,28 +19082,41 @@ async function sendGroupImages() {
   window.__justSentMessage = true;
 
   const chatBox = document.getElementById("chatBox");
-  const sendEl = document.createElement("div");
-  sendEl.className = "chat-sending-indicator";
-  sendEl.textContent = `Sending ${items.length} photo${items.length === 1 ? "" : "s"}…`;
-  if (chatBox) chatBox.appendChild(sendEl);
+  const threadKey = `group:${String(payload.groupId)}`;
+  let pending = null;
+  const beginGroupImageUpload = async () => {
+    pending = await _appendOptimisticChatMediaMessage({
+      items,
+      text,
+      threadKey,
+      chatBox
+    });
+    payload.onProgress = percent => _setChatUploadProgress(pending?.progress, percent);
+  };
+  await beginGroupImageUpload();
 
   try {
     await _sendGroupImageBatch(payload);
-    _clearChatSendingIndicators(chatBox);
     _cancelReply();
   } catch (e) {
-    _clearChatSendingIndicators(chatBox);
+    pending?.wrap.remove();
     _showSendFailure(
       chatBox,
       text || `${items.length} photos`,
-      () => _sendGroupImageBatch(payload),
+      async () => {
+        try {
+          await beginGroupImageUpload();
+          return await _sendGroupImageBatch(payload);
+        } catch (_) {
+          pending?.wrap.remove();
+          return false;
+        }
+      },
       items,
-      `group:${String(payload.groupId)}`
+      threadKey
     );
-  } finally {
-    _clearChatSendingIndicators(chatBox);
-    setTimeout(_scrollChatToBottom, 50);
   }
+  setTimeout(_scrollChatToBottom, 50);
 }
 window.sendGroupImages = sendGroupImages;
 
@@ -18553,7 +19132,8 @@ async function sendGroupMedia() {
     item,
     text,
     replyTo,
-    uploadedUrl: null
+    uploadedUrl: null,
+    onProgress: null
   };
   input.value = "";
   autoResizeMessageInput();
@@ -18562,27 +19142,40 @@ async function sendGroupMedia() {
   try { input.blur(); } catch(_) {}
   window.__justSentMessage = true;
   const chatBox = document.getElementById("chatBox");
-  const sendEl = document.createElement("div");
-  sendEl.className = "chat-sending-indicator";
-  sendEl.textContent = _isChatVideoItem(item) ? "Sending video…" : item.type === "file" ? "Sending file…" : "Sending photo…";
-  if (chatBox) chatBox.appendChild(sendEl);
+  const threadKey = `group:${String(payload.groupId)}`;
+  let pending = null;
+  const beginGroupMediaUpload = async () => {
+    pending = await _appendOptimisticChatMediaMessage({
+      items: [item],
+      text,
+      threadKey,
+      chatBox
+    });
+    payload.onProgress = percent => _setChatUploadProgress(pending?.progress, percent);
+  };
+  await beginGroupMediaUpload();
   try {
     await _sendGroupSingleMedia(payload);
-    _clearChatSendingIndicators(chatBox);
     _cancelReply();
   } catch (e) {
-    _clearChatSendingIndicators(chatBox);
+    pending?.wrap.remove();
     _showSendFailure(
       chatBox,
       text || (_isChatVideoItem(item) ? "Video" : "File"),
-      () => _sendGroupSingleMedia(payload),
+      async () => {
+        try {
+          await beginGroupMediaUpload();
+          return await _sendGroupSingleMedia(payload);
+        } catch (_) {
+          pending?.wrap.remove();
+          return false;
+        }
+      },
       [item],
-      `group:${String(payload.groupId)}`
+      threadKey
     );
-  } finally {
-    _clearChatSendingIndicators(chatBox);
-    setTimeout(_scrollChatToBottom, 50);
   }
+  setTimeout(_scrollChatToBottom, 50);
 }
 window.sendGroupMedia = sendGroupMedia;
 
@@ -19406,6 +19999,58 @@ window.saveEditedProfile    = saveEditedProfile;
 /* ════════════════════════════════════════
    POST MODALS
 ═══════════════════════════════════════ */
+let _ppBoldActive = false;
+
+function _ppEditorText(editor) {
+  if (!editor) return "";
+  return String(editor.innerText || editor.textContent || "")
+    .replace(/\u00a0/g, " ");
+}
+
+function _ppSerializeFormattedText(editor) {
+  if (!editor) return [];
+  const runs = [];
+  const append = (text, bold) => {
+    if (!text) return;
+    const previous = runs[runs.length - 1];
+    if (previous && previous.bold === bold) previous.text += text;
+    else runs.push({ text, bold: !!bold });
+  };
+  const walk = (node, inheritedBold = false) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      append(node.nodeValue || "", inheritedBold);
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = node.tagName.toLowerCase();
+    if (tag === "br") {
+      append("\n", inheritedBold);
+      return;
+    }
+    const weight = String(node.style?.fontWeight || "").toLowerCase();
+    const ownBold = tag === "b" || tag === "strong" || weight === "bold" ||
+      (Number(weight) >= 600);
+    Array.from(node.childNodes).forEach(child => walk(child, inheritedBold || ownBold));
+    if ((tag === "div" || tag === "p" || tag === "li") &&
+        node.nextSibling && !runs[runs.length - 1]?.text.endsWith("\n")) {
+      append("\n", inheritedBold || ownBold);
+    }
+  };
+  Array.from(editor.childNodes).forEach(child => walk(child, false));
+  while (runs.length && !runs[runs.length - 1].text) runs.pop();
+  const rawText = runs.map(run => run.text).join("");
+  const leading = (rawText.match(/^\s*/) || [""])[0].length;
+  const trailing = (rawText.match(/\s*$/) || [""])[0].length;
+  let consumed = 0;
+  return runs.map(run => {
+    const start = consumed;
+    consumed += run.text.length;
+    const from = Math.max(0, leading - start);
+    const to = Math.max(from, run.text.length - Math.max(0, start + run.text.length - (rawText.length - trailing)));
+    return { text: run.text.slice(from, to), bold: run.bold };
+  }).filter(run => run.text);
+}
+
 function openPostPage() {
   /* Reset state */
   postImgFiles    = [];
@@ -19418,9 +20063,8 @@ function openPostPage() {
   /* Clear UI */
   const ta = document.getElementById("ppTextarea");
   if (ta) {
-    ta.value = "";
+    ta.innerHTML = "";
     ta.style.height = "58px";
-    ta.style.fontWeight = "400";
   }
   const boldBtn = document.getElementById("ppBoldBtn");
   if (boldBtn) boldBtn.setAttribute("aria-pressed", "false");
@@ -19466,7 +20110,7 @@ function closePostPage() {
   _ppScheduledAt  = null;
   _ppBoldActive   = false;
   const ta = document.getElementById("ppTextarea");
-  if (ta) ta.style.fontWeight = "400";
+  if (ta) ta.innerHTML = "";
   const boldBtn = document.getElementById("ppBoldBtn");
   if (boldBtn) boldBtn.setAttribute("aria-pressed", "false");
   const mediaCarousel = document.getElementById("ppMediaCarousel");
@@ -19490,12 +20134,20 @@ window.openPostModal  = openPostModal;
 window.closePostModal = closePostModal;
 
 window.ppToggleBold = function() {
-  _ppBoldActive = !_ppBoldActive;
   const ta = document.getElementById("ppTextarea");
   const button = document.getElementById("ppBoldBtn");
-  if (ta) {
-    ta.style.fontWeight = _ppBoldActive ? "700" : "400";
-    ta.focus();
+  if (!ta) return;
+  ta.focus();
+  const requestedBoldState = !_ppBoldActive;
+  if (document.queryCommandState) {
+    try { _ppBoldActive = !!document.queryCommandState("bold"); } catch (_) {}
+  }
+  const nextBoldState = !_ppBoldActive;
+  document.execCommand("bold", false, null);
+  try {
+    _ppBoldActive = !!document.queryCommandState("bold");
+  } catch (_) {
+    _ppBoldActive = nextBoldState ?? requestedBoldState;
   }
   if (button) {
     button.setAttribute("aria-pressed", String(_ppBoldActive));
@@ -19514,7 +20166,10 @@ window.ppOnInput = function() {
   if (!ta) return;
   ta.style.height = "auto";
   ta.style.height = `${Math.max(58, ta.scrollHeight)}px`;
-  const words = ta.value.trim().split(/\s+/).filter(Boolean).length;
+  const words = _ppEditorText(ta).trim().split(/\s+/).filter(Boolean).length;
+  if (document.activeElement === ta && document.queryCommandState) {
+    try { _ppBoldActive = !!document.queryCommandState("bold"); } catch (_) {}
+  }
   if (wc) {
     wc.textContent = `${words} / 250 words`;
     wc.className = "pp-word-counter" +
@@ -19525,8 +20180,6 @@ window.ppOnInput = function() {
 
 /* Image handling for post page — staged (no immediate crop) */
 let _ppStagedFiles = []; /* [{raw: File, url: string, cropped: File|null}] */
-let _ppBoldActive = false;
-
 window.ppHandleImageSelect = function(e) {
   const files = Array.from(e.target.files || []);
   e.target.value = "";
@@ -24849,26 +25502,25 @@ function _startNotifBadgeListen() {
   if (!currentUser) return;
   const meKey = normalizeName(currentUser);
   const lastSeen = parseInt(localStorage.getItem(_NOTIF_SEEN_KEY + meKey) || "0", 10);
-  try {
-    /* No orderBy — avoids index requirement; count unseen client-side */
-    const ref = collection(db, "userNotifications", meKey, "items");
-    _notifBadgeUnsub = onSnapshot(ref, snap => {
-      let count = 0;
-      snap.forEach(d => {
-        const s = d.data().stamp;
-        const ms = s && typeof s.toMillis === "function" ? s.toMillis() : Number(s || 0);
-        if (ms > lastSeen) count++;
-      });
+  const ref = collection(db, "userNotifications", meKey, "items");
+  const updateBadge = async () => {
+    try {
+      /* Count on the server so startup never downloads notification content. */
+      const snap = await getCountFromServer(query(ref, where("stamp", ">", lastSeen)));
       const badge = document.getElementById("notifBadge");
       if (!badge) return;
+      const count = snap.data().count || 0;
       if (count > 0) {
         badge.textContent = count > 99 ? "99+" : String(count);
         badge.style.display = "flex";
       } else {
         badge.style.display = "none";
       }
-    }, () => {});
-  } catch(e) {}
+    } catch(e) {}
+  };
+  updateBadge();
+  const timer = setInterval(updateBadge, 30000);
+  _notifBadgeUnsub = () => clearInterval(timer);
 }
 
 function openNotifSettings() {
@@ -24887,6 +25539,11 @@ window.closeNotifSettings = closeNotifSettings;
 /* ── Notification Activity Page ── */
 let _notifPageUnsub  = null;
 let _notifPrevState  = null;
+const _NOTIF_BATCH_SIZE = 20;
+let _notifLoadedDocs = [];
+let _notifCursor = null;
+let _notifHasMore = false;
+let _notifLoading = false;
 
 function _captureNavState() {
   const chatScreen   = document.getElementById("chatScreen");
@@ -25043,180 +25700,167 @@ function _setupNotifSwipe() {
 }
 window._setupNotifSwipe = _setupNotifSwipe;
 
-function _loadNotifActivity() {
+function _notifStampMs(stamp) {
+  return stamp && typeof stamp.toMillis === "function" ? stamp.toMillis() : Number(stamp || 0);
+}
+
+function _notifDisplayDocs(docs) {
+  const sorted = docs.slice().sort((a, b) => _notifStampMs(b.stamp) - _notifStampMs(a.stamp));
+  const groups = {};
+  sorted.forEach(n => {
+    if (n.type === "comment" && n.postId) {
+      if (!groups[n.postId]) groups[n.postId] = [];
+      groups[n.postId].push(n);
+    }
+  });
+  const mergedIds = new Set();
+  const merged = {};
+  Object.entries(groups).forEach(([postId, notifs]) => {
+    if (notifs.length > 3) {
+      mergedIds.add(postId);
+      const first = notifs[0];
+      merged[postId] = {
+        _merged: true, postId, from: first.from, count: notifs.length,
+        stamp: first.stamp
+      };
+    }
+  });
+  const seen = new Set();
+  return sorted.reduce((result, n) => {
+    if (n.type === "comment" && n.postId && mergedIds.has(n.postId)) {
+      if (!seen.has(n.postId)) {
+        seen.add(n.postId);
+        result.push(merged[n.postId]);
+      }
+    } else {
+      result.push(n);
+    }
+    return result;
+  }, []);
+}
+
+function _openNotificationContent(n) {
+  /* Detail data is fetched by the destination only after this notification
+     is selected; the list itself contains only lightweight metadata. */
+  if (n._merged || (n.postId && (n.type === "comment" || n.type === "tag" || n.type === "reply"))) {
+    const postId = n.postId;
+    const commentId = n.type === "reply" ? (n.parentCommentId || n.commentId) : n.commentId;
+    closeNotifPage();
+    setTimeout(() => openPostDetailPage(postId, n._merged ? undefined : commentId), 280);
+    return;
+  }
+  if ((n.type === "match_like" || n.type === "match_mutual" || n.type === "match_liked_back") && (n.from || n.fromUser)) {
+    const matchFrom = n.fromUser || n.from;
+    closeNotifPage();
+    setTimeout(() => { showMatch(); setTimeout(() => openMatchViewer(matchFrom), 700); }, 260);
+    return;
+  }
+  if (n.type === "marketplace_review" && n.listingId) {
+    const listingId = n.listingId;
+    closeNotifPage();
+    setTimeout(() => { if (window._mktOpenProduct) window._mktOpenProduct(listingId); }, 280);
+  }
+}
+
+function _renderNotifActivity() {
   const list = document.getElementById("notifActivityList");
-  if (!list || !currentUser) return;
-  list.innerHTML = '<div class="notif-act-empty">Loading…</div>';
-  if (_notifPageUnsub) { _notifPageUnsub(); _notifPageUnsub = null; }
+  if (!list) return;
+  const displayDocs = _notifDisplayDocs(_notifLoadedDocs);
+  list.innerHTML = "";
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+  const dateLabel = stamp => {
+    if (!stamp) return "Earlier";
+    const d = new Date(_notifStampMs(stamp)); d.setHours(0,0,0,0);
+    if (d.getTime() === today.getTime()) return "Today";
+    if (d.getTime() === yesterday.getTime()) return "Yesterday";
+    return d.toLocaleDateString([], { weekday:"long", month:"short", day:"numeric" });
+  };
+  let lastLabel = null;
+  displayDocs.forEach(n => {
+    const label = dateLabel(n.stamp);
+    if (label !== lastLabel) {
+      lastLabel = label;
+      const section = document.createElement("div");
+      section.className = "notif-date-section";
+      section.textContent = label;
+      list.appendChild(section);
+    }
+    const isLikedBack = n.type === "match_liked_back";
+    const isMatchNotif = n.type === "match_like" || n.type === "match_mutual" || isLikedBack;
+    const item = document.createElement("div");
+    item.className = "notif-act-item" + (isMatchNotif ? " match-notif" : "") + (isLikedBack ? " liked-back-notif" : "");
+    const fromUser = n.from || n.fromUser || "someone";
+    let actionText = "";
+    if (n._merged) {
+      const others = n.count - 1;
+      actionText = `and ${others} other${others !== 1 ? "s" : ""} commented on your post`;
+    } else if (n.type === "comment") actionText = "commented on your post";
+    else if (n.type === "reply") actionText = "replied to your comment";
+    else if (n.type === "tag") actionText = "mentioned you in a comment";
+    else if (n.type === "unfollow") actionText = "unfollowed you";
+    else if (n.type === "block") actionText = "has blocked you";
+    else if (n.type === "match_like") actionText = "liked you on Match \uD83D\uDC95";
+    else if (n.type === "match_mutual") actionText = "You matched on Match! \uD83D\uDC95";
+    else if (isLikedBack) actionText = "liked you back \uD83C\uDF89";
+    else if (n.type === "marketplace_review") actionText = "left you a review on your listing";
+    else actionText = "sent you a notification";
+    const age = n.stamp ? _relTime(n.stamp) : "";
+    const matchDot = isMatchNotif ? `<div class="notif-match-dot"></div>` : "";
+    const celebrationHTML = isLikedBack
+      ? `<div class="notif-mini-celebration"><span>🎉</span><span>🎊</span><span>✨</span><span>🎉</span></div>` : "";
+    const sendMsgHTML = isLikedBack
+      ? `<button class="notif-send-msg-btn" onclick="event.stopPropagation();_notifSendMessage('${escapeHtml(fromUser)}')">\uD83D\uDCAC Send Message</button>` : "";
+    item.innerHTML = `${celebrationHTML}<div class="notif-act-avatar">${renderAvatarHTML(fromUser)}</div><div class="notif-act-body"><div class="notif-act-username">@${escapeHtml(fromUser)}</div><div class="notif-act-text">${escapeHtml(actionText)}</div>${age ? `<div class="notif-act-time">${age}</div>` : ""}${sendMsgHTML}</div>${matchDot}`;
+    if (n._merged || n.postId || (isMatchNotif && (n.from || n.fromUser)) || (n.type === "marketplace_review" && n.listingId)) {
+      item.setAttribute("role", "button");
+      item.tabIndex = 0;
+      item.onclick = () => _openNotificationContent(n);
+      item.onkeydown = event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); _openNotificationContent(n); } };
+    }
+    list.appendChild(item);
+  });
+  if (!displayDocs.length) list.innerHTML = '<div class="notif-act-empty">No notifications yet.</div>';
+  if (_notifHasMore && list.lastElementChild) {
+    const sentinel = document.createElement("div");
+    sentinel.className = "notif-act-loading";
+    sentinel.textContent = "Scroll for more";
+    list.appendChild(sentinel);
+  }
+}
+
+async function _loadNotifActivity(append = false) {
+  const list = document.getElementById("notifActivityList");
+  if (!list || !currentUser || _notifLoading) return;
+  if (!append) {
+    _notifLoadedDocs = [];
+    _notifCursor = null;
+    _notifHasMore = false;
+    list.innerHTML = '<div class="notif-act-empty">Loading…</div>';
+    if (list._lazyBound) list.scrollTop = 0;
+  }
+  _notifLoading = true;
   try {
-    /* No orderBy — avoids Firestore composite index requirement; sort client-side */
     const ref = collection(db, "userNotifications", normalizeName(currentUser), "items");
-    _notifPageUnsub = onSnapshot(ref, snap => {
-      if (!snap || snap.empty) {
-        list.innerHTML = '<div class="notif-act-empty">No notifications yet.</div>';
-        return;
-      }
-      const docs = [];
-      snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
-      /* Sort newest first client-side */
-      docs.sort((a, b) => {
-        const aMs = a.stamp && typeof a.stamp.toMillis === "function" ? a.stamp.toMillis() : Number(a.stamp || 0);
-        const bMs = b.stamp && typeof b.stamp.toMillis === "function" ? b.stamp.toMillis() : Number(b.stamp || 0);
-        return bMs - aMs;
-      });
-      docs.splice(40);
-
-      /* ── Merge >3 comment notifications on the same post ── */
-      const postCommentGroups = {}; /* postId → array of notifs */
-      docs.forEach(n => {
-        if (n.type === "comment" && n.postId) {
-          if (!postCommentGroups[n.postId]) postCommentGroups[n.postId] = [];
-          postCommentGroups[n.postId].push(n);
-        }
-      });
-      const mergedPostIds = new Set();
-      const mergedMap = {};
-      Object.entries(postCommentGroups).forEach(([postId, notifs]) => {
-        if (notifs.length > 3) {
-          mergedPostIds.add(postId);
-          const post = (typeof posts !== "undefined" ? posts : []).find(p => p.id === postId);
-          const caption = post ? (post.text || "").split(/\s+/).filter(Boolean).slice(0, 5).join(" ") : "";
-          const first = notifs[0]; /* newest commenter */
-          mergedMap[postId] = {
-            _merged: true, postId,
-            from: first.from, count: notifs.length, caption,
-            stamp: first.stamp
-          };
-        }
-      });
-
-      /* Build final display list */
-      const seenMerged = new Set();
-      const displayDocs = [];
-      docs.forEach(n => {
-        if (n.type === "comment" && n.postId && mergedPostIds.has(n.postId)) {
-          if (!seenMerged.has(n.postId)) {
-            seenMerged.add(n.postId);
-            displayDocs.push(mergedMap[n.postId]);
-          }
-        } else {
-          displayDocs.push(n);
-        }
-      });
-
-      /* ── Group by date ── */
-      const _today = new Date(); _today.setHours(0,0,0,0);
-      const _yesterday = new Date(_today); _yesterday.setDate(_yesterday.getDate() - 1);
-      function _dateLabel(stamp) {
-        if (!stamp) return "Earlier";
-        const ms = typeof stamp.toMillis === "function" ? stamp.toMillis() : Number(stamp);
-        const d = new Date(ms); d.setHours(0,0,0,0);
-        if (d.getTime() === _today.getTime())     return "Today";
-        if (d.getTime() === _yesterday.getTime()) return "Yesterday";
-        return d.toLocaleDateString([], { weekday:"long", month:"short", day:"numeric" });
-      }
-
-      list.innerHTML = "";
-      let lastLabel = null;
-
-      displayDocs.forEach(n => {
-        /* Date section header */
-        const label = _dateLabel(n.stamp);
-        if (label !== lastLabel) {
-          lastLabel = label;
-          const sec = document.createElement("div");
-          sec.className = "notif-date-section";
-          sec.textContent = label;
-          list.appendChild(sec);
-        }
-
-        /* Build card */
-        const isLikedBack = n.type === "match_liked_back";
-        const isMatchNotif = n.type === "match_like" || n.type === "match_mutual" || isLikedBack;
-        const item = document.createElement("div");
-        item.className = "notif-act-item" + (isMatchNotif ? " match-notif" : "") + (isLikedBack ? " liked-back-notif" : "");
-
-        const fromUser = n.from || n.fromUser || "someone";
-        let actionText = "";
-        if (n._merged) {
-          const others = n.count - 1;
-          actionText = `and ${others} other${others !== 1 ? "s" : ""} commented on your post`;
-        } else if (n.type === "comment")       actionText = "commented on your post";
-        else if (n.type === "reply")           actionText = "replied to your comment";
-        else if (n.type === "tag")             actionText = "mentioned you in a comment";
-        else if (n.type === "unfollow")        actionText = "unfollowed you";
-        else if (n.type === "block")           actionText = "has blocked you";
-        else if (n.type === "match_like")         actionText = "liked you on Match \uD83D\uDC95";
-        else if (n.type === "match_mutual")       actionText = "You matched on Match! \uD83D\uDC95";
-        else if (isLikedBack)                     actionText = "liked you back \uD83C\uDF89";
-        else if (n.type === "marketplace_review") actionText = "left you a review on your listing";
-        else                                      actionText = "sent you a notification";
-
-        const age = n.stamp ? _relTime(n.stamp) : "";
-        const avatarHTML = renderAvatarHTML(fromUser);
-
-        const captionHTML = (n._merged && n.caption)
-          ? `<div class="notif-act-caption">\u201C${escapeHtml(n.caption)}\u2026\u201D</div>`
-          : (n.type === "marketplace_review" && n.listingTitle)
-          ? `<div class="notif-act-caption">\u201C${escapeHtml(n.listingTitle)}\u201D</div>`
-          : "";
-        const matchDot = isMatchNotif
-          ? `<div class="notif-match-dot"></div>`
-          : "";
-        const celebrationHTML = isLikedBack
-          ? `<div class="notif-mini-celebration"><span>🎉</span><span>🎊</span><span>✨</span><span>🎉</span></div>`
-          : "";
-        const sendMsgHTML = isLikedBack
-          ? `<button class="notif-send-msg-btn" onclick="event.stopPropagation();_notifSendMessage('${escapeHtml(fromUser)}')">\uD83D\uDCAC Send Message</button>`
-          : "";
-        const viewProductHTML = (n.type === "marketplace_review" && n.listingId)
-          ? `<button class="notif-send-msg-btn" onclick="event.stopPropagation();closeNotifPage();setTimeout(()=>{if(window._mktOpenProduct)window._mktOpenProduct('${escapeHtml(n.listingId)}')},280)">\uD83D\uDED2 View Product</button>`
-          : "";
-
-        item.innerHTML = `
-          ${celebrationHTML}
-          <div class="notif-act-avatar">${avatarHTML}</div>
-          <div class="notif-act-body">
-            <div class="notif-act-username">@${escapeHtml(fromUser)}</div>
-            <div class="notif-act-text">${escapeHtml(actionText)}</div>
-            ${captionHTML}
-            ${age ? `<div class="notif-act-time">${age}</div>` : ""}
-            ${sendMsgHTML}
-            ${viewProductHTML}
-          </div>
-          ${matchDot}`;
-
-        /* Click handlers */
-        if (n._merged) {
-          const _pid = n.postId;
-          item.onclick = () => { closeNotifPage(); setTimeout(() => openPostDetailPage(_pid), 280); };
-        } else if (isMatchNotif && (n.from || n.fromUser)) {
-          const matchFrom = n.fromUser || n.from;
-          item.onclick = () => {
-            closeNotifPage();
-            setTimeout(() => { showMatch(); setTimeout(() => openMatchViewer(matchFrom), 700); }, 260);
-          };
-        } else if (n.postId && (n.type === "comment" || n.type === "tag" || n.type === "reply")) {
-          const _pid = n.postId;
-          /* Scroll to the relevant comment: for replies → the parent comment; for others → the comment itself */
-          const _cid = n.type === "reply" ? (n.parentCommentId || n.commentId) : n.commentId;
-          item.onclick = () => { closeNotifPage(); setTimeout(() => openPostDetailPage(_pid, _cid), 280); };
-        } else if (n.type === "marketplace_review" && n.listingId) {
-          const _lid = n.listingId;
-          item.onclick = () => { closeNotifPage(); setTimeout(() => { if (window._mktOpenProduct) window._mktOpenProduct(_lid); }, 280); };
-        }
-
-        list.appendChild(item);
-      });
-
-      if (!displayDocs.length) {
-        list.innerHTML = '<div class="notif-act-empty">No notifications yet.</div>';
-      }
-    }, err => {
-      list.innerHTML = '<div class="notif-act-empty">No notifications yet.</div>';
-    });
-  } catch(e) {
-    list.innerHTML = '<div class="notif-act-empty">No notifications yet.</div>';
+    const pageQuery = _notifCursor
+      ? query(ref, orderBy("stamp", "desc"), startAfter(_notifCursor), limit(_NOTIF_BATCH_SIZE))
+      : query(ref, orderBy("stamp", "desc"), limit(_NOTIF_BATCH_SIZE));
+    const snap = await getDocs(pageQuery);
+    const nextDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    _notifLoadedDocs = [..._notifLoadedDocs, ...nextDocs];
+    _notifCursor = snap.docs.length ? snap.docs[snap.docs.length - 1] : _notifCursor;
+    _notifHasMore = snap.docs.length === _NOTIF_BATCH_SIZE;
+    _renderNotifActivity();
+  } catch (e) {
+    if (!_notifLoadedDocs.length) list.innerHTML = '<div class="notif-act-empty">No notifications yet.</div>';
+  } finally {
+    _notifLoading = false;
+  }
+  if (!list._lazyBound) {
+    list._lazyBound = true;
+    list.addEventListener("scroll", () => {
+      if (_notifHasMore && list.scrollHeight - list.scrollTop - list.clientHeight < 220) _loadNotifActivity(true);
+    }, { passive: true });
   }
 }
 window._loadNotifActivity = _loadNotifActivity;
@@ -26720,7 +27364,7 @@ window.closePostDetailPage = closePostDetailPage;
     ══════════════════════════════════════ */
     let _mktAllListings     = [];
     let _mktDisplayedIds    = new Set();
-    const _mktPageSize      = 20;
+const _mktPageSize      = 6;
     let _mktCurrentCat      = "";
     let _mktSearchQuery     = "";
     let _mktFilterCond      = [];
@@ -26731,6 +27375,8 @@ window.closePostDetailPage = closePostDetailPage;
     let _mktFavoritedIds    = new Set();
     let _mktLoaded          = false;
     let _mktLoading         = false;
+    let _mktCursor          = null;
+    let _mktHasMore         = false;
     let _mktCurrentListing  = null;
     let _mktCurrentListingId = null;
     let _pdpFromShop = false, _pdpFromShopUser = "";
@@ -26846,14 +27492,20 @@ window.closePostDetailPage = closePostDetailPage;
     async function _mktLoadFeed(refresh) {
     if (_mktLoading) return;
     _mktLoading = true;
+    if (refresh) {
+      _mktCursor = null;
+      _mktHasMore = false;
+    }
     const grid = document.getElementById("mktFeedGrid");
     if (grid && (!_mktLoaded || refresh)) {
       grid.innerHTML = `<div class="market-feed-loading" style="grid-column:1/-1"><div class="market-feed-spinner"></div></div>`;
     }
     try {
-      const snap = await getDocs(query(collection(db, "listings"), orderBy("createdAt","desc"), limit(200)));
+      const snap = await getDocs(query(collection(db, "listings"), orderBy("createdAt","desc"), limit(_mktPageSize)));
       _mktAllListings = [];
       snap.forEach(d => _mktAllListings.push({ id: d.id, ...d.data() }));
+      _mktCursor = snap.docs.length ? snap.docs[snap.docs.length - 1] : null;
+      _mktHasMore = snap.docs.length === _mktPageSize;
       _mktLoaded = true;
       _mktRenderFeed();
     } catch(e) {
@@ -26893,16 +27545,42 @@ window.closePostDetailPage = closePostDetailPage;
     if (lmw) lmw.style.display = filtered.length > _mktPageSize ? "flex" : "none";
     }
 
-    function _mktLoadMore() {
+    async function _mktLoadMore() {
+    if (_mktLoading) return;
     const grid = document.getElementById("mktFeedGrid");
     if (!grid) return;
     const filtered = _mktGetFiltered();
     const start = _mktDisplayedIds.size;
-    filtered.slice(start, start + _mktPageSize).forEach(l => {
+    const appendListings = (items, offset) => items.slice(offset, offset + _mktPageSize).forEach(l => {
       if (!_mktDisplayedIds.has(l.id)) { grid.appendChild(_mktBuildCard(l)); _mktDisplayedIds.add(l.id); }
     });
+    if (start < filtered.length) {
+      appendListings(filtered, start);
+    } else if (_mktHasMore && _mktCursor) {
+      _mktLoading = true;
+      try {
+        const snap = await getDocs(query(
+          collection(db, "listings"),
+          orderBy("createdAt", "desc"),
+          startAfter(_mktCursor),
+          limit(_mktPageSize)
+        ));
+        snap.forEach(d => {
+          if (!_mktAllListings.some(existing => existing.id === d.id)) {
+            _mktAllListings.push({ id: d.id, ...d.data() });
+          }
+        });
+        _mktCursor = snap.docs.length ? snap.docs[snap.docs.length - 1] : _mktCursor;
+        _mktHasMore = snap.docs.length === _mktPageSize;
+        appendListings(_mktGetFiltered(), start);
+      } catch (e) {
+        console.warn("Marketplace pagination failed:", e);
+      } finally {
+        _mktLoading = false;
+      }
+    }
     const lmw = document.getElementById("mktLoadMoreWrap");
-    if (lmw) lmw.style.display = _mktDisplayedIds.size < filtered.length ? "flex" : "none";
+    if (lmw) lmw.style.display = (_mktHasMore || _mktDisplayedIds.size < _mktGetFiltered().length) ? "flex" : "none";
     }
     window._mktLoadMore = _mktLoadMore;
 
